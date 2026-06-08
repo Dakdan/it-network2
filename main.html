@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Network Survey - IT UDON HOSP</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #d81b60; /* โทนชมพู */
+    }
+    body {
+      font-family: 'Kanit', sans-serif;
+      background: linear-gradient(135deg, #fce4ec 0%, #ffffff 100%);
+      background-attachment: fixed;
+      min-height: 100vh;
+      color: #374151;
+    }
+    /* ลายน้ำ */
+    .watermark {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-15deg);
+      opacity: 0.03;
+      font-size: 8vw;
+      font-weight: 700;
+      color: var(--primary);
+      white-space: nowrap;
+      z-index: 0;
+      pointer-events: none;
+      user-select: none;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      border-radius: 1.25rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+      border: 1px solid rgba(255,255,255,0.4);
+    }
+    .btn {
+      border-radius: 9999px;
+      transition: all 0.2s ease-in-out;
+    }
+    .btn:active {
+      transform: scale(0.96);
+    }
+    /* Loader Overlay */
+    .loader {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid var(--primary);
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    /* พิมพ์แนวนอน */
+    @media print {
+      @page { size: landscape; margin: 1cm; }
+      body { background: white; }
+      .no-print { display: none !important; }
+      .card { box-shadow: none; border: 1px solid #e5e7eb; }
+      .watermark { opacity: 0.05; }
+    }
+  </style>
+</head>
+<body class="antialiased">
+  
+  <div class="watermark">IT UDON HOSP</div>
+
+  <!-- Overlay โหลดข้อมูล -->
+  <div id="overlay" class="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-50 hidden flex-col items-center justify-center no-print">
+    <div class="loader mb-4"></div>
+    <div id="overlayText" class="text-white font-medium text-lg shadow-black drop-shadow-md">กำลังประมวลผล...</div>
+  </div>
+
+  <!-- Custom Modal สำหรับแจ้งเตือน (แทน Alert/Confirm) -->
+  <div id="customModal" class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-[60] hidden flex-col items-center justify-center no-print">
+    <div class="card w-[90%] max-w-sm p-6 text-center transform transition-all scale-95 opacity-0" id="customModalContent">
+      <div id="customModalIcon" class="mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4"></div>
+      <h3 id="customModalTitle" class="text-xl font-bold text-gray-800 mb-2">แจ้งเตือน</h3>
+      <p id="customModalText" class="text-sm text-gray-600 mb-6"></p>
+      <div id="customModalActions" class="flex gap-3 justify-center">
+        <!-- Buttons dynamically injected here -->
+      </div>
+    </div>
+  </div>
+
+  <div class="relative z-10 max-w-7xl mx-auto px-4 pb-12 sm:px-6 lg:px-8">
+    
+    <!-- ส่วนหัว (Header) -->
+    <header id="mainHeader" class="hidden py-6 mb-4 border-b border-pink-200/50 no-print flex flex-col md:flex-row justify-between items-center gap-4">
+      <div class="flex items-center gap-4">
+        <div class="w-14 h-14 bg-gradient-to-br from-pink-100 to-white rounded-full flex items-center justify-center text-pink-600 shadow-sm border border-pink-200">
+          <i class="fas fa-network-wired text-2xl"></i>
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold text-gray-800 leading-tight">โรงพยาบาลอุดรธานี</h1>
+          <p class="text-sm text-pink-600 font-medium tracking-wide">กลุ่มงานเทคโนโลยีสารสนเทศทางการแพทย์</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-4 bg-white/70 px-5 py-2.5 rounded-full shadow-sm border border-pink-50">
+        <div class="flex flex-col text-right">
+          <span id="displayUserName" class="text-sm font-bold text-gray-800">IT Staff</span>
+          <span class="text-[10px] text-gray-500 bg-gray-100 px-2 rounded-full w-fit ml-auto">เจ้าหน้าที่สำรวจ</span>
+        </div>
+        <div class="h-8 w-px bg-gray-300"></div>
+        <button onclick="logout()" class="btn text-pink-600 hover:text-pink-800 hover:bg-pink-50 px-3 py-1.5 text-sm font-medium flex items-center">
+          <i class="fas fa-sign-out-alt mr-1.5"></i> ออกจากระบบ
+        </button>
+      </div>
+    </header>
+
+    <!-- พื้นที่แสดงเนื้อหาหลัก -->
+    <main id="appContent">
+        <!-- Javascript จะทำการ Render หน้าต่างๆ ลงในนี้ -->
+    </main>
+
+  </div>
+
+  <script>
+    // ==========================================
+    // ตั้งค่า URL ของ Web App จาก Google Apps Script
+    // ==========================================
+    const API_URL = 'https://script.google.com/macros/s/AKfycby3j5m_eWv7zQ-YqQ_8y0Nn6c-1_2_3_4_5_6_7/exec'; // <-- ใส่ Web App URL 
+    
+    // State ส่วนกลาง
+    let currentUser = null;
+    
+    // DOM Elements
+    const overlay = document.getElementById('overlay');
+    const overlayText = document.getElementById('overlayText');
+    const mainHeader = document.getElementById('mainHeader');
+    const appContent = document.getElementById('appContent');
+    const displayUserName = document.getElementById('displayUserName');
+
+    // UI Utilities
+    function showLoading(text = 'กำลังโหลดข้อมูล...') {
+      overlayText.innerText = text;
+      overlay.classList.remove('hidden');
+      overlay.classList.add('flex');
+    }
+    
+    function hideLoading() {
+      overlay.classList.add('hidden');
+      overlay.classList.remove('flex');
+    }
+
+    // Modal Utilities
+    function showModal(type, message, onConfirm = null) {
+      const modal = document.getElementById('customModal');
+      const content = document.getElementById('customModalContent');
+      const icon = document.getElementById('customModalIcon');
+      const text = document.getElementById('customModalText');
+      const actions = document.getElementById('customModalActions');
+      
+      text.innerText = message;
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      
+      // Animation
+      setTimeout(() => {
+        content.classList.remove('scale-95', 'opacity-0');
+        content.classList.add('scale-100', 'opacity-100');
+      }, 10);
+
+      const closeModal = () => {
+        content.classList.remove('scale-100', 'opacity-100');
+        content.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => {
+          modal.classList.add('hidden');
+          modal.classList.remove('flex');
+        }, 200);
+      };
+
+      if (type === 'alert') {
+        icon.className = 'mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4 bg-red-50 text-red-500 text-3xl border border-red-100';
+        icon.innerHTML = '<i class="fas fa-exclamation-circle"></i>';
+        actions.innerHTML = `<button class="btn bg-gray-800 hover:bg-gray-900 text-white px-6 py-2 rounded-xl text-sm font-medium" id="modalOkBtn">ตกลง</button>`;
+        document.getElementById('modalOkBtn').onclick = closeModal;
+      } else if (type === 'confirm') {
+        icon.className = 'mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4 bg-blue-50 text-blue-500 text-3xl border border-blue-100';
+        icon.innerHTML = '<i class="fas fa-question-circle"></i>';
+        actions.innerHTML = `
+          <button class="btn bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-2 rounded-xl text-sm font-medium border border-gray-200" id="modalCancelBtn">ยกเลิก</button>
+          <button class="btn bg-gradient-to-r from-pink-500 to-rose-400 hover:from-pink-600 hover:to-rose-500 text-white px-6 py-2 rounded-xl text-sm font-medium shadow-md" id="modalConfirmBtn">ยืนยัน</button>
+        `;
+        document.getElementById('modalCancelBtn').onclick = closeModal;
+        document.getElementById('modalConfirmBtn').onclick = () => {
+          closeModal();
+          if(onConfirm) onConfirm();
+        };
+      }
+    }
+
+    function showAlert(msg) { showModal('alert', msg); }
+    function showConfirm(msg, callback) { showModal('confirm', msg, callback); }
+
+    // ==========================================
+    // Session & Auth Logic
+    // ==========================================
+    function checkSession() {
+      const sessionData = localStorage.getItem('it_udon_survey_session');
+      if (sessionData) {
+        currentUser = JSON.parse(sessionData);
+        displayUserName.innerText = currentUser.name || currentUser.username;
+        mainHeader.classList.remove('hidden');
+        renderDashboard(); // ถ้ามี Session ให้ไปหน้า Dashboard เสมอ
+      } else {
+        mainHeader.classList.add('hidden');
+        renderLogin(); // ถ้าไม่มีให้เด้งกลับหน้า Login
+      }
+    }
+
+    function logout() {
+      showLoading('กำลังออกจากระบบ...');
+      setTimeout(() => {
+        localStorage.removeItem('it_udon_survey_session');
+        currentUser = null;
+        hideLoading();
+        checkSession();
+      }, 500);
+    }
+
+    // ==========================================
+    // Render: หน้า Login
+    // ==========================================
+    function renderLogin() {
+      appContent.innerHTML = `
+      <div class="flex items-center justify-center min-h-[85vh]">
+          <div class="card w-full max-w-sm p-8 text-center border-t-4 border-t-pink-500">
+              <div class="mx-auto w-20 h-20 bg-pink-50 rounded-full flex items-center justify-center text-pink-600 mb-4 border border-pink-100 shadow-inner">
+                  <i class="fas fa-user-shield text-3xl"></i>
+              </div>
+              <h2 class="text-xl font-bold text-gray-800 mb-1">เข้าสู่ระบบสำรวจ</h2>
+              <p class="text-xs text-gray-500 mb-6 font-medium">โครงสร้างพื้นฐานระบบเครือข่าย</p>
+              
+              <form onsubmit="handleLogin(event)" class="space-y-4">
+                  <div class="relative">
+                      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <i class="fas fa-user text-gray-400 text-sm"></i>
+                      </div>
+                      <input type="text" id="username" required placeholder="รหัสเจ้าหน้าที่" 
+                             class="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300 focus:border-transparent bg-white">
+                  </div>
+                  <div class="relative">
+                      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <i class="fas fa-lock text-gray-400 text-sm"></i>
+                      </div>
+                      <input type="password" id="password" required placeholder="รหัสผ่าน" 
+                             class="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300 focus:border-transparent bg-white">
+                  </div>
+                  <button type="submit" class="btn w-full bg-gradient-to-r from-pink-500 to-rose-400 hover:from-pink-600 hover:to-rose-500 text-white font-medium py-3 rounded-xl shadow-md text-sm mt-2">
+                      เข้าสู่ระบบ
+                  </button>
+              </form>
+          </div>
+      </div>`;
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const u = document.getElementById('username').value;
+      const p = document.getElementById('password').value;
+      
+      showLoading('กำลังตรวจสอบข้อมูลการเข้าสู่ระบบ...');
+      try {
+          const res = await callAPI({ action: 'login', username: u, password: p });
+          if (res.status === 'success') {
+              localStorage.setItem('it_udon_survey_session', JSON.stringify(res.data));
+              checkSession();
+          } else {
+              showAlert('ข้อมูลเข้าสู่ระบบไม่ถูกต้อง หรือไม่พบสิทธิ์การใช้งาน');
+          }
+      } catch (err) {
+          showAlert('เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์');
+          console.error(err);
+      }
+      hideLoading();
+    }
+
+    // ==========================================
+    // Render: Tabs Menu
+    // ==========================================
+    function renderTabs(active) {
+      return `
+      <div class="flex space-x-2 mb-6 no-print bg-white/50 p-1.5 rounded-2xl w-fit mx-auto md:mx-0 shadow-sm border border-pink-100 backdrop-blur-sm">
+          <button onclick="renderDashboard()" class="px-5 py-2.5 rounded-xl text-sm font-medium transition-all ${active === 'dashboard' ? 'bg-white text-pink-600 shadow-sm' : 'text-gray-600 hover:bg-white/60'}">
+              <i class="fas fa-chart-pie mr-1.5"></i> Dashboard
+          </button>
+          <button onclick="renderSurveyList()" class="px-5 py-2.5 rounded-xl text-sm font-medium transition-all ${active === 'surveylist' ? 'bg-white text-pink-600 shadow-sm' : 'text-gray-600 hover:bg-white/60'}">
+              <i class="fas fa-clipboard-list mr-1.5"></i> รายการสำรวจ (Survey List)
+          </button>
+      </div>
+      `;
+    }
+
+    // ==========================================
+    // Render: หน้า Dashboard
+    // ==========================================
+    async function renderDashboard() {
+      if(!currentUser) return checkSession();
+      appContent.innerHTML = renderTabs('dashboard') + `<div id="dashboardContent" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>`;
+      
+      showLoading('กำลังโหลด Dashboard...');
+      try {
+          const res = await callAPI({action: 'getDashboard'});
+          if(res.status === 'success') {
+              const data = res.data;
+              const container = document.getElementById('dashboardContent');
+              let html = '';
+              for(const [type, count] of Object.entries(data)) {
+                  html += `
+                  <div class="card p-5 border-l-4 border-pink-400 hover:shadow-md transition-shadow">
+                      <p class="text-xs text-gray-500 font-semibold mb-1 uppercase tracking-wider">${type || 'ไม่ระบุ'}</p>
+                      <h3 class="text-3xl font-bold text-gray-800">${count} <span class="text-sm font-normal text-gray-400">จุดติดตั้ง</span></h3>
+                  </div>`;
+              }
+              if(Object.keys(data).length === 0) html = '<div class="col-span-full card p-8 text-center text-gray-500">ยังไม่มีข้อมูลจุดติดตั้ง</div>';
+              container.innerHTML = html;
+          }
+      } catch(err) { console.error(err); }
+      hideLoading();
+    }
+
+    // ==========================================
+    // Render: หน้า SurveyList
+    // ==========================================
+    async function renderSurveyList() {
+      if(!currentUser) return checkSession();
+      appContent.innerHTML = renderTabs('surveylist') + `<div id="surveyListContent" class="space-y-6"></div>`;
+      
+      showLoading('กำลังดึงข้อมูลรายการสำรวจทั้งหมด...');
+      try {
+          const res = await callAPI({action: 'getSurveyList'});
+          if(res.status === 'success') {
+              const rooms = res.data;
+              
+              // 1. แบ่งกลุ่มตาม R.LOCAT
+              const grouped = {};
+              rooms.forEach(r => {
+                  const loc = r['R.LOCAT'] || 'ไม่ระบุสถานที่';
+                  if(!grouped[loc]) grouped[loc] = [];
+                  grouped[loc].push(r);
+              });
+              
+              let html = '';
+              for(const loc in grouped) {
+                  // 2. เรียงลำดับตาม R.LOF
+                  grouped[loc].sort((a, b) => {
+                      const lofA = a['R.LOF'] || '';
+                      const lofB = b['R.LOF'] || '';
+                      return lofA.toString().localeCompare(lofB.toString());
+                  });
+                  
+                  html += `
+                  <div class="card p-6 border border-gray-100">
+                      <h3 class="text-lg font-bold text-gray-800 border-b border-gray-100 pb-3 mb-4 flex items-center">
+                          <i class="fas fa-building text-pink-500 mr-2 bg-pink-50 p-2 rounded-lg"></i> อาคาร/สถานที่: ${loc}
+                      </h3>
+                      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                  `;
+                  
+                  grouped[loc].forEach(r => {
+                      const isSurveyed = r.surveyCount > 0;
+                      const statusColor = isSurveyed ? 'text-green-600 bg-green-50 border-green-200' : 'text-orange-500 bg-orange-50 border-orange-200';
+                      const statusIcon = isSurveyed ? 'fa-check-circle' : 'fa-hourglass-half';
+                      const statusText = isSurveyed ? 'สำรวจแล้ว' : 'ยังไม่สำรวจ';
+                      
+                      const typColor = getHashColor(r['ROOMTYP']);
+                      const titleText = `${r['RNAME'] || '-'} / ${r['R.LOCAT'] || ''} / ชั้น ${r['R.LOF'] || '-'}`;
+                      
+                      // ดึงรูปภาพมาแสดงในหน้า List (ดึงจาก File ID หรือใช้รูปแทนถ้าไม่มี)
+                      const imgUrl = r['RoomImg_ID'] ? `https://drive.google.com/uc?export=view&id=${r['RoomImg_ID']}` : 'https://placehold.co/400x200/fce4ec/d81b60?text=No+Image';
+                      
+                      html += `
+                      <div class="border border-gray-200 rounded-xl hover:shadow-lg transition-all cursor-pointer bg-white relative overflow-hidden group flex flex-col" onclick="renderRoomDetail('${r['ROOMID']}')">
+                          
+                          <!-- รูปหน้าปก Card -->
+                          <div class="h-32 w-full bg-gray-100 relative overflow-hidden border-b border-gray-100">
+                               <img src="${imgUrl}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.src='https://placehold.co/400x200/fce4ec/d81b60?text=Load+Error'">
+                               <div class="absolute top-0 left-0 w-1.5 h-full z-10" style="background-color: ${typColor}"></div>
+                               
+                               <div class="absolute top-2 right-2">
+                                   <span class="text-[10px] font-bold px-2.5 py-1 rounded-md shadow-sm flex items-center gap-1.5 ${statusColor} bg-white/90 backdrop-blur-sm border-none">
+                                       <i class="fas ${statusIcon}"></i> ${statusText}
+                                   </span>
+                               </div>
+                          </div>
+                          
+                          <!-- เนื้อหา Card -->
+                          <div class="p-4 flex-1 flex flex-col">
+                              <span class="text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider w-fit mb-2" style="background-color: ${typColor}15; color: ${typColor}">
+                                  ${r['ROOMTYP'] || 'ไม่ระบุประเภท'}
+                              </span>
+                              
+                              <h4 class="font-medium text-gray-800 mb-3 leading-snug line-clamp-2 text-sm">${titleText}</h4>
+                              
+                              <div class="flex gap-2 text-xs text-gray-500 mt-auto">
+                                  <div class="bg-gray-50 px-2 py-1.5 rounded-lg flex-1 text-center border border-gray-100">
+                                      <span class="block text-[9px] text-gray-400 uppercase">Criticality</span>
+                                      <span class="font-bold text-gray-700">${r['Criticality_Level'] || '-'}</span>
+                                  </div>
+                                  <div class="bg-gray-50 px-2 py-1.5 rounded-lg flex-1 text-center border border-gray-100">
+                                      <span class="block text-[9px] text-gray-400 uppercase">Risk Level</span>
+                                      <span class="font-bold text-gray-700">${r['Rick_Level'] || '-'}</span>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                      `;
+                  });
+                  html += `</div></div>`;
+              }
+              document.getElementById('surveyListContent').innerHTML = html || '<div class="card p-8 text-center text-gray-500">ไม่พบรายการห้อง</div>';
+          }
+      } catch(err) { console.error(err); }
+      hideLoading();
+    }
+
+    // ==========================================
+    // Render: หน้า Room Detail
+    // ==========================================
+    async function renderRoomDetail(roomId) {
+      if(!currentUser) return checkSession();
+      
+      showLoading('กำลังโหลดข้อมูลเชิงลึกของจุดติดตั้ง...');
+      try {
+          const res = await callAPI({action: 'getRoomDetail', roomId: roomId});
+          if(res.status === 'success') {
+              // เพิ่มการป้องกันกรณีที่ Backend ส่งค่ามาเป็น null/undefined
+              const room = res.data.room || {};
+              const supportingComponents = res.data.supportingComponents || [];
+              const networkDevices = res.data.networkDevices || [];
+              
+              // ---------------------------------------------------------
+              // 1. จัดการรูปภาพ RoomImg_ID (File ID จาก Google Drive)
+              // ---------------------------------------------------------
+              let imgUrl = 'https://placehold.co/800x600/fce4ec/d81b60?text=No+Image+Available';
+              if (room['RoomImg_ID']) {
+                  imgUrl = `https://drive.google.com/uc?export=view&id=${room['RoomImg_ID']}`;
+              }
+
+              // ---------------------------------------------------------
+              // 2. จัดกลุ่ม Supporting Component ตาม CrutypeName
+              // ---------------------------------------------------------
+              const groupedSupport = {};
+              supportingComponents.forEach(eq => {
+                  const typeName = eq['CrutypeName'] || 'ไม่ได้ระบุประเภท';
+                  if(!groupedSupport[typeName]) groupedSupport[typeName] = [];
+                  groupedSupport[typeName].push(eq);
+              });
+
+              // เริ่มสร้าง UI HTML
+              let html = `
+              <div class="mb-4 no-print flex justify-between items-center">
+                  <button onclick="renderSurveyList()" class="btn bg-white border border-gray-200 text-gray-600 hover:text-pink-600 hover:border-pink-300 px-4 py-2 rounded-xl text-sm font-medium flex items-center shadow-sm">
+                      <i class="fas fa-arrow-left mr-2"></i> กลับ
+                  </button>
+                  <button onclick="window.print()" class="btn bg-gray-100 text-gray-600 hover:bg-gray-200 px-4 py-2 rounded-xl text-sm font-medium shadow-sm hidden md:flex items-center">
+                      <i class="fas fa-print mr-2"></i> พิมพ์เอกสาร
+                  </button>
+              </div>
+              
+              <!-- ส่วนที่ 1: รายละเอียด Roomname -->
+              <div class="card overflow-hidden mb-8 border border-pink-100 shadow-md print:shadow-none print:border-gray-300">
+                  <div class="flex flex-col lg:flex-row">
+                      <div class="lg:w-2/5 bg-gray-100 relative min-h-[250px]">
+                          <img src="${imgUrl}" alt="รูปภาพจุดติดตั้ง" class="absolute inset-0 w-full h-full object-cover" onerror="this.src='https://placehold.co/800x600/fce4ec/d81b60?text=Image+Load+Error'">
+                      </div>
+                      <div class="p-6 lg:w-3/5 flex flex-col justify-between bg-white/90">
+                          <div>
+                              <div class="flex justify-between items-start mb-4 border-b border-gray-100 pb-4">
+                                  <div>
+                                      <h2 class="text-3xl font-bold text-gray-800 tracking-tight">${room['RNAME'] || '-'}</h2>
+                                      <p class="text-gray-500 mt-1 flex items-center">
+                                          <i class="fas fa-map-marker-alt text-pink-400 mr-2"></i> ${room['R.LOCAT'] || '-'} ชั้น ${room['R.LOF'] || '-'}
+                                      </p>
+                                  </div>
+                                  <span class="bg-gradient-to-r from-pink-500 to-rose-400 text-white text-xs uppercase tracking-widest px-3 py-1.5 rounded-lg font-bold shadow-sm">
+                                      ${room['ROOMTYP'] || '-'}
+                                  </span>
+                              </div>
+                              <div class="grid grid-cols-2 gap-4 text-sm mt-4">
+                                  <div class="bg-pink-50/50 p-3 rounded-xl border border-pink-100">
+                                      <span class="text-pink-600 block text-[10px] uppercase font-bold mb-1">Room ID</span> 
+                                      <span class="font-bold text-gray-800 text-lg">${room['ROOMID'] || '-'}</span>
+                                  </div>
+                                  <div class="bg-pink-50/50 p-3 rounded-xl border border-pink-100">
+                                      <span class="text-pink-600 block text-[10px] uppercase font-bold mb-1">Location ID</span> 
+                                      <span class="font-bold text-gray-800 text-lg">${room['LocatID'] || '-'}</span>
+                                  </div>
+                                  <div class="bg-pink-50/50 p-3 rounded-xl border border-pink-100">
+                                      <span class="text-pink-600 block text-[10px] uppercase font-bold mb-1">QR Code (Room)</span> 
+                                      <span class="font-mono text-gray-600 text-xs break-all">${room['QRROOM'] || '-'}</span>
+                                  </div>
+                                  <div class="bg-pink-50/50 p-3 rounded-xl border border-pink-100">
+                                      <span class="text-pink-600 block text-[10px] uppercase font-bold mb-1">Map Coordinates</span> 
+                                      <span class="font-mono text-gray-600 text-xs">${room['Map'] || '-'}</span>
+                                  </div>
+                              </div>
+                          </div>
+                          
+                          <div class="mt-6 pt-5 no-print">
+                              <button onclick="startSurvey('${room['ROOMID']}')" class="btn w-full bg-gradient-to-r from-pink-600 to-rose-500 hover:from-pink-700 hover:to-rose-600 text-white font-medium py-3 px-8 rounded-xl shadow-lg shadow-pink-200 flex items-center justify-center text-lg transition-transform hover:scale-[1.02]">
+                                  <i class="fas fa-clipboard-check mr-2"></i> สร้างรายการ Survey & PM สำหรับจุดนี้
+                              </button>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+
+              <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                  
+                  <!-- ส่วนที่ 2: Supporting Component -->
+                  <div>
+                      <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center border-l-4 border-pink-500 pl-3">
+                          <i class="fas fa-boxes text-pink-400 mr-2"></i> Supporting Component
+                      </h3>
+                      
+                      <div class="space-y-4">
+                          ${Object.keys(groupedSupport).length === 0 ? '<div class="card p-6 text-center text-gray-400 border border-dashed border-gray-300"><i class="fas fa-folder-open text-2xl mb-2 text-gray-300"></i><br>ไม่มีข้อมูลส่วนประกอบสนับสนุน</div>' : ''}
+                          ${Object.entries(groupedSupport).map(([typeName, eqs]) => `
+                              <div class="card p-0 overflow-hidden border border-gray-200 shadow-sm">
+                                  <div class="bg-gray-50 px-4 py-2.5 border-b border-gray-200 flex justify-between items-center">
+                                      <span class="font-bold text-gray-700 text-sm flex items-center"><i class="fas fa-tag text-pink-500 mr-2 text-xs"></i> ${typeName}</span>
+                                      <span class="text-[10px] bg-white border border-gray-200 text-gray-500 px-2 py-0.5 rounded-full font-bold">${eqs.length}</span>
+                                  </div>
+                                  <div class="divide-y divide-gray-100">
+                                      ${eqs.map(eq => `
+                                          <div class="p-4 hover:bg-pink-50/30 transition-colors">
+                                              <div class="flex justify-between items-start">
+                                                  <div>
+                                                      <div class="font-medium text-gray-800 text-sm">${eq['CaruName'] || '-'}</div>
+                                                      <div class="text-xs text-gray-500 mt-1">Model: ${eq['MODEL'] || eq['ModelID'] || '-'} | Band: ${eq['BandName'] || '-'}</div>
+                                                  </div>
+                                                  ${eq['STATUS'] ? `<span class="text-[9px] px-2 py-1 rounded bg-green-50 text-green-600 border border-green-200 font-bold">${eq['STATUS']}</span>` : ''}
+                                              </div>
+                                              <div class="mt-2 flex gap-2">
+                                                  <span class="text-[10px] font-mono bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">ID: ${eq['CaruID'] || '-'}</span>
+                                                  ${eq['Age'] ? `<span class="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded border border-blue-100">อายุ: ${eq['Age']}</span>` : ''}
+                                              </div>
+                                          </div>
+                                      `).join('')}
+                                  </div>
+                              </div>
+                          `).join('')}
+                      </div>
+                  </div>
+
+                  <!-- ส่วนที่ 3: Network Device -->
+                  <div>
+                      <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center border-l-4 border-pink-500 pl-3">
+                          <i class="fas fa-network-wired text-pink-400 mr-2"></i> Network Device
+                      </h3>
+                      
+                      <div class="space-y-4">
+                          ${networkDevices.length === 0 ? '<div class="card p-6 text-center text-gray-400 border border-dashed border-gray-300"><i class="fas fa-server text-2xl mb-2 text-gray-300"></i><br>ไม่มีข้อมูลอุปกรณ์เครือข่าย</div>' : ''}
+                          ${networkDevices.map(net => `
+                              <div class="card p-4 border border-gray-200 shadow-sm hover:shadow-md transition-shadow bg-white relative overflow-hidden">
+                                  <div class="absolute top-0 left-0 w-1 h-full bg-pink-500"></div>
+                                  <div class="flex justify-between items-start mb-3">
+                                      <div>
+                                          <div class="font-bold text-gray-800 text-base flex items-center">
+                                              ${net['Hostname'] || 'No Hostname'}
+                                          </div>
+                                          <div class="text-xs text-pink-600 font-medium mt-0.5">
+                                              IP: ${net['IP Address'] || '-'}
+                                          </div>
+                                      </div>
+                                      <span class="bg-gray-100 text-gray-600 text-[10px] font-mono px-2 py-1 rounded border border-gray-200">
+                                          NSWID: ${net['NSWID'] || '-'}
+                                      </span>
+                                  </div>
+                                  
+                                  <div class="grid grid-cols-2 gap-x-2 gap-y-3 mt-3 pt-3 border-t border-gray-100 text-xs">
+                                      <div>
+                                          <span class="block text-gray-400 text-[9px] uppercase">Product / Model</span>
+                                          <span class="font-medium text-gray-700">${net['Product'] || '-'} / ${net['Model'] || '-'}</span>
+                                      </div>
+                                      <div>
+                                          <span class="block text-gray-400 text-[9px] uppercase">Mac Address</span>
+                                          <span class="font-mono text-gray-700">${net['Mac Address'] || '-'}</span>
+                                      </div>
+                                      <div>
+                                          <span class="block text-gray-400 text-[9px] uppercase">Serial No.</span>
+                                          <span class="font-mono text-gray-700">${net['Serial No.'] || '-'}</span>
+                                      </div>
+                                      <div>
+                                          <span class="block text-gray-400 text-[9px] uppercase">Stack No.</span>
+                                          <span class="font-medium text-gray-700">${net['Stack No.'] || '-'}</span>
+                                      </div>
+                                  </div>
+                                  
+                                  ${net['Note'] ? `
+                                  <div class="mt-3 pt-2 border-t border-dashed border-gray-200">
+                                      <span class="block text-gray-400 text-[9px] uppercase mb-0.5">Note</span>
+                                      <p class="text-xs text-gray-600 italic">"${net['Note']}"</p>
+                                  </div>` : ''}
+                              </div>
+                          `).join('')}
+                      </div>
+                  </div>
+
+              </div>
+              `;
+              appContent.innerHTML = html;
+          } else {
+             showAlert('ไม่สามารถดึงข้อมูลรายละเอียดได้: ' + res.message);
+          }
+      } catch(err) { console.error(err); showAlert('เกิดข้อผิดพลาดในการเชื่อมต่อเครือข่าย'); }
+      hideLoading();
+    }
+
+    // ==========================================
+    // Render: การทำงาน Start Survey
+    // ==========================================
+    function startSurvey(roomId) {
+      // แทนที่ confirm() แบบเดิมด้วย showConfirm() แบบ Modal
+      showConfirm('ระบบจะทำการสร้าง Header และดึงอุปกรณ์เข้าสู่รายการ Survey Result ยืนยันหรือไม่?', async () => {
+          showLoading('กำลังสร้างรายการสำรวจใหม่...');
+          try {
+              const res = await callAPI({
+                action: 'startSurvey', 
+                roomId: roomId, 
+                userId: currentUser.userId || currentUser.username
+              });
+
+              if(res.status === 'success') {
+                  renderSurveyCheck(roomId, res.data.surveyId);
+              } else {
+                  showAlert('เกิดข้อผิดพลาด: ' + res.message);
+              }
+          } catch(err) {
+              console.error(err);
+              showAlert('เกิดข้อผิดพลาดในการเชื่อมต่อเครือข่าย');
+          }
+          hideLoading();
+      });
+    }
+
+    // หน้าจำลองหลังจากกดปุ่มเริ่มสำรวจ
+    function renderSurveyCheck(roomId, surveyId) {
+      appContent.innerHTML = `
+      <div class="card p-10 text-center border-t-4 border-t-green-500">
+          <div class="w-20 h-20 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-5 text-4xl border border-green-100">
+              <i class="fas fa-check"></i>
+          </div>
+          <h2 class="text-2xl font-bold text-gray-800 mb-2">สร้างรายการสำเร็จ</h2>
+          <p class="text-sm text-gray-500 mb-6">ระบบได้เพิ่มข้อมูลลงใน <b>Survey_Header</b> และ <b>Survey_Result</b> เรียบร้อยแล้ว</p>
+          
+          <div class="inline-block bg-gray-50 border border-gray-200 px-4 py-2 rounded-lg mb-8">
+            <span class="text-xs text-gray-400 block uppercase mb-1">Survey Reference ID</span>
+            <span class="text-sm font-mono font-bold text-pink-600">${surveyId}</span>
+          </div>
+          
+          <br>
+          <button onclick="renderRoomDetail('${roomId}')" class="btn bg-gray-800 hover:bg-gray-900 text-white px-8 py-3 rounded-xl shadow-md text-sm font-medium">
+            <i class="fas fa-undo mr-2"></i> กลับไปหน้ารายละเอียดห้อง
+          </button>
+      </div>
+      `;
+    }
+
+    // ==========================================
+    // Utilities Support
+    // ==========================================
+    function getHashColor(str) {
+      const colors = ['#e91e63', '#9c27b0', '#5c6bc0', '#00acc1', '#00897b', '#f4511e', '#e53935'];
+      if(!str) return '#9e9e9e';
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+      return colors[Math.abs(hash) % colors.length];
+    }
+
+    // Wrapper สำหรับเรียก Google Apps Script ด้วย POST text/plain เพื่อแก้ปัญหา CORS
+    async function callAPI(payload) {
+      if(API_URL.includes('YOUR_APPS_SCRIPT_WEB_APP_URL') || !API_URL) {
+          showAlert("กรุณาใส่ URL ของ Web App ในบรรทัดที่ 90 ของโค้ด HTML");
+          throw new Error("No API URL");
+      }
+      
+      // การใช้ text/plain จะข้ามผ่าน Preflight request (OPTIONS) ของเบราว์เซอร์
+      const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+      });
+      return await response.json();
+    }
+
+    // Init App
+    window.onload = checkSession;
+  </script>
+</body>
+</html>
