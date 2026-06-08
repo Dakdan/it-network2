@@ -376,15 +376,17 @@
                       const typColor = getHashColor(r['ROOMTYP']);
                       const titleText = `${r['RNAME'] || '-'} / ${r['R.LOCAT'] || ''} / ชั้น ${r['R.LOF'] || '-'}`;
                       
-                      // ดึงรูปภาพมาแสดงในหน้า List (ดึงจาก File ID หรือใช้รูปแทนถ้าไม่มี)
-                      const imgUrl = r['RoomImg_ID'] ? `https://drive.google.com/uc?export=view&id=${r['RoomImg_ID']}` : 'https://placehold.co/400x200/fce4ec/d81b60?text=No+Image';
+                      // ใช้ getColValue ดึงข้อมูลจาก Index 11 (คอลัมน์ L) ตามที่คุณระบุ
+                      const fileId = getColValue(r, 11);
+                      // เปลี่ยนรูปแบบ URL เป็น /thumbnail เพื่อแก้ปัญหารูปไม่แสดงจาก Google Drive Policy
+                      const imgUrl = fileId ? `https://drive.google.com/thumbnail?id=${fileId}&sz=w600` : 'https://placehold.co/400x200/fce4ec/d81b60?text=No+Image';
                       
                       html += `
                       <div class="border border-gray-200 rounded-xl hover:shadow-lg transition-all cursor-pointer bg-white relative overflow-hidden group flex flex-col" onclick="renderRoomDetail('${r['ROOMID']}')">
                           
                           <!-- รูปหน้าปก Card -->
                           <div class="h-32 w-full bg-gray-100 relative overflow-hidden border-b border-gray-100">
-                               <img src="${imgUrl}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.src='https://placehold.co/400x200/fce4ec/d81b60?text=Load+Error'">
+                               <img src="${imgUrl}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.src='https://placehold.co/400x200/fce4ec/d81b60?text=NO IMAGE'">
                                <div class="absolute top-0 left-0 w-1.5 h-full z-10" style="background-color: ${typColor}"></div>
                                
                                <div class="absolute top-2 right-2">
@@ -440,11 +442,23 @@
               const networkDevices = res.data.networkDevices || [];
               
               // ---------------------------------------------------------
-              // 1. จัดการรูปภาพ RoomImg_ID (File ID จาก Google Drive)
+              // 1. จัดการรูปภาพ (ดึงตาม Index คอลัมน์ L = 11)
               // ---------------------------------------------------------
               let imgUrl = 'https://placehold.co/800x600/fce4ec/d81b60?text=No+Image+Available';
-              if (room['RoomImg_ID']) {
-                  imgUrl = `https://drive.google.com/uc?export=view&id=${room['RoomImg_ID']}`;
+              const fileId = getColValue(room, 11);
+              if (fileId) {
+                  // เปลี่ยนมาใช้รูปแบบ thumbnail เพื่อแก้ปัญหาสิทธิ์การเข้าถึงรูปภาพ
+                  imgUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
+              }
+
+              // ---------------------------------------------------------
+              // 1.5 สร้าง URL สำหรับรูปภาพ QR Code
+              // ---------------------------------------------------------
+              const qrText = room['QRROOM'] || room['RNAME'] || '';
+              let qrImgHtml = '';
+              if(qrText && qrText !== '-') {
+                  const qrUrl = `https://image-charts.com/chart?chs=300x300&cht=qr&choe=UTF-8&chl=${encodeURIComponent(qrText)}`;
+                  qrImgHtml = `<img src="${qrUrl}" alt="QR Code" class="w-12 h-12 object-contain bg-white p-0.5 rounded shadow-sm border border-gray-200 hover:scale-[3] hover:-translate-x-2 hover:-translate-y-2 transition-transform origin-bottom-right z-20 relative cursor-zoom-in">`;
               }
 
               // ---------------------------------------------------------
@@ -472,7 +486,7 @@
               <div class="card overflow-hidden mb-8 border border-pink-100 shadow-md print:shadow-none print:border-gray-300">
                   <div class="flex flex-col lg:flex-row">
                       <div class="lg:w-2/5 bg-gray-100 relative min-h-[250px]">
-                          <img src="${imgUrl}" alt="รูปภาพจุดติดตั้ง" class="absolute inset-0 w-full h-full object-cover" onerror="this.src='https://placehold.co/800x600/fce4ec/d81b60?text=Image+Load+Error'">
+                          <img src="${imgUrl}" alt="RoomImg_ID" class="absolute inset-0 w-full h-full object-cover" onerror="this.src='https://placehold.co/800x600/fce4ec/d81b60?text=Image+Load+Error'">
                       </div>
                       <div class="p-6 lg:w-3/5 flex flex-col justify-between bg-white/90">
                           <div>
@@ -496,13 +510,16 @@
                                       <span class="text-pink-600 block text-[10px] uppercase font-bold mb-1">Location ID</span> 
                                       <span class="font-bold text-gray-800 text-lg">${room['LocatID'] || '-'}</span>
                                   </div>
-                                  <div class="bg-pink-50/50 p-3 rounded-xl border border-pink-100">
-                                      <span class="text-pink-600 block text-[10px] uppercase font-bold mb-1">QR Code (Room)</span> 
-                                      <span class="font-mono text-gray-600 text-xs break-all">${room['QRROOM'] || '-'}</span>
+                                  <div class="bg-pink-50/50 p-3 rounded-xl border border-pink-100 flex justify-between items-center gap-2">
+                                      <div class="flex-1 min-w-0">
+                                          <span class="text-pink-600 block text-[10px] uppercase font-bold mb-1">QR Code (Room)</span> 
+                                          <span class="font-mono text-gray-600 text-[11px] break-all line-clamp-2">${room['QRROOM'] || '-'}</span>
+                                      </div>
+                                      <div class="flex-shrink-0">${qrImgHtml}</div>
                                   </div>
                                   <div class="bg-pink-50/50 p-3 rounded-xl border border-pink-100">
                                       <span class="text-pink-600 block text-[10px] uppercase font-bold mb-1">Map Coordinates</span> 
-                                      <span class="font-mono text-gray-600 text-xs">${room['Map'] || '-'}</span>
+                                      <span class="font-mono text-gray-600 text-xs">${room['RoomGPS'] || '-'}</span>
                                   </div>
                               </div>
                           </div>
@@ -677,6 +694,13 @@
       let hash = 0;
       for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
       return colors[Math.abs(hash) % colors.length];
+    }
+
+    // ฟังก์ชันช่วยดึงค่าจาก Object ตามลำดับ Index (A=0, B=1, C=2, ..., L=11)
+    function getColValue(obj, colIndex) {
+      if (!obj) return '';
+      const values = Object.values(obj);
+      return values[colIndex] !== undefined && values[colIndex] !== null ? values[colIndex] : '';
     }
 
     // Wrapper สำหรับเรียก Google Apps Script ด้วย POST text/plain เพื่อแก้ปัญหา CORS
