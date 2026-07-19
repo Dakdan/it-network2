@@ -223,7 +223,7 @@
     // Session & Auth Logic
     // ==========================================
     function checkSession() {
-      const sessionData = localStorage.getItem('it_udon_survey_session');
+      const sessionData = localStorage.getItem('currentUser');
       if (sessionData) {
         currentUser = JSON.parse(sessionData);
         displayUserName.innerText = currentUser.name || currentUser.username;
@@ -238,7 +238,7 @@
     function logout() {
       showLoading('กำลังออกจากระบบ...');
       setTimeout(() => {
-        localStorage.removeItem('it_udon_survey_session');
+        localStorage.removeItem('currentUser');
         currentUser = null;
         hideLoading();
         checkSession();
