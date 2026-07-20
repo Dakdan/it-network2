@@ -120,7 +120,7 @@
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center border border-pink-200 overflow-hidden shadow-inner p-1">
                     <!-- แสดงรูปโลโก้ logo003v1.png พร้อมระบบ Fallback ป้องกันรูปภาพโหลดไม่ขึ้น -->
-                    <img src="logo003v1.png" class="w-full h-full object-contain" onerror="this.style.display='none'; document.getElementById('fallbackLogoIcon').classList.remove('hidden');" alt="IT UDON HOSP Logo">
+                    <img src="logo00v1.png" class="w-full h-full object-contain" onerror="this.style.display='none'; document.getElementById('fallbackLogoIcon').classList.remove('hidden');" alt="IT UDON HOSP Logo">
                     <i id="fallbackLogoIcon" class="fas fa-network-wired text-xl text-pink-500 hidden"></i>
                 </div>
                 <div>
@@ -880,12 +880,12 @@
             const badge = document.getElementById('connectionBadge');
             if (APPS_SCRIPT_URL && APPS_SCRIPT_URL.trim() !== "") {
                 badge.classList.remove('hidden');
-                badge.className = "hidden md:flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-100 border border-emerald-400/30";
-                badge.innerHTML = `<span class="h-2 w-2 rounded-full bg-emerald-400 animate-ping"></span><span>Live Database API</span>`;
+                badge.className = "hidden md:flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-sm";
+                badge.innerHTML = `<span class="h-2 w-2 rounded-full bg-emerald-500 animate-ping"></span><span>Live Database API</span>`;
             } else {
                 badge.classList.remove('hidden');
-                badge.className = "hidden md:flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-200 border border-amber-400/30";
-                badge.innerHTML = `<span class="h-2 w-2 rounded-full bg-amber-400"></span><span>Server Offline</span>`;
+                badge.className = "hidden md:flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 shadow-sm";
+                badge.innerHTML = `<span class="h-2 w-2 rounded-full bg-amber-500"></span><span>Server Offline</span>`;
             }
         }
 
