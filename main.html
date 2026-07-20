@@ -150,16 +150,18 @@
         
         <!-- VIEW: Login Screen -->
         <section id="loginView" class="flex-1 flex items-center justify-center py-10">
-            <div class="bg-white p-8 rounded-3xl shadow-2xl max-w-md w-full border border-gray-100 relative overflow-hidden">
+            <div class="bg-gradient-to-br from-pink-200 via-pink-50/50 to-white p-8 rounded-3xl shadow-2xl max-w-md w-full border border-pink-200/50 relative overflow-hidden">
                 <!-- Glowing pink corner for login card -->
                 <div class="absolute top-0 right-0 w-24 h-24 bg-pink-400/30 rounded-full blur-2xl pointer-events-none -mr-6 -mt-6"></div>
                 
                 <div class="text-center mb-8">
-                    <div class="w-16 h-16 bg-gradient-to-tr from-pink-500 to-rose-500 text-white rounded-2xl flex items-center justify-center text-3xl mx-auto shadow-lg mb-4">
-                        <i class="fas fa-shield-alt"></i>
+                    <!-- กล่องแสดงโลโก้หลักของระบบโรงพยาบาลอุดรธานี -->
+                    <div class="w-20 h-20 bg-white rounded-2xl flex items-center justify-center border border-pink-200 overflow-hidden shadow-md p-2 mx-auto mb-4">
+                        <img src="logo005v1.png" class="w-full h-full object-contain" onerror="this.style.display='none'; document.getElementById('fallbackLoginLogoIcon').classList.remove('hidden');" alt="IT UDON HOSP Logo">
+                        <i id="fallbackLoginLogoIcon" class="fas fa-shield-alt text-3xl text-pink-500 hidden"></i>
                     </div>
-                    <h2 class="text-2xl font-black text-gray-800">ลงชื่อเข้าใช้งาน</h2>
-                    <p class="text-gray-400 text-sm mt-1">ระบบบันทึกผลการสำรวจและทดสอบเครือข่าย</p>
+                    <h2 class="text-2xl font-black text-pink-700">ลงชื่อเข้าใช้งาน</h2>
+                    <p class="text-slate-500 text-sm mt-1 font-bold">IT Technical Support App</p>
                 </div>
                 
                 <form id="loginForm" onsubmit="handleLoginSubmit(event)" class="space-y-4">
@@ -199,7 +201,7 @@
                     <i class="fas fa-chart-line mr-2"></i> หน้าแรกและแดชบอร์ด
                 </button>
                 <button onclick="switchTab('surveyList')" id="tab_surveyList" class="px-5 py-2.5 font-bold text-sm text-gray-500 hover:bg-gray-100 rounded-xl transition shrink-0">
-                    <i class="fas fa-map-marked-alt mr-2"></i> รายการจุดสำรวจ / ห้องติดตั้ง
+                    <i class="fas fa-map-marked-alt mr-2"></i> ตำแหน่งการติดตั้ง (Physical Location)
                 </button>
             </div>
 
@@ -224,7 +226,7 @@
                         <div class="absolute top-0 right-0 w-16 h-16 bg-pink-400/20 rounded-full blur-xl pointer-events-none -mr-4 -mt-4"></div>
                         
                         <div class="relative z-10">
-                            <span class="text-sm font-bold text-gray-400 block mb-0.5">อุปกรณ์สนับสนุนสะสม</span>
+                            <span class="text-sm font-bold text-gray-400 block mb-0.5">Supporting Components</span>
                             <span id="stat_supports" class="text-3xl font-black text-pink-500 font-mono">กำลังโหลด...</span>
                         </div>
                         <div class="w-12 h-12 bg-pink-50 rounded-2xl flex items-center justify-center text-pink-500 text-lg relative z-10">
@@ -236,7 +238,7 @@
                         <div class="absolute top-0 right-0 w-16 h-16 bg-pink-400/20 rounded-full blur-xl pointer-events-none -mr-4 -mt-4"></div>
                         
                         <div class="relative z-10">
-                            <span class="text-sm font-bold text-gray-400 block mb-0.5">อุปกรณ์เครือข่ายสะสม</span>
+                            <span class="text-sm font-bold text-gray-400 block mb-0.5">Network Devices</span>
                             <span id="stat_networks" class="text-3xl font-black text-blue-500 font-mono">กำลังโหลด...</span>
                         </div>
                         <div class="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-500 text-lg relative z-10">
@@ -310,7 +312,7 @@
                             <h2 class="text-2xl font-black text-gray-800" id="detail_RNAME">ชื่อจุดติดตั้ง / ห้อง</h2>
                             <p class="text-gray-400 text-sm flex items-center gap-2 mt-1">
                                 <i class="fas fa-map-marker-alt text-rose-500"></i>
-                                <span id="detail_R_LOCAT">ชั้น / พิกัดจุด</span>
+                                <span id="detail_R_LOCAT">ชั้น </span>
                             </p>
                         </div>
 
@@ -771,7 +773,7 @@
 
     <!-- Footer of page -->
     <footer class="bg-slate-900 text-slate-400 py-4 text-center text-xs mt-auto shrink-0 border-t border-slate-800">
-        <p>© 2026 UDON THANI HOSPITAL · กลุ่มงาน:เทคโนโลยีสารสนเทศทางการแพทย์</p>
+        <p>© 2026 UDON THANI HOSPITAL · กลุ่มงาน:เทคโนโลยีสารสนเทศทางการแพทย์ (By IT Technical Team)</p>
     </footer>
 
     <script>
