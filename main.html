@@ -6,12 +6,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Network Survey - IT UDON HOSP</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Library สำหรับสแกน QR Code -->
+  <script src="https://unpkg.com/html5-qrcode"></script>
   <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="auth-check.js"></script>
+  
   <style>
     :root {
-      --primary: #d81b60; /* โทนชมพู */
+      --primary: #d81b60; /* โทนชมพูหลัก */
     }
     body {
       font-family: 'Kanit', sans-serif;
@@ -36,21 +38,13 @@
       user-select: none;
     }
     .card {
-      background: rgba(255, 255, 255, 0.75); /* ปรับความโปร่งลงเล็กน้อยเพื่อให้ดูละมุนขึ้น */
-      backdrop-filter: blur(16px); /* เพิ่มความเบลอให้พื้นหลังดูเนียนตา */
-      -webkit-backdrop-filter: blur(16px); /* รองรับ Safari */
-      
-      /* ปรับความโค้งมนให้สวยงามยิ่งขึ้น */
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       border-radius: 1.75rem; 
-      
-      /* ปรับเงาให้มีความนุ่มและกระจายตัวกว้างขึ้น (Soft Shadow) */
-      box-shadow: 0 10px 30px -5px rgba(216, 27, 96, 0.05), 
-                  0 20px 40px -15px rgba(0, 0, 0, 0.07);
-                  
-      /* เส้นขอบสีขาวไล่เฉดบางๆ ช่วยให้ขอบโค้งคมชัดและมีมิติ */
+      box-shadow: 0 10px 30px -5px rgba(216, 27, 96, 0.05), 0 20px 40px -15px rgba(0, 0, 0, 0.07);
       border: 1px solid rgba(255, 255, 255, 0.6); 
-      
-      overflow: hidden; /* ป้องกันไม่ให้เนื้อหาข้างในล้นทะลุขอบโค้งออกไป */
+      overflow: hidden;
     }
     .btn {
       border-radius: 9999px;
@@ -72,7 +66,6 @@
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
-    /* พิมพ์แนวนอน */
     @media print {
       @page { size: landscape; margin: 1cm; }
       body { background: white; }
@@ -98,75 +91,172 @@
       <div id="customModalIcon" class="mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4"></div>
       <h3 id="customModalTitle" class="text-xl font-bold text-gray-800 mb-2">แจ้งเตือน</h3>
       <p id="customModalText" class="text-sm text-gray-600 mb-6"></p>
-      <div id="customModalActions" class="flex gap-3 justify-center">
-        <!-- Buttons dynamically injected here -->
+      <div id="customModalActions" class="flex gap-3 justify-center"></div>
+    </div>
+  </div>
+
+  <!-- หน้าต่าง Modal สำหรับเพิ่มและแก้ไขอุปกรณ์พร้อมช่องค้นหาข้อมูลครุภัณฑ์ -->
+  <div id="editModal" class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 hidden flex-col items-center justify-center p-4 no-print">
+    <div class="card w-full max-w-2xl bg-white/95 max-h-[90vh] flex flex-col shadow-2xl border border-pink-100 transform transition-all scale-95 opacity-0" id="editModalContent">
+      <div class="bg-gradient-to-r from-pink-500 to-rose-400 p-5 text-white flex justify-between items-center rounded-t-[1.75rem]">
+        <h3 id="editModalTitle" class="text-lg font-bold">จัดการข้อมูลอุปกรณ์</h3>
+        <button onclick="closeEditModal()" class="text-white hover:text-pink-100 focus:outline-none text-xl p-1">
+          <i class="fas fa-times"></i>
+        </button>
       </div>
+      <form id="editForm" onsubmit="handleSaveDevice(event)" class="p-6 overflow-y-auto space-y-4 flex-1 text-sm">
+        <!-- Fields loaded dynamically -->
+      </form>
+      <div class="p-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3 rounded-b-[1.75rem]">
+        <button onclick="closeEditModal()" type="button" class="btn px-5 py-2.5 bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 font-medium">ยกเลิก</button>
+        <button form="editForm" type="submit" class="btn px-6 py-2.5 bg-gradient-to-r from-pink-600 to-rose-500 hover:from-pink-700 hover:to-rose-600 text-white font-medium shadow-md">บันทึกข้อมูล</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- หน้าต่าง Modal สำหรับกล้องสแกน QR Code -->
+  <div id="qrScannerModal" class="fixed inset-0 bg-gray-900/90 backdrop-blur-md z-[70] hidden flex-col items-center justify-center p-4 no-print">
+    <div class="card w-full max-w-md bg-white p-4 shadow-2xl rounded-2xl flex flex-col">
+      <div class="flex justify-between items-center mb-4 border-b pb-2">
+        <h3 class="text-lg font-bold text-gray-800"><i class="fas fa-qrcode text-pink-500 mr-2"></i> สแกนรหัสอุปกรณ์</h3>
+        <button onclick="closeQRScanner()" class="text-gray-400 hover:text-red-500 text-xl px-2"><i class="fas fa-times"></i></button>
+      </div>
+      <div id="reader" class="w-full bg-black rounded-lg overflow-hidden min-h-[300px]"></div>
+      <p class="text-xs text-center text-gray-500 mt-4">หันกล้องไปที่ QR Code หรือ Barcode ของอุปกรณ์</p>
     </div>
   </div>
 
   <div class="relative z-10 max-w-7xl mx-auto px-4 pb-12 sm:px-6 lg:px-8">
     
     <!-- ส่วนหัว (Header) -->
-   <header id="mainHeader" class="hidden py-6 mb-4 border-b border-pink-700/50 no-print flex flex-col md:flex-row justify-between items-center gap-4 bg-gradient-to-br from-pink-500 via-pink-50/50 to-white p-6 rounded-2xl">
-    <div class="flex items-center gap-4">
-      <div class="w-14 h-14 rounded-full flex items-center justify-center shadow-sm border border-pink-900 overflow-hidden bg-white">
-        <img src="./udhlogo4.png" alt="Logo" class="w-full h-full object-cover">
+    <header id="mainHeader" class="hidden py-6 mb-4 border-b border-pink-700/50 no-print flex flex-col md:flex-row justify-between items-center gap-4 bg-gradient-to-br from-pink-500 via-pink-50/50 to-white p-6 rounded-2xl">
+      <div class="flex items-center gap-4">
+        <div class="w-14 h-14 rounded-full flex items-center justify-center shadow-sm border border-pink-900 overflow-hidden bg-white">
+          <img src="./logo1.png" alt="Logo" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100/fce4ec/d81b60?text=UDH'">
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold text-gray-800 leading-tight">โรงพยาบาลอุดรธานี</h1>
+          <p class="text-sm text-pink-600 font-medium tracking-wide">กลุ่มงานเทคโนโลยีสารสนเทศทางการแพทย์</p>
+        </div>
       </div>
-      <div>
-        <h1 class="text-2xl font-bold text-gray-800 leading-tight">โรงพยาบาลอุดรธานี</h1>
-        <p class="text-sm text-pink-600 font-medium tracking-wide">กลุ่มงานเทคโนโลยีสารสนเทศทางการแพทย์</p>
+      <div class="flex items-center gap-4 bg-white/70 px-5 py-2.5 rounded-full shadow-sm border border-pink-50">
+        <div class="flex flex-col text-right">
+          <span id="displayUserName" class="text-sm font-bold text-gray-800">IT Staff</span>
+          <span class="text-[10px] text-gray-500 bg-gray-100 px-2 rounded-full w-fit ml-auto">เจ้าหน้าที่สำรวจ</span>
+        </div>
+        <div class="h-8 w-px bg-gray-300"></div>
+        <button onclick="handleLogout()" class="btn text-pink-600 hover:text-pink-800 hover:bg-pink-50 px-3 py-1.5 text-sm font-medium flex items-center">
+          <i class="fas fa-sign-out-alt mr-1.5"></i> ออกจากระบบ
+        </button>
       </div>
-    </div>
-    <div class="flex items-center gap-4 bg-white/70 px-5 py-2.5 rounded-full shadow-sm border border-pink-50">
-      <div class="flex flex-col text-right">
-        <span id="displayUserName" class="text-sm font-bold text-gray-800">IT Staff</span>
-        <span class="text-[10px] text-gray-500 bg-gray-100 px-2 rounded-full w-fit ml-auto">เจ้าหน้าที่สำรวจ</span>
-      </div>
-      <div class="h-8 w-px bg-gray-300"></div>
-      <button onclick="logout()" class="btn text-pink-600 hover:text-pink-800 hover:bg-pink-50 px-3 py-1.5 text-sm font-medium flex items-center">
-        <i class="fas fa-sign-out-alt mr-1.5"></i> ออกจากระบบ
-      </button>
-    </div>
-  </header>
+    </header>
 
     <!-- พื้นที่แสดงเนื้อหาหลัก -->
     <main id="appContent">
-        <!-- Javascript จะทำการ Render หน้าต่างๆ ลงในนี้ -->
+        <!-- Javascript renders page screens here -->
     </main>
 
   </div>
-   <footer class="mt-8 text-center p-6 no-print border-t border-slate-100 bg-slate-50/50">
-        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-tighter tracking-widest leading-loose">
-            &copy;พัฒนาโดย: ทีม 👷 ช่างไอที กลุ่มงานเทคโนโลยีสารสนเทศทางการแพทย์<br>
-            โรงพยาบาลอุดรธานี • IT NETWORK MANAGEMENT 
-    </footer>
+
+  <footer class="mt-8 text-center p-6 no-print border-t border-slate-100 bg-slate-50/50">
+      <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-loose">
+          &copy;พัฒนาโดย: ทีม 👷 ช่างไอที กลุ่มงานเทคโนโลยีสารสนเทศทางการแพทย์<br>
+          โรงพยาบาลอุดรธานี • IT NETWORK MANAGEMENT
+      </p>
+  </footer>
 
   <script>
-    // ==========================================
-    // ตั้งค่า URL ของ Web App จาก Google Apps Script
-    // ==========================================
-    const API_URL = 'https://script.google.com/macros/s/AKfycbxXlztTHdCM1RSKK0gVRHvDVqZR4bE0RiPliDNSane-xhoffM7vMBVj5TAwHieniC0i2g/exec'; // <-- ใส่ Web App URL 
+    // URL ของ Web App จาก Google Apps Script
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwvZGucEHuKW4GQ0XFsJ1v3ajmMYmp9-lFUJGar64gH-g8mq5Sf_PL4c38txqDpOhwf/exec';
     
     // State ส่วนกลาง
     let currentUser = null;
+    let currentRoomId = null;
+    let cachedRoomData = { room: {}, supportingComponents: [], networkDevices: [] };
     
-    // DOM Elements
-    const overlay = document.getElementById('overlay');
-    const overlayText = document.getElementById('overlayText');
-    const mainHeader = document.getElementById('mainHeader');
-    const appContent = document.getElementById('appContent');
-    const displayUserName = document.getElementById('displayUserName');
+    // DOM Elements 
+    let overlay = null;
+    let overlayText = null;
+    let mainHeader = null;
+    let appContent = null;
+    let displayUserName = null;
+
+    // Mapping Key แข็งแกร่งสูงป้องกันการดึงคอลัมน์จาก Sheet ไม่ตรงใน Backend
+    const K_MAP = {
+      // Supporting Components
+      caruId: ['CaruID', 'Asset_ID', 'AssetID', 'Asset ID', 'CaruID ', 'Asset_ID '],
+      caruName: ['CaruName', 'Asset_Name & Detail', 'CaruName ', 'Asset_Item_Name', 'Detail', 'CaruName'],
+      brand: ['BandName', 'Brand', 'BandName ', 'Brand '],
+      model: ['MODEL', 'Model', 'MODEL ', 'ModelID', 'Model '],
+      type: ['CrutypeName', 'CrutypeName ', 'Asset_Type_Name', 'Asset_Type_Group'],
+      status: ['STATUS', 'STATUS ', 'MaStatus', 'CoStatus', 'STATUS'],
+      age: ['Age', 'Age ', 'อายุ', 'อายุ '],
+      fileId: ['FileID_Y', 'FileID', 'FileID_Y ', 'FileID_Y', 'IMAGE_ID', 'Images'],
+
+      // Network Devices
+      nswid: ['NSWID', 'NSWID ', 'Asset_ID', 'AssetID'],
+      hostname: ['Hostname', 'Hostname '],
+      ip: ['IP Address', 'IP_Address', 'IP Address ', 'IP_Address '],
+      pio: ['NetworkPio', 'NetworkPio '],
+      product: ['Product', 'Product '],
+      netModel: ['Model', 'Model ', 'MODEL', 'MODEL '],
+      serial: ['Serial No.', 'Serial No', 'Serial', 'Serial No. ', 'Serial_No', 'Serial_No.', 'Serial '],
+      mac: ['Mac Address', 'Mac_Address', 'Mac Address ', 'Mac_Address '],
+      stack: ['Stack No.', 'Stack No', 'Stack', 'Stack No. ', 'Stack_No'],
+      note: ['Note', 'Note '],
+      user: ['Username', 'Username ', 'User'],
+      pass: ['Password', 'Password ', 'Pass']
+    };
+
+    function initDOMElements() {
+      overlay = document.getElementById('overlay');
+      overlayText = document.getElementById('overlayText');
+      mainHeader = document.getElementById('mainHeader');
+      appContent = document.getElementById('appContent');
+      displayUserName = document.getElementById('displayUserName');
+    }
+
+    // ==========================================
+    // ตรวจสอบระบบ Session
+    // ==========================================
+    if (typeof window.getCurrentUser !== 'function') {
+      window.getCurrentUser = function() {
+        const userData = localStorage.getItem('currentUser') || localStorage.getItem('it_udon_survey_session');
+        if (!userData) return null;
+        try { return JSON.parse(userData); } catch(e) { return null; }
+      };
+    }
+    if (typeof window.getDisplayName !== 'function') {
+      window.getDisplayName = function() {
+        const user = window.getCurrentUser();
+        if (!user) return "ผู้ใช้งานทั่วไป";
+        return (user.UserName || "") + " " + (user.UserSname || user.name || "");
+      };
+    }
+    if (typeof window.logout !== 'function') {
+      window.logout = function() {
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('it_udon_survey_session');
+        sessionStorage.clear();
+        showAlert("ออกจากระบบเสร็จสิ้น");
+        window.location.reload();
+      };
+    }
 
     // UI Utilities
     function showLoading(text = 'กำลังโหลดข้อมูล...') {
-      overlayText.innerText = text;
-      overlay.classList.remove('hidden');
-      overlay.classList.add('flex');
+      if (overlayText && overlay) {
+        overlayText.innerText = text;
+        overlay.classList.remove('hidden');
+        overlay.classList.add('flex');
+      }
     }
     
     function hideLoading() {
-      overlay.classList.add('hidden');
-      overlay.classList.remove('flex');
+      if (overlay) {
+        overlay.classList.add('hidden');
+        overlay.classList.remove('flex');
+      }
     }
 
     // Modal Utilities
@@ -177,11 +267,11 @@
       const text = document.getElementById('customModalText');
       const actions = document.getElementById('customModalActions');
       
+      if (!modal || !content) return;
       text.innerText = message;
       modal.classList.remove('hidden');
       modal.classList.add('flex');
       
-      // Animation
       setTimeout(() => {
         content.classList.remove('scale-95', 'opacity-0');
         content.classList.add('scale-100', 'opacity-100');
@@ -199,14 +289,14 @@
       if (type === 'alert') {
         icon.className = 'mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4 bg-red-50 text-red-500 text-3xl border border-red-100';
         icon.innerHTML = '<i class="fas fa-exclamation-circle"></i>';
-        actions.innerHTML = `<button class="btn bg-gray-800 hover:bg-gray-900 text-white px-6 py-2 rounded-xl text-sm font-medium" id="modalOkBtn">ตกลง</button>`;
+        actions.innerHTML = `<button class="btn bg-gray-800 hover:bg-gray-900 text-white px-6 py-2 text-sm font-medium" id="modalOkBtn">ตกลง</button>`;
         document.getElementById('modalOkBtn').onclick = closeModal;
       } else if (type === 'confirm') {
         icon.className = 'mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4 bg-blue-50 text-blue-500 text-3xl border border-blue-100';
         icon.innerHTML = '<i class="fas fa-question-circle"></i>';
         actions.innerHTML = `
-          <button class="btn bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-2 rounded-xl text-sm font-medium border border-gray-200" id="modalCancelBtn">ยกเลิก</button>
-          <button class="btn bg-gradient-to-r from-pink-500 to-rose-400 hover:from-pink-600 hover:to-rose-500 text-white px-6 py-2 rounded-xl text-sm font-medium shadow-md" id="modalConfirmBtn">ยืนยัน</button>
+          <button class="btn bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-2 text-sm font-medium border border-gray-200" id="modalCancelBtn">ยกเลิก</button>
+          <button class="btn bg-gradient-to-r from-pink-500 to-rose-400 hover:from-pink-600 hover:to-rose-500 text-white px-6 py-2 text-sm font-medium shadow-md" id="modalConfirmBtn">ยืนยัน</button>
         `;
         document.getElementById('modalCancelBtn').onclick = closeModal;
         document.getElementById('modalConfirmBtn').onclick = () => {
@@ -219,43 +309,39 @@
     function showAlert(msg) { showModal('alert', msg); }
     function showConfirm(msg, callback) { showModal('confirm', msg, callback); }
 
-    // ==========================================
-    // Session & Auth Logic
-    // ==========================================
+    // Session Control
     function checkSession() {
-      const sessionData = localStorage.getItem('currentUser');
-      if (sessionData) {
-        currentUser = JSON.parse(sessionData);
-        displayUserName.innerText = currentUser.name || currentUser.username;
-        mainHeader.classList.remove('hidden');
-        renderDashboard(); // ถ้ามี Session ให้ไปหน้า Dashboard เสมอ
+      currentUser = window.getCurrentUser();
+      if (currentUser) {
+        if (displayUserName) displayUserName.innerText = window.getDisplayName();
+        if (mainHeader) mainHeader.classList.remove('hidden');
+        renderDashboard();
       } else {
-        mainHeader.classList.add('hidden');
-        renderLogin(); // ถ้าไม่มีให้เด้งกลับหน้า Login
+        if (mainHeader) mainHeader.classList.add('hidden');
+        renderLogin();
       }
     }
 
-    function logout() {
+    function handleLogout() {
       showLoading('กำลังออกจากระบบ...');
       setTimeout(() => {
-        localStorage.removeItem('currentUser');
-        currentUser = null;
         hideLoading();
-        checkSession();
-      }, 500);
+        window.logout();
+      }, 400);
     }
 
     // ==========================================
     // Render: หน้า Login
     // ==========================================
     function renderLogin() {
+      if (!appContent) return;
       appContent.innerHTML = `
       <div class="flex items-center justify-center min-h-[85vh]">
           <div class="card w-full max-w-sm p-8 text-center border-t-4 border-t-pink-500">
               <div class="w-14 h-14 rounded-full flex items-center justify-center shadow-sm border border-pink-900 overflow-hidden bg-white mx-auto mb-4">
-                    <img src="./logo1.png" alt="Logo" class="w-full h-full object-cover">
+                    <img src="./logo1.png" alt="Logo" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100/fce4ec/d81b60?text=UDH'">
                 </div>
-              <h2 class="text-xl font-bold text-gray-800 mb-1">เข้าสู่ระบบ</h2>
+              <h2 class="text-xl font-bold text-gray-800 mb-1">เข้าสู่ระบบสำรวจ</h2>
               <p class="text-xs text-gray-500 mb-6 font-medium">IT UDH Network Management Systems</p>
               
               <form onsubmit="handleLogin(event)" class="space-y-4">
@@ -290,7 +376,7 @@
       try {
           const res = await callAPI({ action: 'login', username: u, password: p });
           if (res.status === 'success') {
-              localStorage.setItem('it_udon_survey_session', JSON.stringify(res.data));
+              localStorage.setItem('currentUser', JSON.stringify(res.data));
               checkSession();
           } else {
               showAlert('ข้อมูลเข้าสู่ระบบไม่ถูกต้อง หรือไม่พบสิทธิ์การใช้งาน');
@@ -324,13 +410,28 @@
     async function renderDashboard() {
       if(!currentUser) return checkSession();
       if (!appContent) return;
-      appContent.innerHTML = renderTabs('dashboard') + `<div id="dashboardContent" class="space-y-8"></div>`;
+      
+      const searchHtml = `
+      <div class="mb-8 relative max-w-2xl mx-auto no-print">
+          <div class="flex items-center bg-white rounded-full shadow-md border border-pink-100 px-2 py-2 relative z-20">
+              <div class="pl-4 text-gray-400"><i class="fas fa-search"></i></div>
+              <input type="text" id="globalSearchInput" oninput="handleSearchTyping(this.value)" placeholder="ค้นหารหัส CaruID, ชื่อ หรือสเปค..." 
+                     class="w-full bg-transparent border-none focus:outline-none focus:ring-0 px-4 text-gray-700 placeholder-gray-400 text-sm">
+              <button onclick="openQRScanner()" class="bg-pink-50 hover:bg-pink-100 text-pink-600 rounded-full w-10 h-10 flex items-center justify-center transition-colors shrink-0">
+                  <i class="fas fa-qrcode text-lg"></i>
+              </button>
+          </div>
+          <div id="searchDropdown" class="absolute w-full mt-2 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-10 hidden flex-col max-h-[60vh]">
+              <div id="searchResults" class="overflow-y-auto divide-y divide-gray-100"></div>
+          </div>
+      </div>`;
+
+      appContent.innerHTML = renderTabs('dashboard') + searchHtml + `<div id="dashboardContent" class="space-y-8"></div>`;
       
       showLoading('กำลังโหลด Dashboard...');
       try {
           const res = await callAPI({action: 'getDashboard'});
           if(res.status === 'success') {
-              // รองรับโครงสร้างข้อมูลใหม่จาก Backend
               const data = res.data;
               const isNewFormat = data.rooms !== undefined;
               
@@ -342,9 +443,7 @@
               if (container) {
                 let html = '';
 
-                // -----------------------------------------------------
-                // 1. สรุปจุดติดตั้ง (Rooms)
-                // -----------------------------------------------------
+                // สรุปจุดติดตั้ง (Rooms)
                 html += `
                 <div class="bg-white/60 p-5 rounded-3xl border border-pink-100 shadow-sm backdrop-blur-sm">
                     <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center border-l-4 border-pink-500 pl-3">
@@ -361,9 +460,7 @@
                 if(Object.keys(roomsData).length === 0) html += '<div class="col-span-full card p-6 text-center text-gray-500">ยังไม่มีข้อมูล</div>';
                 html += `</div></div>`;
 
-                // -----------------------------------------------------
-                // 2. สรุป Supporting Component
-                // -----------------------------------------------------
+                // สรุป Supporting Component
                 if (isNewFormat) {
                     html += `
                     <div class="bg-white/60 p-5 rounded-3xl border border-rose-100 shadow-sm backdrop-blur-sm">
@@ -382,9 +479,7 @@
                     html += `</div></div>`;
                 }
 
-                // -----------------------------------------------------
-                // 3. สรุป Network Device
-                // -----------------------------------------------------
+                // สรุป Network Device
                 if (isNewFormat) {
                     html += `
                     <div class="bg-white/60 p-5 rounded-3xl border border-fuchsia-100 shadow-sm backdrop-blur-sm">
@@ -413,8 +508,9 @@
     // ==========================================
     // Render: หน้า SurveyList
     // ==========================================
-   async function renderSurveyList() {
+    async function renderSurveyList() {
       if(!currentUser) return checkSession();
+      if (!appContent) return;
       appContent.innerHTML = renderTabs('surveylist') + `<div id="surveyListContent" class="space-y-6"></div>`;
       
       showLoading('กำลังดึงข้อมูลรายการสำรวจทั้งหมด...');
@@ -422,24 +518,16 @@
           const res = await callAPI({action: 'getSurveyList'});
           if(res.status === 'success') {
               const rooms = res.data || [];
-              
-              // ---------------------------------------------------------
-              // 1. จัดกลุ่มแบบ 2 ชั้น: อาคาร (R.LOCAT) -> ชั้น (R.LOF)
-              // ---------------------------------------------------------
               const grouped = {};
               rooms.forEach(r => {
-                  const loc = r['R.LOCAT'] || 'ไม่ระบุสถานที่';
-                  const floor = r['R.LOF'] || 'ไม่ระบุชั้น';
-                  
+                  const loc = r['R.LOCAT'] || r['R_LOCAT'] || 'ไม่ระบุสถานที่';
+                  const floor = r['R.LOF'] || r['R_LOF'] || 'ไม่ระบุชั้น';
                   if(!grouped[loc]) grouped[loc] = {};
                   if(!grouped[loc][floor]) grouped[loc][floor] = [];
-                  
                   grouped[loc][floor].push(r);
               });
               
               let html = '';
-              
-              // เรียงลำดับชื่ออาคาร/สถานที่ตามตัวอักษร
               const sortedLocs = Object.keys(grouped).sort();
               
               sortedLocs.forEach(loc => {
@@ -451,9 +539,6 @@
                       <div class="space-y-8">
                   `;
                   
-                  // ---------------------------------------------------------
-                  // 2. เรียงลำดับชั้น (รองรับทั้งตัวเลขและข้อความ เช่น ชั้น 1, ชั้น 2, ชั้น 10)
-                  // ---------------------------------------------------------
                   const sortedFloors = Object.keys(grouped[loc]).sort((a, b) => {
                       return a.toString().localeCompare(b.toString(), undefined, {numeric: true, sensitivity: 'base'});
                   });
@@ -467,7 +552,6 @@
                           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                       `;
                       
-                      // เรียงลำดับชื่อห้องภายในชั้น (RNAME) ให้ไล่โค้ด/หาห้องง่ายขึ้น
                       grouped[loc][floor].sort((a, b) => {
                           const nameA = a['RNAME'] || '';
                           const nameB = b['RNAME'] || '';
@@ -481,33 +565,27 @@
                           const statusText = isSurveyed ? 'สำรวจแล้ว' : 'ยังไม่สำรวจ';
                           
                           const typColor = getHashColor(r['ROOMTYP']);
-                          const titleText = `${r['RNAME'] || '-'} / ${r['R.LOCAT'] || ''} / ชั้น ${r['R.LOF'] || '-'}`;
+                          const titleText = `${r['RNAME'] || '-'} / ${r['R.LOCAT'] || r['R_LOCAT'] || ''} / ชั้น ${r['R.LOF'] || r['R_LOF'] || '-'}`;
                           
-                          // ดึงข้อมูลรูปภาพหน้าปก Card
-                          const fileId = getColValue(r, 11);
+                          const fileId = r.FileID_Y || r.FileID || getColValue(r, 11);
                           const imgUrl = fileId ? `https://drive.google.com/thumbnail?id=${fileId}&sz=w600` : 'https://placehold.co/400x200/fce4ec/d81b60?text=No+Image';
                           
                           html += `
                           <div class="border border-gray-200 rounded-xl hover:shadow-lg transition-all cursor-pointer bg-white relative overflow-hidden group flex flex-col" onclick="renderRoomDetail('${r['ROOMID']}')">
-                              
                               <div class="h-32 w-full bg-gray-100 relative overflow-hidden border-b border-gray-100">
                                    <img src="${imgUrl}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.src='https://placehold.co/400x200/fce4ec/d81b60?text=NO IMAGE'">
                                    <div class="absolute top-0 left-0 w-1.5 h-full z-10" style="background-color: ${typColor}"></div>
-                                   
                                    <div class="absolute top-2 right-2">
                                        <span class="text-[10px] font-bold px-2.5 py-1 rounded-md shadow-sm flex items-center gap-1.5 ${statusColor} bg-white/90 backdrop-blur-sm border-none">
                                            <i class="fas ${statusIcon}"></i> ${statusText}
                                        </span>
                                    </div>
                               </div>
-                              
                               <div class="p-4 flex-1 flex flex-col">
                                   <span class="text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider w-fit mb-2" style="background-color: ${typColor}15; color: ${typColor}">
                                       ${r['ROOMTYP'] || 'ไม่ระบุประเภท'}
                                   </span>
-                                  
                                   <h4 class="font-medium text-gray-800 mb-3 leading-snug line-clamp-2 text-sm">${titleText}</h4>
-                                  
                                   <div class="flex gap-2 text-xs text-gray-500 mt-auto">
                                       <div class="bg-gray-50 px-2 py-1.5 rounded-lg flex-1 text-center border border-gray-100">
                                           <span class="block text-[9px] text-gray-400 uppercase">Criticality</span>
@@ -515,81 +593,69 @@
                                       </div>
                                       <div class="bg-gray-50 px-2 py-1.5 rounded-lg flex-1 text-center border border-gray-100">
                                           <span class="block text-[9px] text-gray-400 uppercase">Risk Level</span>
-                                          <span class="font-bold text-gray-700">${r['Rick_Level'] || '-'}</span>
+                                          <span class="font-bold text-gray-700">${r['Rick_Level'] || r['Risk_Level'] || '-'}</span>
                                       </div>
                                   </div>
                               </div>
                           </div>
                           `;
                       });
-                      
-                      html += `</div></div>`; // ปิดโครงสร้างของ Grid และ Floor Section
+                      html += `</div></div>`;
                   });
-                  
-                  html += `</div></div>`; // ปิดโครงสร้างของอาคารแต่ละแห่ง
+                  html += `</div></div>`;
               });
-              
               document.getElementById('surveyListContent').innerHTML = html || '<div class="card p-8 text-center text-gray-500">ไม่พบรายการห้อง</div>';
           }
       } catch(err) { console.error(err); }
       hideLoading();
-}
+    }
 
     // ==========================================
     // Render: หน้า Room Detail
     // ==========================================
- async function renderRoomDetail(roomId) {
+    async function renderRoomDetail(roomId) {
       if(!currentUser) return checkSession();
       if (!appContent) return;
+      currentRoomId = roomId;
       
       showLoading('กำลังโหลดข้อมูลเชิงลึกของจุดติดตั้ง...');
       try {
           const res = await callAPI({action: 'getRoomDetail', roomId: roomId});
           if(res.status === 'success') {
-              const room = res.data.room || {};
-              const supportingComponents = res.data.supportingComponents || [];
-              const networkDevices = res.data.networkDevices || [];
+              cachedRoomData = res.data;
+              const room = cachedRoomData.room || {};
+              const supportingComponents = cachedRoomData.supportingComponents || [];
+              const networkDevices = cachedRoomData.networkDevices || [];
               
-              // ---------------------------------------------------------
-              // 1. จัดการรูปภาพ (ดึงตาม Index คอลัมน์ L = 11)
-              // ---------------------------------------------------------
               let imgUrl = 'https://placehold.co/800x600/fce4ec/d81b60?text=No+Image+Available';
-              const fileId = getColValue(room, 11);
+              const fileId = room.FileID_Y || room.FileID || getColValue(room, 11);
               if (fileId) {
                   imgUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
               }
 
-              // ---------------------------------------------------------
-              // 1.5 สร้าง URL สำหรับรูปภาพ QR Code (ปรับขนาดแสดงผลเป็น w-16 h-16)
-              // ---------------------------------------------------------
               const qrText = room['QRROOM'] || room['RNAME'] || '';
               let qrImgHtml = '';
               if(qrText && qrText !== '-') {
                   const qrUrl = `https://image-charts.com/chart?chs=300x300&cht=qr&choe=UTF-8&chl=${encodeURIComponent(qrText)}`;
-                  qrImgHtml = `<img src="${qrUrl}" alt="QR Code" class="w-16 h-16 object-contain bg-white p-1 rounded shadow-sm border border-gray-200 hover:scale-[2.5] hover:-translate-x-2 hover:-translate-y-2 transition-transform origin-bottom-right z-20 relative cursor-zoom-in">`;
+                  qrImgHtml = `<img src="${qrUrl}" alt="QR Code" class="w-16 h-16 object-contain bg-white p-1 rounded shadow-sm border border-gray-200 hover:scale-[2.5] hover:-translate-x-2 hover:-translate-y-2 transition-transform duration-300 origin-bottom-right z-20 relative cursor-zoom-in">`;
               }
 
-              // ---------------------------------------------------------
-              // 2. จัดกลุ่ม Supporting Component ตาม CrutypeName
-              // ---------------------------------------------------------
+              // จัดกลุ่มตัวประกอบสนับสนุน (Supporting Component) โดยใช้ Safe getVal
               const groupedSupport = {};
               supportingComponents.forEach(eq => {
-                  const typeName = eq['CrutypeName'] || 'ไม่ได้ระบุประเภท';
+                  const typeName = getVal(eq, K_MAP.type, 4) || 'ไม่ได้ระบุประเภท';
                   if(!groupedSupport[typeName]) groupedSupport[typeName] = [];
                   groupedSupport[typeName].push(eq);
               });
 
-              // ---------------------------------------------------------
-              // 3. จัดกลุ่ม Network Device ตาม NetworkPio และวิเคราะห์ระดับความสำคัญ
-              // ---------------------------------------------------------
+              // จัดกลุ่มอุปกรณ์โครงข่าย (Network Device) โดยใช้ Safe getVal
               const groupedNetwork = {};
               networkDevices.forEach(net => {
-                  const pio = net['NetworkPio'] || 'ไม่ได้ระบุกลุ่ม (Other)';
+                  const pio = getVal(net, K_MAP.pio, 3) || 'ไม่ได้ระบุกลุ่ม (Other)';
                   if(!groupedNetwork[pio]) groupedNetwork[pio] = [];
                   groupedNetwork[pio].push(net);
               });
 
-              // ตารางกำหนดสัญลักษณ์ สี และข้อมูลสำหรับกลุ่ม NetworkPio แยกย่อยตามที่คุณระบุมา
               const pioMasterData = {
                   'Web Application Firewall (Project Cyber Security)': {
                       icon: 'fa-shield-virus', badge: 'Critical (Layer 7)', desc: 'ปกป้อง Web Application และระบบสารสนเทศโรงพยาบาลจากการโจมตีภายนอก',
@@ -650,7 +716,6 @@
                   };
               };
 
-              // เริ่มสร้าง UI HTML
               let html = `
               <div class="mb-4 no-print flex justify-between items-center">
                   <button onclick="renderSurveyList()" class="btn bg-white border border-gray-200 text-gray-600 hover:text-pink-600 hover:border-pink-300 px-4 py-2 rounded-xl text-sm font-medium flex items-center shadow-sm">
@@ -672,7 +737,7 @@
                                   <div>
                                       <h2 class="text-3xl font-bold text-gray-800 tracking-tight">${room['RNAME'] || '-'}</h2>
                                       <p class="text-gray-500 mt-1 flex items-center">
-                                          <i class="fas fa-map-marker-alt text-pink-400 mr-2"></i> ${room['R.LOCAT'] || '-'} ชั้น ${room['R.LOF'] || '-'}
+                                          <i class="fas fa-map-marker-alt text-pink-400 mr-2"></i> ${room['R.LOCAT'] || room['R_LOCAT'] || '-'} ชั้น ${room['R.LOF'] || room['R_LOF'] || '-'}
                                       </p>
                                   </div>
                                   <span class="bg-gradient-to-r from-pink-500 to-rose-400 text-white text-xs uppercase tracking-widest px-3 py-1.5 rounded-lg font-bold shadow-sm">
@@ -688,11 +753,9 @@
                                       <span class="text-pink-600 block text-[10px] uppercase font-bold mb-1">Location ID</span> 
                                       <span class="font-bold text-gray-800 text-lg">${room['LocatID'] || '-'}</span>
                                   </div>
-                                  
                                   <div class="bg-pink-50/50 p-3 rounded-xl border border-pink-100 flex items-center justify-center min-h-[76px]">
                                       ${qrImgHtml || '<span class="text-gray-400 text-xs font-medium">ไม่มีรูป QR Code</span>'}
                                   </div>
-                                  
                                   <div class="bg-pink-50/50 p-3 rounded-xl border border-pink-100">
                                       <span class="text-pink-600 block text-[10px] uppercase font-bold mb-1">Map Coordinates</span> 
                                       <span class="font-mono text-gray-600 text-xs">${room['RoomGPS'] || '-'}</span>
@@ -711,22 +774,26 @@
 
               <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
                   
+                  <!-- Supporting Component -->
                   <div>
-                      <h3 class="text-xl font-bold text-gray-800 mb-2 flex items-center border-l-4 border-pink-500 pl-3">
-                          <i class="fas fa-boxes text-pink-400 mr-2"></i> Supporting Component
-                      </h3>
-                      
-                      <div class="bg-gradient-to-r from-slate-50 to-slate-100 border border-slate-200/80 p-3 rounded-xl mb-4 text-xs shadow-inner transition-all duration-200">
-                          <button onclick="this.nextElementSibling.classList.toggle('hidden'); const icon = this.querySelector('.toggle-icon'); icon.classList.toggle('fa-chevron-down'); icon.classList.toggle('fa-chevron-up');" class="w-full flex justify-between items-center font-semibold text-slate-700 focus:outline-none cursor-pointer group">
-                              <span class="flex items-center gap-1.5 group-hover:text-pink-600 transition-colors">
-                                  <i class="fas fa-info-circle text-slate-500 group-hover:text-pink-500"></i> เกี่ยวกับระบบสนับสนุนและสิ่งอำนวยความสะดวก (Facilities)
-                              </span>
-                              <i class="fas fa-chevron-down toggle-icon text-slate-400 transition-transform group-hover:text-slate-600"></i>
-                          </button>
-                          <div class="mt-2 text-gray-600 leading-relaxed border-t border-slate-200/60 pt-2 hidden">
-                              เป็นกลุ่มครุภัณฑ์เพื่อความปลอดภัยและเสถียรภาพของจุดติดตั้งเครือข่ายหลัก เช่น <b>เครื่องสำรองไฟฟ้า (UPS)</b> เพื่อป้องกันความเสียหายจากไฟกระชาก/ดับ และ <b>เครื่องปรับอากาศ (Air Conditioner)</b> เพื่อรักษาระดับอุณหภูมิที่เหมาะสมแก่การทำงานของเซิร์ฟเวอร์และอุปกรณ์เครือข่ายตลอด 24 ชั่วโมง
-                          </div>
+                      <div class="flex justify-between items-center mb-2">
+                        <h3 class="text-xl font-bold text-gray-800 flex items-center border-l-4 border-pink-500 pl-3">
+                            <i class="fas fa-boxes text-pink-400 mr-2"></i> Supporting Component
+                        </h3>
+                        <button onclick="openEditModal('support', 'add', {})" class="btn text-xs bg-pink-50 hover:bg-pink-100 text-pink-600 border border-pink-200 px-3 py-1.5 font-medium flex items-center gap-1">
+                          <i class="fas fa-plus"></i> เพิ่มอุปกรณ์
+                        </button>
                       </div>
+                      
+                      <details class="bg-gradient-to-r from-slate-50 to-slate-100 border border-slate-200 p-3 rounded-xl mb-4 text-xs shadow-inner cursor-pointer">
+                          <summary class="font-semibold text-slate-700 flex justify-between items-center outline-none list-none">
+                              <span class="flex items-center gap-1.5"><i class="fas fa-info-circle text-slate-500"></i> อธิบายสิ่งอำนวยความสะดวก (Facilities)</span>
+                              <i class="fas fa-chevron-down text-slate-400"></i>
+                          </summary>
+                          <p class="mt-2 text-gray-600 leading-relaxed border-t border-slate-200/60 pt-2 cursor-default">
+                              เป็นกลุ่มครุภัณฑ์เพื่อความปลอดภัยและเสถียรภาพของจุดติดตั้งเครือข่ายหลัก เช่น <b>เครื่องสำรองไฟฟ้า (UPS)</b> เพื่อป้องกันความเสียหายจากไฟกระชาก/ดับ และ <b>เครื่องปรับอากาศ (Air Conditioner)</b> เพื่อรักษาระดับอุณหภูมิที่เหมาะสมแก่การทำงานของเซิร์ฟเวอร์และอุปกรณ์เครือข่ายตลอด 24 ชั่วโมง
+                          </p>
+                      </details>
                       
                       <div class="space-y-4">
                           ${Object.keys(groupedSupport).length === 0 ? '<div class="card p-6 text-center text-gray-400 border border-dashed border-gray-300"><i class="fas fa-folder-open text-2xl mb-2 text-gray-300"></i><br>ไม่มีข้อมูลส่วนประกอบสนับสนุน</div>' : ''}
@@ -738,29 +805,34 @@
                                   </div>
                                   <div class="divide-y divide-gray-100">
                                       ${eqs.map(eq => {
-                                          // ดึง FileID รูปอุปกรณ์จาก Index 24 (คอลัมน์ Y ใน Google Sheets)
-                                          const eqFileId = getColValue(eq, 26);
+                                          const eqFileId = getVal(eq, K_MAP.fileId, 24);
                                           const eqImgUrl = eqFileId ? `https://drive.google.com/thumbnail?id=${eqFileId}&sz=w200` : 'https://placehold.co/100x100/fce4ec/d81b60?text=No+Img';
                                           
+                                          // Map ข้อมูลผ่าน getVal ป้องกันปัญหาย้ายตำแหน่งของคอลัมน์
+                                          const cId = getVal(eq, K_MAP.caruId, 0);
+                                          const cName = getVal(eq, K_MAP.caruName, 1);
+                                          const cBrand = getVal(eq, K_MAP.brand, 2);
+                                          const cModel = getVal(eq, K_MAP.model, 3);
+                                          const cAge = getVal(eq, K_MAP.age, 6);
+                                          const cStatus = getVal(eq, K_MAP.status, 5);
+
                                           return `
-                                          <div class="p-4 hover:bg-pink-50/30 transition-colors flex gap-3">
-                                              <!-- กล่องแสดงรูปภาพอุปกรณ์ -->
+                                          <div class="p-4 hover:bg-pink-50/30 transition-all flex gap-3 cursor-pointer group" onclick="openEditModal('support', 'edit', ${JSON.stringify(eq).replace(/"/g, '&quot;')})">
                                               <div class="shrink-0 w-16 h-16 bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden flex items-center justify-center">
-                                                  <img src="${eqImgUrl}" alt="Equipment" class="w-full h-full object-cover hover:scale-110 transition-transform duration-300" onerror="this.src='https://placehold.co/100x100/fce4ec/d81b60?text=Err'">
+                                                  <img src="${eqImgUrl}" alt="Equipment" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" onerror="this.src='https://placehold.co/100x100/fce4ec/d81b60?text=Err'">
                                               </div>
-                                              
-                                              <!-- กล่องข้อมูลอุปกรณ์ -->
                                               <div class="flex-1 min-w-0">
                                                   <div class="flex justify-between items-start gap-2">
                                                       <div>
-                                                          <div class="font-medium text-gray-800 text-sm break-words">${eq['CaruName'] || '-'}</div>
-                                                          <div class="text-xs text-gray-500 mt-1">Model: ${eq['MODEL'] || eq['ModelID'] || '-'} | Band: ${eq['BandName'] || '-'}</div>
+                                                          <div class="font-medium text-gray-800 text-sm break-words group-hover:text-pink-600 transition-colors">${cName || '-'}</div>
+                                                          <div class="text-xs text-gray-500 mt-1">Model: ${cModel || '-'} | Band: ${cBrand || '-'}</div>
                                                       </div>
-                                                      ${eq['STATUS'] ? `<span class="text-[9px] px-2 py-1 rounded bg-green-50 text-green-600 border border-green-200 font-bold shrink-0">${eq['STATUS']}</span>` : ''}
+                                                      ${cStatus ? `<span class="text-[9px] px-2 py-1 rounded bg-green-50 text-green-600 border border-green-200 font-bold shrink-0">${cStatus}</span>` : ''}
                                                   </div>
-                                                  <div class="mt-2 flex flex-wrap gap-2">
-                                                      <span class="text-[10px] font-mono bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">ID: ${eq['CaruID'] || '-'}</span>
-                                                      ${eq['Age'] ? `<span class="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded border border-blue-100">อายุ: ${eq['Age']}</span>` : ''}
+                                                  <div class="mt-2 flex flex-wrap gap-2 items-center">
+                                                      <span class="text-[10px] font-mono bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">ID: ${cId || '-'}</span>
+                                                      ${cAge ? `<span class="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded border border-blue-100">อายุ: ${cAge}</span>` : ''}
+                                                      <span class="text-[11px] text-pink-500 opacity-0 group-hover:opacity-100 ml-auto transition-opacity font-sans font-medium"><i class="fas fa-edit"></i> แก้ไข</span>
                                                   </div>
                                               </div>
                                           </div>
@@ -772,22 +844,26 @@
                       </div>
                   </div>
 
+                  <!-- Network Device -->
                   <div>
-                      <h3 class="text-xl font-bold text-gray-800 mb-2 flex items-center border-l-4 border-pink-500 pl-3">
-                          <i class="fas fa-network-wired text-pink-400 mr-2"></i> Network Device
-                      </h3>
-                      
-                      <div class="bg-gradient-to-r from-slate-50 to-slate-100 border border-slate-200/80 p-3 rounded-xl mb-4 text-xs shadow-inner transition-all duration-200">
-                          <button onclick="this.nextElementSibling.classList.toggle('hidden'); const icon = this.querySelector('.toggle-icon'); icon.classList.toggle('fa-chevron-down'); icon.classList.toggle('fa-chevron-up');" class="w-full flex justify-between items-center font-semibold text-slate-700 focus:outline-none cursor-pointer group">
-                              <span class="flex items-center gap-1.5 group-hover:text-pink-600 transition-colors">
-                                  <i class="fas fa-network-wired text-slate-500 group-hover:text-pink-500"></i> การทำงานของอุปกรณ์ระบบเครือข่ายหลัก
-                              </span>
-                              <i class="fas fa-chevron-down toggle-icon text-slate-400 transition-transform group-hover:text-slate-600"></i>
-                          </button>
-                          <div class="mt-2 text-gray-600 leading-relaxed border-t border-slate-200/60 pt-2 hidden">
-                              รายการอุปกรณ์สวิตชิงและระบบรักษาความปลอดภัยเครือข่ายที่ติดตั้งทำงานอยู่ ณ จุดบริการนี้ มีการจำแนกระดับความสำคัญตามฟังก์ชัน (เช่น <b>CSW</b> หรือ <b>Core Switch</b> คอยควบคุมการเชื่อมต่อหลัก, <b>ASW</b> หรือ <b>Access Switch</b> คอยจ่ายสัญญาณระดับลูกข่าย, และอุปกรณ์ประเภท <b>Perimeter Firewall</b>) สำหรับเฝ้าระวังเสถียรภาพและความสม่ำเสมอของระบบส่งผ่านข้อมูลทางการแพทย์
-                          </div>
+                      <div class="flex justify-between items-center mb-2">
+                        <h3 class="text-xl font-bold text-gray-800 flex items-center border-l-4 border-pink-500 pl-3">
+                            <i class="fas fa-network-wired text-pink-400 mr-2"></i> Network Device
+                        </h3>
+                        <button onclick="openEditModal('network', 'add', {})" class="btn text-xs bg-pink-50 hover:bg-pink-100 text-pink-600 border border-pink-200 px-3 py-1.5 font-medium flex items-center gap-1">
+                          <i class="fas fa-plus"></i> เพิ่มอุปกรณ์
+                        </button>
                       </div>
+                      
+                      <details class="bg-gradient-to-r from-slate-50 to-slate-100 border border-slate-200 p-3 rounded-xl mb-4 text-xs shadow-inner cursor-pointer">
+                          <summary class="font-semibold text-slate-700 flex justify-between items-center outline-none list-none">
+                              <span class="flex items-center gap-1.5"><i class="fas fa-network-wired text-slate-500"></i> อธิบายอุปกรณ์ระบบเครือข่ายหลัก</span>
+                              <i class="fas fa-chevron-down text-slate-400"></i>
+                          </summary>
+                          <p class="mt-2 text-gray-600 leading-relaxed border-t border-slate-200/60 pt-2 cursor-default">
+                              รายการอุปกรณ์สวิตชิงและระบบรักษาความปลอดภัยเครือข่ายที่ติดตั้งทำงานอยู่ ณ จุดบริการนี้ มีการจำแนกระดับความสำคัญตามฟังก์ชัน (เช่น <b>CSW</b> หรือ <b>Core Switch</b> คอยควบคุมการเชื่อมต่อหลัก, <b>ASW</b> หรือ <b>Access Switch</b> คอยจ่ายสัญญาณระดับลูกข่าย, และอุปกรณ์ประเภท <b>Perimeter Firewall</b>) สำหรับเฝ้าระวังเสถียรภาพและความสม่ำเสมอของระบบส่งผ่านข้อมูลทางการแพทย์
+                          </p>
+                      </details>
                       
                       <div class="space-y-4">
                           ${networkDevices.length === 0 ? '<div class="card p-6 text-center text-gray-400 border border-dashed border-gray-300"><i class="fas fa-server text-2xl mb-2 text-gray-300"></i><br>ไม่มีข้อมูลอุปกรณ์เครือข่าย</div>' : ''}
@@ -811,37 +887,47 @@
                                   </div>
                                   
                                   <div class="divide-y divide-gray-100">
-                                      ${nets.map((net, index) => `
-                                          <div class="p-4 hover:bg-pink-50/30 transition-colors">
+                                      ${nets.map((net, index) => {
+                                          const nId = getVal(net, K_MAP.nswid, 0);
+                                          const nHost = getVal(net, K_MAP.hostname, 1);
+                                          const nIp = getVal(net, K_MAP.ip, 2);
+                                          const nProduct = getVal(net, K_MAP.product, 4);
+                                          const nModel = getVal(net, K_MAP.netModel, 5);
+                                          const nSerial = getVal(net, K_MAP.serial, 6);
+                                          const nMac = getVal(net, K_MAP.mac, 7);
+                                          const nStack = getVal(net, K_MAP.stack, 8);
+
+                                          return `
+                                          <div class="p-4 hover:bg-pink-50/30 transition-colors cursor-pointer group" onclick="openEditModal('network', 'edit', ${JSON.stringify(net).replace(/"/g, '&quot;')})">
                                               <div class="flex justify-between items-start">
                                                   <div class="space-y-1.5 w-full">
                                                       <div class="font-medium text-gray-800 text-sm flex items-center">
                                                           <span class="text-pink-600 font-bold mr-2 text-xs">${index + 1}.</span>
-                                                          ${net['Hostname'] || 'No Hostname'}
+                                                          <span class="group-hover:text-pink-600 transition-colors">${nHost || 'No Hostname'}</span>
                                                       </div>
                                                       <div class="text-xs text-pink-600 font-semibold pl-4">
-                                                          IP Address: ${net['IP Address'] || '-'}
+                                                          IP Address: ${nIp || '-'}
                                                       </div>
-                                                      
                                                       <div class="text-[11px] text-gray-600 pl-4 flex items-center flex-wrap gap-1">
                                                           <i class="fas fa-layer-group text-gray-400 text-[10px] mr-0.5"></i>
                                                           <span class="font-medium text-gray-500">Product/Model:</span>
                                                           <span class="font-bold text-slate-800 bg-slate-100/80 px-2 py-0.5 rounded border border-slate-200 ml-0.5 shadow-sm">
-                                                              ${net['Product'] || '-'} / ${net['Model'] || '-'}
+                                                              ${nProduct || '-'} / ${nModel || '-'}
                                                           </span>
                                                       </div>
                                                   </div>
                                                   <span class="text-[10px] font-mono bg-gray-100 text-gray-600 px-2 py-0.5 rounded border border-gray-200 shrink-0">
-                                                      NSID: ${net['NSWID'] || '-'}
+                                                      NSID: ${nId || '-'}
                                                   </span>
                                               </div>
                                               
-                                              <div class="mt-3 pt-2 border-t border-gray-50 flex flex-wrap gap-x-3 gap-y-1 text-[11px] font-mono text-gray-500 pl-4">
-                                                  <span>MAC: <span class="text-gray-700">${net['Mac Address'] || '-'}</span></span>
+                                              <div class="mt-3 pt-2 border-t border-gray-50 flex flex-wrap gap-x-3 gap-y-1 text-[11px] font-mono text-gray-500 pl-4 items-center">
+                                                  <span>MAC: <span class="text-gray-700">${nMac || '-'}</span></span>
                                                   <span class="text-gray-300">|</span>
-                                                  <span>S/N: <span class="text-gray-700">${net['Serial No.'] || '-'}</span></span>
+                                                  <span>S/N: <span class="text-gray-700">${nSerial || '-'}</span></span>
                                                   <span class="text-gray-300">|</span>
-                                                  <span>Stack: <span class="text-gray-700">${net['Stack No.'] || '-'}</span></span>
+                                                  <span>Stack: <span class="text-gray-700">${nStack || '-'}</span></span>
+                                                  <span class="text-pink-500 opacity-0 group-hover:opacity-100 ml-auto transition-opacity font-sans font-medium"><i class="fas fa-edit"></i> แก้ไข</span>
                                               </div>
                                               
                                               ${net['Note'] ? `
@@ -849,7 +935,8 @@
                                                   "${net['Note']}"
                                               </div>` : ''}
                                           </div>
-                                      `).join('')}
+                                          `;
+                                      }).join('')}
                                   </div>
                               </div>
                               `;
@@ -865,10 +952,36 @@
           }
       } catch(err) { console.error(err); showAlert('เกิดข้อผิดพลาดในการเชื่อมต่อเครือข่าย'); }
       hideLoading();
-}
+    }
 
-    // หน้าจำลองหลังจากกดปุ่มเริ่มสำรวจ
+    // ==========================================
+    // เริ่มสำรวจ (Start Survey) และ บันทึกผล PM
+    // ==========================================
+    async function startSurvey(roomId) {
+      showConfirm('ระบบจะทำการสร้าง Header และดึงอุปกรณ์เข้าสู่รายการ Survey Result ยืนยันหรือไม่?', async () => {
+          showLoading('กำลังสร้างรายการสำรวจใหม่...');
+          try {
+              const res = await callAPI({
+                action: 'startSurvey', 
+                roomId: roomId, 
+                userId: currentUser.userId || currentUser.username || currentUser.UserPN
+              });
+
+              if(res.status === 'success') {
+                  renderSurveyCheck(roomId, res.data.surveyId);
+              } else {
+                  showAlert('เกิดข้อผิดพลาด: ' + res.message);
+              }
+          } catch(err) {
+              console.error(err);
+              showAlert('เกิดข้อผิดพลาดในการเชื่อมต่อเครือข่าย');
+          }
+          hideLoading();
+      });
+    }
+
     function renderSurveyCheck(roomId, surveyId) {
+      if (!appContent) return;
       appContent.innerHTML = `
       <div class="card p-10 text-center border-t-4 border-t-green-500">
           <div class="w-20 h-20 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-5 text-4xl border border-green-100">
@@ -891,6 +1004,330 @@
     }
 
     // ==========================================
+    // 🔍 ฟังก์ชันดึงรายละเอียดสเปกครุภัณฑ์อัตโนมัติในช่องแก้ไข (Asset_ID Lookup)
+    // ==========================================
+    let modalSearchTimeout = null;
+
+    // ฟังก์ชันเมื่อผู้ใช้พิมพ์ในช่อง Asset ID ใน Modal
+    function handleModalSearchTyping(text, type) {
+      const dropdown = document.getElementById(`modalSearchDropdown_${type}`);
+      const resultsContainer = document.getElementById(`modalSearchResults_${type}`);
+      
+      if (!dropdown || !resultsContainer) return;
+
+      if (!text || text.length < 2) {
+          dropdown.classList.add('hidden');
+          dropdown.classList.remove('flex');
+          return;
+      }
+
+      clearTimeout(modalSearchTimeout);
+      resultsContainer.innerHTML = `<div class="p-4 text-center text-sm text-gray-500"><i class="fas fa-circle-notch fa-spin text-pink-500 mr-2"></i> กำลังค้นหา "${text}"...</div>`;
+      dropdown.classList.remove('hidden');
+      dropdown.classList.add('flex');
+
+      modalSearchTimeout = setTimeout(async () => {
+          try {
+              const res = await callAPI({ action: 'searchEquipment', query: text });
+              if (res.status === 'success' && res.data.length > 0) {
+                  let html = '';
+                  res.data.forEach(item => {
+                      // รองรับทั้งข้อมูลรูปแบบใหม่และแบบดิบ
+                      const rawDataStr = JSON.stringify(item.rawData || item.Asset_Detail || item).replace(/"/g, '&quot;');
+                      html += `
+                      <div onclick="selectModalSearchResult('${type}', ${rawDataStr})" class="p-3 hover:bg-pink-50 cursor-pointer transition-colors flex flex-col gap-1 group border-b border-gray-50 last:border-0">
+                          <h4 class="text-sm font-bold text-gray-800 group-hover:text-pink-600">${item.CaruName || item.Asset_Type_Group || item.AssetID || 'ไม่ระบุชื่อ'}</h4>
+                          <div class="text-[11px] text-gray-500 flex gap-2">
+                              <span class="bg-gray-100 px-1.5 py-0.5 rounded font-mono border border-gray-200 text-pink-600 font-bold">ID: ${item.CaruID || item.AssetID || item.Serial || '-'}</span>
+                              <span><i class="fas fa-tag"></i> ${item.CrutypeName || item.Asset_Type_Group || '-'}</span>
+                          </div>
+                      </div>`;
+                  });
+                  resultsContainer.innerHTML = html;
+              } else {
+                  resultsContainer.innerHTML = `<div class="p-4 text-center text-gray-400 text-sm">ไม่พบข้อมูล "${text}"</div>`;
+              }
+          } catch(e) {
+              resultsContainer.innerHTML = `<div class="p-4 text-center text-red-500 text-sm">เกิดข้อผิดพลาดในการค้นหา</div>`;
+          }
+      }, 600); 
+    }
+
+    // ฟังก์ชันเมื่อกดเลือกผลลัพธ์จาก Dropdown แล้วนำไปกรอกใส่ฟอร์ม
+    function selectModalSearchResult(type, rawData) {
+      // ซ่อน Dropdown
+      document.getElementById(`modalSearchDropdown_${type}`).classList.add('hidden');
+      document.getElementById(`modalSearchDropdown_${type}`).classList.remove('flex');
+      
+      // กระจายค่าที่ได้ลงในฟอร์ม (Form Auto-fill)
+      if (type === 'support') {
+        document.getElementById('input_CaruID').value = getVal(rawData, K_MAP.caruId, 0) || rawData.AssetID || rawData.Serial || '';
+        document.getElementById('input_CaruName').value = getVal(rawData, K_MAP.caruName, 1) || rawData['Asset_Name & Detail'] || rawData.CaruName || '';
+        document.getElementById('input_BandName').value = getVal(rawData, K_MAP.brand, 2) || '';
+        document.getElementById('input_MODEL').value = getVal(rawData, K_MAP.model, 3) || '';
+        document.getElementById('input_CrutypeName').value = getVal(rawData, K_MAP.type, 4) || rawData.CrutypeName || rawData.Asset_Type_Group || '';
+        document.getElementById('input_STATUS').value = getVal(rawData, K_MAP.status, 5) || rawData.MaStatus || rawData.CoStatus || 'ใช้งาน';
+        document.getElementById('input_Age').value = getVal(rawData, K_MAP.age, 6) || rawData['อายุ'] || '';
+        
+        let fId = getVal(rawData, K_MAP.fileId, 24);
+        if (Array.isArray(fId)) fId = fId[0];
+        const inputFIleId = document.getElementById('input_FileID_Y');
+        if (inputFIleId) inputFIleId.value = fId || '';
+      } else {
+        document.getElementById('input_NSWID').value = getVal(rawData, K_MAP.nswid, 0) || rawData.AssetID || rawData.Serial || '';
+        document.getElementById('input_Hostname').value = getVal(rawData, K_MAP.hostname, 1) || rawData['Asset_Name & Detail'] || '';
+        document.getElementById('input_IPAddress').value = getVal(rawData, K_MAP.ip, 2) || '';
+        document.getElementById('input_NetworkPio').value = getVal(rawData, K_MAP.pio, 3) || rawData.Asset_Type_Group || '';
+        document.getElementById('input_Product').value = getVal(rawData, K_MAP.product, 4) || '';
+        document.getElementById('input_Model').value = getVal(rawData, K_MAP.netModel, 5) || '';
+        document.getElementById('input_SerialNo').value = getVal(rawData, K_MAP.serial, 6) || rawData.Serial || '';
+        document.getElementById('input_MacAddress').value = getVal(rawData, K_MAP.mac, 7) || '';
+        document.getElementById('input_StackNo').value = getVal(rawData, K_MAP.stack, 8) || '';
+        document.getElementById('input_Note').value = getVal(rawData, K_MAP.note, 9) || '';
+        document.getElementById('input_Username').value = getVal(rawData, K_MAP.user, 10) || '';
+        document.getElementById('input_Password').value = getVal(rawData, K_MAP.pass, 11) || '';
+      }
+      showAlert('✅ ดึงรายละเอียดและจับคู่ข้อมูลของอุปกรณ์สำเร็จ!');
+    }
+
+    // ฟังก์ชันเมื่อกดปุ่ม ดึงข้อมูล แบบ Manual
+    async function searchAssetInModal(type) {
+      const idInput = document.getElementById(type === 'support' ? 'input_CaruID' : 'input_NSWID');
+      if (!idInput) return;
+      
+      const query = idInput.value.trim();
+      if (!query) {
+        showAlert('กรุณากรอกรหัสครุภัณฑ์หรือรหัสเครื่องก่อนกดดึงข้อมูล');
+        return;
+      }
+      
+      showLoading('กำลังสืบค้นข้อมูลสเปกครุภัณฑ์จาก Asset DB...');
+      try {
+        const res = await callAPI({ action: 'searchEquipment', query: query });
+        if (res.status === 'success' && res.data && res.data.length > 0) {
+          const match = res.data[0];
+          const raw = match.rawData || match.Asset_Detail || match;
+          
+          selectModalSearchResult(type, raw);
+        } else {
+          showAlert('ไม่พบข้อมูลรหัสนี้ในฐานข้อมูลครุภัณฑ์ กรุณากรอกแบบแมนนวล');
+        }
+      } catch (err) {
+        console.error(err);
+        showAlert('เกิดข้อผิดพลาดในการดึงข้อมูลจาก API');
+      }
+      hideLoading();
+    }
+
+    // ==========================================
+    // ป๊อปอัพฟอร์ม เพิ่ม / แก้ไขอุปกรณ์
+    // ==========================================
+    function openEditModal(type, mode, data) {
+      const modal = document.getElementById('editModal');
+      const content = document.getElementById('editModalContent');
+      const title = document.getElementById('editModalTitle');
+      const form = document.getElementById('editForm');
+      
+      if (!modal || !content || !form) return;
+
+      const titlePrefix = mode === 'add' ? 'เพิ่มอุปกรณ์ใหม่' : 'แก้ไขข้อมูลอุปกรณ์';
+      const titleSuffix = type === 'support' ? ' (Supporting Component)' : ' (Network Device)';
+      title.innerText = titlePrefix + titleSuffix;
+
+      let fieldsHtml = '';
+
+      if (type === 'support') {
+        const cId = getVal(data, K_MAP.caruId, 0);
+        const cName = getVal(data, K_MAP.caruName, 1);
+        const cBrand = getVal(data, K_MAP.brand, 2);
+        const cModel = getVal(data, K_MAP.model, 3);
+        const cType = getVal(data, K_MAP.type, 4);
+        const cStatus = getVal(data, K_MAP.status, 5);
+        const cAge = getVal(data, K_MAP.age, 6);
+        const cFileId = getVal(data, K_MAP.fileId, 24);
+
+        fieldsHtml = `
+          <input type="hidden" name="type" value="support">
+          <input type="hidden" name="mode" value="${mode}">
+          <input type="hidden" name="roomId" value="${currentRoomId}">
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="md:col-span-2 relative">
+                  <label class="block text-gray-600 font-bold mb-1">รหัสครุภัณฑ์ CaruID / Asset ID *</label>
+                  <div class="flex gap-2 relative">
+                      <!-- ปลดล็อก Readonly ให้พิมพ์เพื่อค้นหาได้ทุกโหมด -->
+                      <input type="text" name="CaruID" id="input_CaruID" required oninput="handleModalSearchTyping(this.value, 'support')" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300 font-bold" value="${cId}" placeholder="พิมพ์รหัสหรือชื่อเพื่อค้นหา..." autocomplete="off">
+                      <button type="button" onclick="searchAssetInModal('support')" class="btn px-4 bg-pink-100 hover:bg-pink-200 text-pink-600 text-xs font-bold shrink-0 border border-pink-200">
+                          <i class="fas fa-search mr-1"></i> ดึงข้อมูล
+                      </button>
+                  </div>
+                  <!-- Dropdown สำหรับ Modal (ซ่อนอยู่ จะโผล่ตอนพิมพ์) -->
+                  <div id="modalSearchDropdown_support" class="absolute top-[70px] left-0 w-full bg-white rounded-xl shadow-2xl border border-pink-200 overflow-hidden z-[70] hidden flex-col max-h-[40vh]">
+                      <div id="modalSearchResults_support" class="overflow-y-auto divide-y divide-gray-100"></div>
+                  </div>
+              </div>
+              <div>
+                  <label class="block text-gray-600 font-bold mb-1">ชื่อครุภัณฑ์ *</label>
+                  <input type="text" name="CaruName" id="input_CaruName" required class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300" value="${cName}">
+              </div>
+              <div>
+                  <label class="block text-gray-600 font-bold mb-1">ยี่ห้อ (BandName)</label>
+                  <input type="text" name="BandName" id="input_BandName" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300" value="${cBrand}">
+              </div>
+              <div>
+                  <label class="block text-gray-600 font-bold mb-1">รุ่น (MODEL)</label>
+                  <input type="text" name="MODEL" id="input_MODEL" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300" value="${cModel}">
+              </div>
+              <div>
+                  <label class="block text-gray-600 font-bold mb-1">กลุ่มประเภท (CrutypeName) *</label>
+                  <input type="text" name="CrutypeName" id="input_CrutypeName" required class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300" value="${cType}">
+              </div>
+              <div>
+                  <label class="block text-gray-600 font-bold mb-1">สถานะ (STATUS)</label>
+                  <input type="text" name="STATUS" id="input_STATUS" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300" value="${cStatus}">
+              </div>
+              <div>
+                  <label class="block text-gray-600 font-bold mb-1">อายุการใช้งาน (Age)</label>
+                  <input type="text" name="Age" id="input_Age" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300" value="${cAge}">
+              </div>
+              <div>
+                  <label class="block text-gray-600 font-bold mb-1">รูปภาพอุปกรณ์ Google Drive File ID</label>
+                  <input type="text" name="FileID_Y" id="input_FileID_Y" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300" value="${cFileId}">
+              </div>
+          </div>
+        `;
+      } else {
+        const nId = getVal(data, K_MAP.nswid, 0);
+        const nHost = getVal(data, K_MAP.hostname, 1);
+        const nIp = getVal(data, K_MAP.ip, 2);
+        const nPio = getVal(data, K_MAP.pio, 3);
+        const nProduct = getVal(data, K_MAP.product, 4);
+        const nModel = getVal(data, K_MAP.netModel, 5);
+        const nSerial = getVal(data, K_MAP.serial, 6);
+        const nMac = getVal(data, K_MAP.mac, 7);
+        const nStack = getVal(data, K_MAP.stack, 8);
+        const nNote = getVal(data, K_MAP.note, 9);
+        const nUser = getVal(data, K_MAP.user, 10);
+        const nPass = getVal(data, K_MAP.pass, 11);
+
+        fieldsHtml = `
+          <input type="hidden" name="type" value="network">
+          <input type="hidden" name="mode" value="${mode}">
+          <input type="hidden" name="roomId" value="${currentRoomId}">
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="md:col-span-2 relative">
+                  <label class="block text-gray-600 font-bold mb-1">รหัส NSWID / Asset ID *</label>
+                  <div class="flex gap-2 relative">
+                      <!-- ปลดล็อก Readonly ให้พิมพ์เพื่อค้นหาได้ทุกโหมด -->
+                      <input type="text" name="NSWID" id="input_NSWID" required oninput="handleModalSearchTyping(this.value, 'network')" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300 font-bold" value="${nId}" placeholder="พิมพ์รหัสหรือชื่อเพื่อค้นหา..." autocomplete="off">
+                      <button type="button" onclick="searchAssetInModal('network')" class="btn px-4 bg-pink-100 hover:bg-pink-200 text-pink-600 text-xs font-bold shrink-0 border border-pink-200">
+                          <i class="fas fa-search mr-1"></i> ดึงข้อมูล
+                      </button>
+                  </div>
+                  <!-- Dropdown สำหรับ Modal (ซ่อนอยู่ จะโผล่ตอนพิมพ์) -->
+                  <div id="modalSearchDropdown_network" class="absolute top-[70px] left-0 w-full bg-white rounded-xl shadow-2xl border border-pink-200 overflow-hidden z-[70] hidden flex-col max-h-[40vh]">
+                      <div id="modalSearchResults_network" class="overflow-y-auto divide-y divide-gray-100"></div>
+                  </div>
+              </div>
+              <div>
+                  <label class="block text-gray-600 font-bold mb-1">Hostname *</label>
+                  <input type="text" name="Hostname" id="input_Hostname" required class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300" value="${nHost}">
+              </div>
+              <div>
+                  <label class="block text-gray-600 font-bold mb-1">IP Address *</label>
+                  <input type="text" name="IP Address" id="input_IPAddress" required class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300" value="${nIp}">
+              </div>
+              <div>
+                  <label class="block text-gray-600 font-bold mb-1">กลุ่ม NetworkPio *</label>
+                  <input type="text" name="NetworkPio" id="input_NetworkPio" required class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300" value="${nPio}">
+              </div>
+              <div>
+                  <label class="block text-gray-600 font-bold mb-1">Product</label>
+                  <input type="text" name="Product" id="input_Product" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300" value="${nProduct}">
+              </div>
+              <div>
+                  <label class="block text-gray-600 font-bold mb-1">Model</label>
+                  <input type="text" name="Model" id="input_Model" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300" value="${nModel}">
+              </div>
+              <div>
+                  <label class="block text-gray-600 font-bold mb-1">Serial No.</label>
+                  <input type="text" name="Serial No." id="input_SerialNo" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300" value="${nSerial}">
+              </div>
+              <div>
+                  <label class="block text-gray-600 font-bold mb-1">Mac Address</label>
+                  <input type="text" name="Mac Address" id="input_MacAddress" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300" value="${nMac}">
+              </div>
+              <div>
+                  <label class="block text-gray-600 font-bold mb-1">Stack No.</label>
+                  <input type="text" name="Stack No." id="input_StackNo" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300" value="${nStack}">
+              </div>
+              <div>
+                  <label class="block text-gray-600 font-bold mb-1">Note</label>
+                  <input type="text" name="Note" id="input_Note" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300" value="${nNote}">
+              </div>
+              <div>
+                  <label class="block text-gray-600 font-bold mb-1">Username เข้าระบบ</label>
+                  <input type="text" name="Username" id="input_Username" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300" value="${nUser}">
+              </div>
+              <div>
+                  <label class="block text-gray-600 font-bold mb-1">Password เข้าระบบ</label>
+                  <input type="text" name="Password" id="input_Password" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300" value="${nPass}">
+              </div>
+          </div>
+        `;
+      }
+
+      form.innerHTML = fieldsHtml;
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+
+      setTimeout(() => {
+        content.classList.remove('scale-95', 'opacity-0');
+        content.classList.add('scale-100', 'opacity-100');
+      }, 10);
+    }
+
+    function closeEditModal() {
+      const modal = document.getElementById('editModal');
+      const content = document.getElementById('editModalContent');
+      if (!modal || !content) return;
+
+      content.classList.remove('scale-100', 'opacity-100');
+      content.classList.add('scale-95', 'opacity-0');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }, 200);
+    }
+
+    async function handleSaveDevice(e) {
+      e.preventDefault();
+      const form = document.getElementById('editForm');
+      if(!form) return;
+
+      const formData = new FormData(form);
+      const payload = { action: 'saveDevice' };
+      formData.forEach((value, key) => { payload[key] = value; });
+
+      closeEditModal();
+      showLoading('กำลังบันทึกข้อมูลอุปกรณ์ลงฐานข้อมูล...');
+      try {
+        const res = await callAPI(payload);
+        if (res.status === 'success') {
+          showAlert('🎉 บันทึกข้อมูลเรียบร้อยแล้ว!');
+          renderRoomDetail(currentRoomId);
+        } else {
+          showAlert('เกิดข้อผิดพลาด: ' + res.message);
+        }
+      } catch (err) {
+        console.error(err);
+        showAlert('เกิดข้อผิดพลาดในการเชื่อมต่อเครือข่าย');
+      }
+      hideLoading();
+    }
+
+    // ==========================================
     // Utilities Support
     // ==========================================
     function getHashColor(str) {
@@ -901,14 +1338,132 @@
       return colors[Math.abs(hash) % colors.length];
     }
 
-    // ฟังก์ชันช่วยดึงค่าจาก Object ตามลำดับ Index (A=0, B=1, C=2, ..., L=11)
+    // ==========================================
+    // 🔍 ระบบ Smart Search & QR Scanner
+    // ==========================================
+    let searchTimeout = null;
+    let html5QrcodeScanner = null;
+
+    function handleSearchTyping(text) {
+      const dropdown = document.getElementById('searchDropdown');
+      const resultsContainer = document.getElementById('searchResults');
+      
+      if (!text || text.length < 2) {
+          dropdown.classList.add('hidden');
+          dropdown.classList.remove('flex');
+          return;
+      }
+
+      clearTimeout(searchTimeout);
+      resultsContainer.innerHTML = `<div class="p-4 text-center text-sm text-gray-500"><i class="fas fa-circle-notch fa-spin text-pink-500 mr-2"></i> กำลังค้นหา "${text}"...</div>`;
+      dropdown.classList.remove('hidden');
+      dropdown.classList.add('flex');
+
+      searchTimeout = setTimeout(async () => {
+          try {
+              const res = await callAPI({ action: 'searchEquipment', query: text });
+              if (res.status === 'success' && res.data.length > 0) {
+                  renderSearchResults(res.data);
+              } else {
+                  resultsContainer.innerHTML = `<div class="p-6 text-center text-gray-400"><i class="fas fa-box-open text-3xl mb-2 text-gray-300"></i><br>ไม่พบอุปกรณ์ที่ตรงกับ "${text}"</div>`;
+              }
+          } catch(e) {
+              resultsContainer.innerHTML = `<div class="p-4 text-center text-red-500 text-sm">เกิดข้อผิดพลาดในการค้นหา</div>`;
+          }
+      }, 600); 
+    }
+
+    function renderSearchResults(data) {
+        const container = document.getElementById('searchResults');
+        let html = '';
+        data.forEach(item => {
+            const rawDataStr = JSON.stringify(item.rawData).replace(/"/g, '&quot;');
+            html += `
+            <div onclick="selectSearchResult('${item.Location}', ${rawDataStr})" class="p-4 hover:bg-pink-50 cursor-pointer transition-colors flex items-start gap-3 group">
+                <div class="w-10 h-10 bg-gray-100 rounded flex items-center justify-center shrink-0 border border-gray-200 group-hover:border-pink-300">
+                    <i class="fas fa-server text-gray-400 group-hover:text-pink-500"></i>
+                </div>
+                <div>
+                    <h4 class="text-sm font-bold text-gray-800 group-hover:text-pink-600">${item.CaruName || 'ไม่ระบุชื่อ'}</h4>
+                    <div class="text-xs text-gray-500 flex gap-2 mt-1">
+                        <span class="bg-gray-100 px-1.5 py-0.5 rounded font-mono border border-gray-200">ID: ${item.CaruID}</span>
+                        <span class="text-pink-500"><i class="fas fa-tag"></i> ${item.CrutypeName}</span>
+                    </div>
+                </div>
+                <div class="ml-auto text-[10px] text-gray-400 bg-gray-50 px-2 py-1 rounded">
+                   ห้อง: ${item.Location || '-'}
+                </div>
+            </div>`;
+        });
+        container.innerHTML = html;
+    }
+
+    function selectSearchResult(roomId, rawData) {
+        document.getElementById('searchDropdown').classList.add('hidden');
+        document.getElementById('searchDropdown').classList.remove('flex');
+        
+        currentRoomId = roomId; 
+        openEditModal('support', 'edit', rawData);
+    }
+
+    function openQRScanner() {
+        const modal = document.getElementById('qrScannerModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        
+        html5QrcodeScanner = new Html5Qrcode("reader");
+        const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+        
+        html5QrcodeScanner.start({ facingMode: "environment" }, config, onScanSuccess)
+        .catch(err => {
+            showAlert("ไม่สามารถเปิดกล้องได้ กรุณาอนุญาตการเข้าถึงกล้องในเบราว์เซอร์");
+            closeQRScanner();
+        });
+    }
+
+    function closeQRScanner() {
+        const modal = document.getElementById('qrScannerModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        
+        if (html5QrcodeScanner) {
+            html5QrcodeScanner.stop().then(() => {
+                html5QrcodeScanner.clear();
+            }).catch(e => console.error(e));
+        }
+    }
+
+    function onScanSuccess(decodedText, decodedResult) {
+        closeQRScanner(); 
+        
+        const searchInput = document.getElementById('globalSearchInput');
+        if(searchInput) {
+            searchInput.value = decodedText; 
+            handleSearchTyping(decodedText); 
+        }
+    }
+
+    // ดึงค่า Index คอลัมน์ลำดับสำรอง
     function getColValue(obj, colIndex) {
       if (!obj) return '';
       const values = Object.values(obj);
       return values[colIndex] !== undefined && values[colIndex] !== null ? values[colIndex] : '';
     }
 
-    // Wrapper สำหรับเรียก Google Apps Script ด้วย POST text/plain เพื่อแก้ปัญหา CORS (ปรับปรุงให้ดักจับ Error JSON ได้เสถียรที่สุด)
+    // ฟังก์ชันค้นหาข้อมูลและสเปกด้วย Array of Keys รองรับการค้นหาที่ปลอดภัย
+    function getVal(obj, keys, fallbackIdx) {
+      if (!obj) return '';
+      for (let k of keys) {
+        if (obj[k] !== undefined && obj[k] !== null && obj[k] !== '') {
+          return obj[k];
+        }
+      }
+      if (fallbackIdx !== undefined) {
+        return getColValue(obj, fallbackIdx);
+      }
+      return '';
+    }
+
     async function callAPI(payload) {
       if(API_URL.includes('YOUR_APPS_SCRIPT_WEB_APP_URL') || !API_URL) {
           showAlert("กรุณาใส่ URL ของ Web App ในบรรทัดที่ 90 ของโค้ด HTML");
@@ -941,8 +1496,10 @@
       }
     }
 
-    // Init App
-    window.onload = checkSession;
+    document.addEventListener("DOMContentLoaded", function() {
+      initDOMElements();
+      checkSession();
+    });
   </script>
 </body>
 </html>
