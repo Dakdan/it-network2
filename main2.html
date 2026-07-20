@@ -4,15 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IT UDON HOSP - Network Survey WebApp</title>
-    <!-- Tailwind CSS for responsive layouts -->
+    <!-- Tailwind CSS for modern responsive layout engine -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts for professional Thai/English typography -->
+    <!-- Premium Web Fonts: Sarabun & Inter for flawless readability -->
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700;800&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <!-- Font Awesome Icons -->
+    <!-- Font Awesome 6 Icons library -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <!-- SweetAlert2 for notifications -->
+    <!-- SweetAlert2 for beautiful modern notifications -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- HTML5 QR Code library for camera scanning -->
+    <!-- HTML5 QR Code library for scanning -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
 
     <style>
@@ -20,7 +20,6 @@
             font-family: 'Sarabun', 'Inter', sans-serif;
             background-color: #f8fafc;
         }
-        /* Custom scrollbar styling for dropdown lists and modal boxes */
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
@@ -35,7 +34,6 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #94a3b8;
         }
-        /* Pulse scanning animation for camera scanner frame */
         @keyframes scan-line {
             0% { top: 0%; }
             50% { top: 100%; }
@@ -54,7 +52,18 @@
 </head>
 <body class="min-h-screen flex flex-col overflow-x-hidden text-gray-800">
 
-    <!-- Header / Nav bar -->
+    <!-- หน้าจอประมวลผล Overlay เมื่อมีการโหลดข้อมูล ค้นหา หรือบันทึกข้อมูลเพื่อความโปร่งใสของ UX -->
+    <div id="globalLoader" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] hidden items-center justify-center flex-col gap-4">
+        <div class="bg-white p-6 rounded-3xl shadow-2xl flex flex-col items-center gap-3 max-w-xs text-center border border-slate-100 animate-in zoom-in-95 duration-150">
+            <div class="relative w-14 h-14">
+                <div class="absolute inset-0 rounded-full border-4 border-rose-100"></div>
+                <div class="absolute inset-0 rounded-full border-4 border-rose-500 border-t-transparent animate-spin"></div>
+            </div>
+            <h4 class="font-extrabold text-slate-800 text-base mt-2">กำลังประมวลผล...</h4>
+            <p class="text-xs text-slate-400 leading-relaxed">กรุณารอสักครู่ ระบบกำลังทำงานร่วมกับระบบฐานข้อมูล Google Sheets</p>
+        </div>
+    </div>
+
     <header class="bg-gradient-to-r from-rose-500 via-pink-600 to-rose-600 text-white shadow-lg shrink-0">
         <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
             <div class="flex items-center gap-3">
@@ -68,17 +77,15 @@
             </div>
             
             <div class="flex items-center gap-4">
-                <!-- API Connection Indicator Badge -->
                 <div id="connectionBadge" class="hidden md:flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-100 border border-emerald-400/30">
                     <span class="h-2 w-2 rounded-full bg-emerald-400 animate-ping"></span>
                     <span>เชื่อมต่อ Server สำเร็จ</span>
                 </div>
                 
-                <!-- Logged in user info -->
                 <div id="userProfile" class="hidden items-center gap-3 bg-white/10 px-3 py-1.5 rounded-xl border border-white/10">
                     <i class="fas fa-user-circle text-lg text-rose-200"></i>
                     <span id="userNameText" class="font-bold text-sm">กำลังโหลด...</span>
-                    <button onclick="handleLogout()" class="hover:text-rose-200 text-xs bg-black/20 hover:bg-black/40 px-2.5 py-1 rounded-lg transition" title="ออกจากระบบ">
+                    <button onclick="logout()" class="hover:text-rose-200 text-xs bg-black/20 hover:bg-black/40 px-2.5 py-1 rounded-lg transition" title="ออกจากระบบ">
                         <i class="fas fa-sign-out-alt"></i>
                     </button>
                 </div>
@@ -86,7 +93,6 @@
         </div>
     </header>
 
-    <!-- MAIN CONTENT container -->
     <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 flex flex-col gap-6 relative">
         
         <!-- VIEW: Login Screen -->
@@ -125,20 +131,11 @@
                         <i class="fas fa-key mr-2"></i> เข้าสู่ระบบ
                     </button>
                 </form>
-                
-                <div class="mt-6 bg-slate-50 border border-slate-100 rounded-xl p-3.5 text-xs text-slate-500 flex items-start gap-2.5">
-                    <i class="fas fa-circle-info text-pink-500 mt-0.5 text-sm shrink-0"></i>
-                    <div>
-                        <span class="font-bold block text-slate-700 mb-0.5">ระบบพัฒนาขึ้นสำหรับสำรวจโครงข่าย</span>
-                        หากกำลังทดสอบระบบหรือรันแบบ Offline สามารถระบุชื่อเข้าใช้งานและรหัสผ่านใดๆ เพื่อเข้าระบบจำลองได้ทันที!
-                    </div>
-                </div>
             </div>
         </section>
 
-        <!-- VIEW: Main Application Section (Hidden initially) -->
+        <!-- VIEW: Main App View -->
         <section id="mainAppView" class="hidden flex-col gap-6">
-            
             <!-- Tab Menu Bar -->
             <div class="flex overflow-x-auto gap-2 border-b border-gray-200 pb-1.5 scrollbar-thin">
                 <button onclick="switchTab('dashboard')" id="tab_dashboard" class="px-5 py-2.5 font-bold text-sm rounded-xl transition shrink-0 bg-pink-500 text-white shadow-md">
@@ -201,7 +198,6 @@
                 </div>
             </div>
 
-            <!-- SUBVIEW: Survey List / Room List -->
             <div id="subview_surveyList" class="space-y-4 hidden">
                 <div class="bg-white p-4 rounded-3xl border border-gray-100 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
                     <div class="relative w-full md:max-w-md">
@@ -218,15 +214,11 @@
                     </div>
                 </div>
 
-                <!-- Grid view of rooms -->
-                <div id="roomsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- Dynamic rendering of rooms -->
-                </div>
+                <div id="roomsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
             </div>
 
             <!-- SUBVIEW: Room Detail View -->
             <div id="subview_roomDetail" class="space-y-6 hidden">
-                <!-- Return button -->
                 <div>
                     <button onclick="switchTab('surveyList')" class="bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold px-4 py-2 rounded-xl text-sm transition">
                         <i class="fas fa-arrow-left mr-1.5"></i> ย้อนกลับไปหน้ารายการ
@@ -257,13 +249,15 @@
                         </div>
                     </div>
                     
-                    <!-- Room visual image slot -->
                     <div class="relative bg-rose-50 border-t md:border-t-0 md:border-l border-gray-100 flex items-center justify-center overflow-hidden aspect-video md:aspect-auto min-h-[160px]">
-                        <img id="detail_RoomImg" src="https://placehold.co/400x300?text=IT+UDON+HOSP" class="w-full h-full object-cover" alt="พิกัดห้อง" onerror="this.src='https://placehold.co/400x300/fbcfe8/be185d?text=No+Photo'">
+                        <img id="detail_RoomImg" src="" class="w-full h-full object-cover" alt="พิกัดห้อง" onerror="this.src='https://placehold.co/400x300/fbcfe8/be185d?text=No+Photo'">
+                        <!-- EDIT ROOM IMAGE / INFO TRIGGER -->
+                        <button onclick="openLocationEditModal()" class="absolute bottom-3 right-3 bg-slate-900/75 hover:bg-slate-950 text-white font-bold text-xs px-3 py-1.5 rounded-xl border border-white/20 transition flex items-center gap-1.5 shadow backdrop-blur-sm">
+                            <i class="fas fa-camera"></i> แก้ไขพิกัด/รูปห้อง
+                        </button>
                     </div>
                 </div>
 
-                <!-- Device management tabs inside Room Detail -->
                 <div class="space-y-4">
                     <div class="flex border-b border-gray-200">
                         <button onclick="switchRoomTab('support')" id="roomTab_support" class="px-5 py-3 font-bold text-sm text-pink-600 border-b-2 border-pink-500 transition">
@@ -282,11 +276,7 @@
                                 <i class="fas fa-plus mr-1"></i> เพิ่มอุปกรณ์สนับสนุน
                             </button>
                         </div>
-
-                        <!-- Grid representing support devices -->
-                        <div id="supportDevicesList" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- Dynamic content -->
-                        </div>
+                        <div id="supportDevicesList" class="space-y-4"></div>
                     </div>
 
                     <!-- Room Tab: Network Devices -->
@@ -297,22 +287,83 @@
                                 <i class="fas fa-plus mr-1"></i> เพิ่มอุปกรณ์เครือข่าย
                             </button>
                         </div>
-
-                        <!-- Grid representing network devices -->
-                        <div id="networkDevicesList" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- Dynamic content -->
-                        </div>
+                        <div id="networkDevicesList" class="space-y-4"></div>
                     </div>
                 </div>
             </div>
-
         </section>
     </main>
+
+    <!-- MODAL: EDIT LOCATION / ROOM DETAIL -->
+    <div id="locationModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[80] hidden items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full overflow-hidden flex flex-col shadow-2xl relative border border-gray-100 animate-in fade-in zoom-in-95 duration-200">
+            <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-gradient-to-r from-pink-500 to-rose-500 text-white">
+                <h3 class="font-black text-lg">แก้ไขข้อมูลห้องและพิกัด</h3>
+                <button onclick="closeLocationModal()" class="text-white hover:text-pink-100 transition">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto max-h-[70vh]">
+                <form id="locationForm" onsubmit="handleLocationFormSubmit(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-gray-600 font-bold mb-1 text-sm">Room ID *</label>
+                        <input type="text" id="loc_ROOMID" readonly class="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 font-mono font-bold text-gray-500">
+                    </div>
+                    <div>
+                        <label class="block text-gray-600 font-bold mb-1 text-sm">ชื่อห้อง/จุดบริการ *</label>
+                        <input type="text" id="loc_RNAME" required class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-pink-300 font-bold">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-gray-600 font-bold mb-1 text-sm">ประเภทห้อง *</label>
+                            <input type="text" id="loc_ROOMTYP" required class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-pink-300 font-medium">
+                        </div>
+                        <div>
+                            <label class="block text-gray-600 font-bold mb-1 text-sm">ชั้น (LOF)</label>
+                            <input type="text" id="loc_RLOF" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-pink-300 font-medium">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-gray-600 font-bold mb-1 text-sm">อาคาร / พิกัดสถานที่</label>
+                        <input type="text" id="loc_RLOCAT" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-pink-300 font-medium">
+                    </div>
+                    <div>
+                        <label class="block text-gray-600 font-bold mb-1 text-sm">พิกัด GPS</label>
+                        <input type="text" id="loc_RoomGPS" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-pink-300 font-mono">
+                    </div>
+
+                    <!-- Room Image Management Section -->
+                    <div class="border border-gray-200 rounded-xl p-4 bg-gray-50/50">
+                        <label class="block text-gray-600 font-bold mb-2 text-sm">รูปถ่ายพิกัดห้อง (Google Drive File ID)</label>
+                        <div class="flex gap-4 items-start">
+                            <div class="flex-1 space-y-2">
+                                <input type="text" id="loc_RoomImg_ID" oninput="updateRoomImagePreview()" class="w-full px-4 py-2 text-xs font-mono font-bold rounded-xl border border-gray-300 focus:ring-2 focus:ring-pink-300" placeholder="ระบุ ID ไฟล์รูปจาก Google Drive">
+                                <button type="button" onclick="clearRoomImage()" class="text-xs bg-white border border-gray-300 text-red-600 px-3 py-1.5 rounded-lg hover:bg-red-50 font-bold flex items-center transition shadow-sm">
+                                    <i class="fas fa-trash-alt mr-1"></i> ลบรูปห้อง
+                                </button>
+                            </div>
+                            <div class="w-24 h-24 bg-white rounded-xl border border-dashed border-gray-300 flex items-center justify-center overflow-hidden shrink-0">
+                                <img id="preview_loc_img" src="" class="w-full h-full object-cover hidden">
+                                <span id="preview_loc_placeholder" class="text-gray-400 text-[10px] text-center px-1">ไม่มีรูปภาพ</span>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="p-5 bg-gray-50 border-t border-gray-100 flex justify-end gap-3 rounded-b-3xl">
+                <button type="button" onclick="closeLocationModal()" class="px-5 py-2.5 bg-white border border-gray-200 text-gray-600 rounded-xl text-sm font-bold hover:bg-gray-50 transition">
+                    ยกเลิก
+                </button>
+                <button type="button" onclick="submitLocationForm()" class="px-6 py-2.5 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-xl text-sm font-black hover:opacity-95 transition shadow-lg shadow-pink-100">
+                    บันทึกพิกัดห้อง
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- MODAL: ADD / EDIT DEVICE (Supporting & Network) -->
     <div id="editModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[80] hidden items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl relative border border-gray-100 animate-in fade-in zoom-in-95 duration-200">
-            <!-- Modal Header -->
             <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-gradient-to-r from-pink-500 to-rose-500 text-white">
                 <h3 id="editModalTitle" class="font-black text-lg">เพิ่ม/แก้ไขข้อมูล</h3>
                 <button onclick="closeEditModal()" class="text-white hover:text-pink-100 transition">
@@ -320,59 +371,53 @@
                 </button>
             </div>
             
-            <!-- Modal Body (Scrollable form containing preloaded layout sections) -->
             <div class="p-6 overflow-y-auto flex-1">
                 <form id="editForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
-                    <!-- Hidden configuration states -->
                     <input type="hidden" name="type" id="form_type" value="support">
                     <input type="hidden" name="mode" id="form_mode" value="add">
                     <input type="hidden" name="roomId" id="form_roomId" value="">
                     <input type="hidden" name="NOID" id="form_NOID" value="">
                     <input type="hidden" name="NSWNO" id="form_NSWNO" value="">
 
-                    <!-- SUPPORTING DEVICE FIELD LAYOUT SECTION -->
+                    <!-- SUPPORTING DEVICE FIELDS -->
                     <div id="supportFormFields" class="space-y-4 hidden">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <!-- Asset ID Input (Optional, with search autocomplete and direct QR Camera scanner toggle) -->
+                            <!-- Asset ID Lookup Input with instant Live Overlay inside Dropdown -->
                             <div class="md:col-span-2 relative">
                                 <label class="block text-gray-600 font-bold mb-1 text-sm">รหัสครุภัณฑ์ (Asset ID)</label>
                                 <div class="flex gap-2">
-                                    <input type="text" name="Asset_ID" id="input_Asset_ID_support" oninput="handleModalSearchTyping(this.value, 'support')" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300 font-mono font-bold text-base" placeholder="ป้อนเพื่อค้นหาจากฐานครุภัณฑ์กลาง..." autocomplete="off">
+                                    <input type="text" name="Asset_ID" id="input_Asset_ID_support" oninput="handleModalSearchTyping(this.value, 'support')" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-pink-300 font-mono font-bold text-base" placeholder="ป้อนเพื่อค้นหาจากระบบครุภัณฑ์..." autocomplete="off">
                                     <button type="button" onclick="openQRScannerForModal('support')" class="btn px-3.5 bg-pink-50 hover:bg-pink-100 text-pink-600 flex items-center justify-center shrink-0 border border-pink-200 rounded-xl" title="สแกนผ่านกล้อง">
                                         <i class="fas fa-camera text-lg"></i>
                                     </button>
                                 </div>
-                                <!-- Dropdown container for search matching -->
                                 <div id="modalSearchDropdown_support" class="absolute top-[70px] left-0 w-full bg-white rounded-xl shadow-2xl border border-pink-200 overflow-hidden z-[70] hidden flex-col max-h-[40vh]">
                                     <div id="modalSearchResults_support" class="overflow-y-auto divide-y divide-gray-100"></div>
                                 </div>
                             </div>
 
-                            <!-- CaruName (Mandatory) -->
                             <div class="md:col-span-2">
                                 <label class="block text-gray-600 font-bold mb-1 text-sm">ชื่อครุภัณฑ์ / อุปกรณ์สนับสนุน *</label>
-                                <input type="text" name="CaruName" id="input_CaruName" oninput="updateSupportLabelName()" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300 font-bold" required placeholder="เช่น เครื่องสำรองไฟ (UPS Server)">
+                                <input type="text" name="CaruName" id="input_CaruName" oninput="updateSupportLabelName()" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-pink-300 font-bold" required placeholder="เช่น เครื่องสำรองไฟ (UPS Server)">
                             </div>
 
-                            <!-- Label_Name layout component combining CaruName- prefix with a custom user suffix input -->
                             <div class="md:col-span-2">
                                 <label class="block text-gray-600 font-bold mb-1 text-sm">ป้ายชื่อระบุพิกัด (Label Name)</label>
                                 <div class="flex items-center gap-1 bg-gray-50 border border-gray-200 rounded-xl px-3.5 py-2.5">
                                     <span id="label_prefix" class="text-gray-500 font-extrabold select-none text-sm shrink-0 truncate max-w-[220px] md:max-w-[340px]">เครื่องสำรองไฟ-</span>
-                                    <input type="text" id="input_Label_Suffix" oninput="updateSupportLabelName()" class="w-full bg-transparent focus:outline-none font-bold text-gray-800 text-sm" placeholder="พิมพ์เลขรหัส/ลำดับระบุพิกัด (เช่น 01)...">
+                                    <input type="text" id="input_Label_Suffix" oninput="updateSupportLabelName()" class="w-full bg-transparent focus:outline-none font-bold text-gray-800 text-sm" placeholder="เลขรหัส/ลำดับระบุพิกัด (เช่น 01)...">
                                 </div>
-                                <!-- Hidden real Label_Name storage for payload submission -->
                                 <input type="hidden" name="Label_Name" id="input_Label_Name" value="">
                             </div>
 
                             <div>
                                 <label class="block text-gray-600 font-bold mb-1 text-sm">กลุ่มประเภทอุปกรณ์</label>
-                                <input type="text" name="CrutypeName" id="input_CrutypeName" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300 font-medium" placeholder="เช่น ระบบสํารองไฟฟ้า">
+                                <input type="text" name="CrutypeName" id="input_CrutypeName" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-pink-300 font-medium">
                             </div>
 
                             <div>
                                 <label class="block text-gray-600 font-bold mb-1 text-sm">สถานะ</label>
-                                <select name="STATUS" id="input_STATUS_support" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300 font-bold">
+                                <select name="STATUS" id="input_STATUS_support" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-pink-300 font-bold">
                                     <option value="ใช้งาน">ใช้งานปกติ</option>
                                     <option value="ชำรุด">ชำรุด</option>
                                     <option value="รอซ่อม">ชำรุด/รอซ่อมบำรุง</option>
@@ -381,66 +426,72 @@
 
                             <div>
                                 <label class="block text-gray-600 font-bold mb-1 text-sm">ยี่ห้อ (Brand)</label>
-                                <input type="text" name="BandName" id="input_BandName" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300 font-medium">
+                                <input type="text" name="BandName" id="input_BandName" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-pink-300 font-medium">
                             </div>
 
                             <div>
                                 <label class="block text-gray-600 font-bold mb-1 text-sm">รุ่น (Model)</label>
-                                <input type="text" name="MODEL" id="input_MODEL" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300 font-medium">
+                                <input type="text" name="MODEL" id="input_MODEL" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-pink-300 font-medium">
                             </div>
 
                             <div>
                                 <label class="block text-gray-600 font-bold mb-1 text-sm">อายุการใช้งาน (ปี)</label>
-                                <input type="number" name="Age" id="input_Age_support" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300 font-medium">
+                                <input type="number" name="Age" id="input_Age_support" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-pink-300 font-medium">
                             </div>
 
-                            <div>
-                                <label class="block text-gray-600 font-bold mb-1 text-sm">ID ไฟล์รูปภาพ (Note9)</label>
-                                <input type="text" name="Note9" id="input_Note9" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300 font-mono text-xs font-bold" placeholder="รหัสไฟล์ภาพใน Google Drive...">
+                            <!-- Image Management with Delete button for Support Components -->
+                            <div class="md:col-span-2 border border-gray-200 rounded-xl p-4 bg-gray-50/50">
+                                <label class="block text-gray-600 font-bold mb-2 text-sm">รูปถ่ายตัวเครื่อง (Google Drive File ID)</label>
+                                <div class="flex flex-col md:flex-row gap-4 items-start">
+                                    <div class="flex-1 w-full space-y-2">
+                                        <input type="text" name="Note9" id="input_Note9" oninput="updateImagePreview('support')" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-pink-300 font-mono text-xs font-bold" placeholder="วาง ID ไฟล์รูปภาพจาก Google Drive...">
+                                        <button type="button" onclick="clearImage('support')" class="text-xs bg-white border border-gray-300 text-red-600 px-3 py-1.5 rounded-lg hover:bg-red-50 font-bold flex items-center transition shadow-sm">
+                                            <i class="fas fa-trash-alt mr-1"></i> ลบรูปถ่าย
+                                        </button>
+                                    </div>
+                                    <div class="w-28 h-28 bg-white rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden shrink-0 relative">
+                                        <img id="preview_img_support" src="" class="w-full h-full object-cover hidden">
+                                        <span id="preview_placeholder_support" class="text-gray-400 text-xs text-center px-2">ไม่มีรูปภาพ</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- NETWORK DEVICE FIELD LAYOUT SECTION -->
+                    <!-- NETWORK DEVICE FIELDS -->
                     <div id="networkFormFields" class="space-y-4 hidden">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <!-- Asset ID Input (Optional, with search autocomplete and camera scanner icon toggle) -->
                             <div class="md:col-span-2 relative">
                                 <label class="block text-gray-600 font-bold mb-1 text-sm">เชื่อมโยงรหัสครุภัณฑ์หลัก (Asset ID)</label>
                                 <div class="flex gap-2">
-                                    <input type="text" name="Asset_ID" id="input_Asset_ID_network" oninput="handleModalSearchTyping(this.value, 'network')" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300 font-mono font-bold text-base" placeholder="ป้อนเพื่อค้นหาจากฐานครุภัณฑ์หลัก...">
+                                    <input type="text" name="Asset_ID" id="input_Asset_ID_network" oninput="handleModalSearchTyping(this.value, 'network')" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-pink-300 font-mono font-bold text-base" placeholder="ป้อนเพื่อค้นหาจากระบบครุภัณฑ์..." autocomplete="off">
                                     <button type="button" onclick="openQRScannerForModal('network')" class="btn px-3.5 bg-pink-50 hover:bg-pink-100 text-pink-600 flex items-center justify-center shrink-0 border border-pink-200 rounded-xl" title="สแกนผ่านกล้อง">
                                         <i class="fas fa-camera text-lg"></i>
                                     </button>
                                 </div>
-                                <!-- Dropdown container for search matching -->
                                 <div id="modalSearchDropdown_network" class="absolute top-[70px] left-0 w-full bg-white rounded-xl shadow-2xl border border-pink-200 overflow-hidden z-[70] hidden flex-col max-h-[40vh]">
                                     <div id="modalSearchResults_network" class="overflow-y-auto divide-y divide-gray-100"></div>
                                 </div>
                             </div>
 
-                            <!-- NSWID (Required) -->
                             <div>
                                 <label class="block text-gray-600 font-bold mb-1 text-sm">รหัสอุปกรณ์เครือข่ายหลัก (NSWID) *</label>
-                                <input type="text" name="NSWID" id="input_NSWID" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300 font-mono font-bold" placeholder="เช่น NSID0144">
+                                <input type="text" name="NSWID" id="input_NSWID" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-pink-300 font-mono font-bold" placeholder="ระบุเพื่อแก้ไข หรือเว้นว่างให้ Gen อัตโนมัติ">
                             </div>
 
-                            <!-- Hostname (Required) -->
                             <div>
                                 <label class="block text-gray-600 font-bold mb-1 text-sm">Hostname *</label>
-                                <input type="text" name="Hostname" id="input_Hostname" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300 font-bold" placeholder="เช่น ASWO3-MEC-ARI">
+                                <input type="text" name="Hostname" id="input_Hostname" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-pink-300 font-bold" placeholder="เช่น ASWO3-MEC-ARI">
                             </div>
 
-                            <!-- IP Address (Required) -->
                             <div>
                                 <label class="block text-gray-600 font-bold mb-1 text-sm">IP Address *</label>
-                                <input type="text" name="IP Address" id="input_IPAddress" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300 font-mono font-bold" placeholder="เช่น 10.140.199.63">
+                                <input type="text" name="IP Address" id="input_IPAddress" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-pink-300 font-mono font-bold" placeholder="เช่น 10.140.199.63">
                             </div>
 
-                            <!-- NetworkPio Group -->
                             <div>
                                 <label class="block text-gray-600 font-bold mb-1 text-sm">กลุ่มอุปกรณ์ (NetworkPio) *</label>
-                                <select name="NetworkPio" id="input_NetworkPio" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300 font-bold">
+                                <select name="NetworkPio" id="input_NetworkPio" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-pink-300 font-bold">
                                     <option value="ASW">ASW (Access Switch)</option>
                                     <option value="CSW">CSW (Distribution Switch)</option>
                                     <option value="CORE">Core Switch</option>
@@ -452,54 +503,65 @@
 
                             <div>
                                 <label class="block text-gray-600 font-bold mb-1 text-sm">ยี่ห้อ (Product)</label>
-                                <input type="text" name="Product" id="input_Product" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300 font-medium">
+                                <input type="text" name="Product" id="input_Product" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-pink-300 font-medium">
                             </div>
 
                             <div>
                                 <label class="block text-gray-600 font-bold mb-1 text-sm">รุ่น (Model)</label>
-                                <input type="text" name="Model" id="input_Model" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300 font-medium">
+                                <input type="text" name="Model" id="input_Model" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-pink-300 font-medium">
                             </div>
 
                             <div>
                                 <label class="block text-gray-600 font-bold mb-1 text-sm">Serial No.</label>
-                                <input type="text" name="Serial No." id="input_Serial" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300 font-mono font-bold">
+                                <input type="text" name="Serial No." id="input_Serial" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-pink-300 font-mono font-bold">
                             </div>
 
                             <div>
                                 <label class="block text-gray-600 font-bold mb-1 text-sm">Mac Address</label>
-                                <input type="text" name="Mac Address" id="input_MacAddress" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300 font-mono text-sm">
+                                <input type="text" name="Mac Address" id="input_MacAddress" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-pink-300 font-mono text-sm">
                             </div>
 
                             <div>
                                 <label class="block text-gray-600 font-bold mb-1 text-sm">Stack No.</label>
-                                <input type="text" name="Stack No." id="input_StackNo" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300 font-medium">
+                                <input type="text" name="Stack No." id="input_StackNo" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-pink-300 font-medium">
                             </div>
 
-                            <div>
-                                <label class="block text-gray-600 font-bold mb-1 text-sm">ID ไฟล์รูปภาพ (Note8)</label>
-                                <input type="text" name="Note8" id="input_Note8" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300 font-mono text-xs font-bold" placeholder="รหัสไฟล์ภาพใน Google Drive...">
+                            <!-- Image Management with Delete button for Network Devices -->
+                            <div class="md:col-span-2 border border-gray-200 rounded-xl p-4 bg-gray-50/50">
+                                <label class="block text-gray-600 font-bold mb-2 text-sm">รูปถ่ายพอร์ตพิกัดเชื่อมต่อ (Google Drive File ID)</label>
+                                <div class="flex flex-col md:flex-row gap-4 items-start">
+                                    <div class="flex-1 w-full space-y-2">
+                                        <input type="text" name="Note8" id="input_Note8" oninput="updateImagePreview('network')" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-pink-300 font-mono text-xs font-bold" placeholder="วาง ID ไฟล์รูปภาพจาก Google Drive...">
+                                        <button type="button" onclick="clearImage('network')" class="text-xs bg-white border border-gray-300 text-red-600 px-3 py-1.5 rounded-lg hover:bg-red-50 font-bold flex items-center transition shadow-sm">
+                                            <i class="fas fa-trash-alt mr-1"></i> ลบรูปถ่าย
+                                        </button>
+                                    </div>
+                                    <div class="w-28 h-28 bg-white rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden shrink-0 relative">
+                                        <img id="preview_img_network" src="" class="w-full h-full object-cover hidden">
+                                        <span id="preview_placeholder_network" class="text-gray-400 text-xs text-center px-2">ไม่มีรูปภาพ</span>
+                                    </div>
+                                </div>
                             </div>
 
                             <div>
                                 <label class="block text-gray-600 font-bold mb-1 text-sm">Username เข้าระบบ</label>
-                                <input type="text" name="Username" id="input_Username" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300 font-mono text-sm">
+                                <input type="text" name="Username" id="input_Username" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-pink-300 font-mono text-sm">
                             </div>
 
                             <div>
                                 <label class="block text-gray-600 font-bold mb-1 text-sm">Password เข้าระบบ</label>
-                                <input type="text" name="Password" id="input_Password" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300 font-mono text-sm">
+                                <input type="text" name="Password" id="input_Password" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-pink-300 font-mono text-sm">
                             </div>
 
                             <div class="md:col-span-2">
                                 <label class="block text-gray-600 font-bold mb-1 text-sm">บันทึกเพิ่มเติม (Note)</label>
-                                <textarea name="Note" id="input_Note" rows="2" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300 font-medium"></textarea>
+                                <textarea name="Note" id="input_Note" rows="2" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-pink-300 font-medium"></textarea>
                             </div>
                         </div>
                     </div>
                 </form>
             </div>
 
-            <!-- Modal Footer -->
             <div class="p-5 bg-gray-50 border-t border-gray-100 flex justify-end gap-3 rounded-b-3xl">
                 <button type="button" onclick="closeEditModal()" class="px-5 py-2.5 bg-white border border-gray-200 text-gray-600 rounded-xl text-sm font-bold hover:bg-gray-50 transition">
                     ยกเลิก
@@ -529,7 +591,7 @@
                     <div class="absolute inset-0 border-2 border-white/20 pointer-events-none rounded-xl"></div>
                 </div>
                 <p class="text-xs text-gray-500 leading-relaxed font-bold">
-                    จัดให้รหัสสติ๊กเกอร์ QR Code ครุภัณฑ์ หรือ Barcode อยู่ในกรอบกล้องด้านบนเพื่อทำการสแกนนำเข้ารหัสโดยอัตโนมัติ
+                    จัดให้รหัสสติ๊กเกอร์ QR Code ครุภัณฑ์ หรือ Barcode อยู่ในกรอบกล้องด้านบนเพื่อสแกนอัตโนมัติ
                 </p>
             </div>
         </div>
@@ -541,54 +603,91 @@
     </footer>
 
     <script>
-        // ==========================================
-        // CONFIGURATION & SIMULATOR DATABASE
-        // ==========================================
-        // Active Google Apps Script WebApp Execution URL
+        // API Endpoint สำหรับเชื่อมต่อ Google Apps Script
         const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwvZGucEHuKW4GQ0XFsJ1v3ajmMYmp9-lFUJGar64gH-g8mq5Sf_PL4c38txqDpOhwf/exec"; 
 
-        // Rich Mock Database for immediate local preview fallback
-        const MOCK_DB = {
-            rooms: [
-                { ROOMID: "R101", RNAME: "ห้องเซิร์ฟเวอร์หลัก (Center IDC Floor 1)", ROOMTYP: "SERVER_ROOM", "R.LOCAT": "ตึกคอมพิวเตอร์ ชั้น 1", "R.LOF": "1", RoomGPS: "17.4111, 102.7888", RoomImg_ID: "1_R101_img" },
-                { ROOMID: "R102", RNAME: "ห้องจ่ายยาฉุกเฉิน (Pharmacy ER)", ROOMTYP: "PHARMACY", "R.LOCAT": "ตึกอุบัติเหตุและฉุกเฉิน ชั้น 1", "R.LOF": "1", RoomGPS: "17.4115, 102.7891", RoomImg_ID: "" },
-                { ROOMID: "R103", RNAME: "ศูนย์ควบคุมกล้องวงจรปิด (CCTV Control Center)", ROOMTYP: "OFFICE", "R.LOCAT": "ตึกอํานวยการ ชั้น 3", "R.LOF": "3", RoomGPS: "17.4109, 102.7885", RoomImg_ID: "3_R103_img" }
-            ],
-            support: [
-                { NOID: 1, Asset_ID: "UD-COMP-0129", CaruName: "เครื่องสำรองไฟ (UPS Server)", Location: "R101", RNAME: "ห้องเซิร์ฟเวอร์หลัก (Center IDC Floor 1)", CARUTYPE: "UPS", CrutypeName: "ระบบสํารองไฟฟ้า", ModelID: "M01", BandName: "APC", MODEL: "Smart-UPS RT 10000VA", STATUS: "ใช้งาน", Age: "4", Note9: "1-W8fK1_UPS_Img_ID", Label_Name: "เครื่องสำรองไฟ (UPS Server)-APC-10K" },
-                { NOID: 2, Asset_ID: "UD-COMP-0544", CaruName: "แอร์ตั้งพื้นควบคุมอุณหภูมิ (Precision Air)", Location: "R101", RNAME: "ห้องเซิร์ฟเวอร์หลัก (Center IDC Floor 1)", CARUTYPE: "AIR", CrutypeName: "เครื่องปรับอากาศ", ModelID: "M05", BandName: "Daikin", MODEL: "Precision AP-45", STATUS: "ใช้งาน", Age: "2", Note9: "", Label_Name: "แอร์ตั้งพื้นควบคุมอุณหภูมิ (Precision Air)-Daikin-01" },
-                { NOID: 3, Asset_ID: "UD-COMP-1088", CaruName: "ตู้แร็คเซิร์ฟเวอร์ (Rack 42U)", Location: "R103", RNAME: "ศูนย์ควบคุมกล้องวงจรปิด", CARUTYPE: "RACK", CrutypeName: "ตู้สื่อสาร", ModelID: "R42", BandName: "Link", MODEL: "Premium Rack 42U", STATUS: "ใช้งาน", Age: "5", Note9: "", Label_Name: "ตู้แร็คเซิร์ฟเวอร์ (Rack 42U)-Link-Rack3" }
-            ],
-            network: [
-                { NSWNO: 1, NSWID: "NSID0144", ROOMID: "R101", "R.LOCATION": "ตึกคอมพิวเตอร์ ชั้น 1", "R.FL": "1", RNAME: "ห้องเซิร์ฟเวอร์หลัก", Location: "R101", Product: "Allied Telesis", Model: "AT-x530L-28GTX", Hostname: "ASWO3-MEC-ARI", "Serial No.": "A10234G244200440", "Mac Address": "e01a.eab7.41e2", "IP Address": "10.140.199.63", Username: "badmin", Password: "hashedPassword123", Note: "ต่อใช้งานสายไฟหลักพิกัด A1", NetworkPio: "ASW", Asset_ID: "UD-NET-0144", Pic: "", Note8: "1-W8fK2_Switch_Img_ID" },
-                { NSWNO: 2, NSWID: "NSID0299", ROOMID: "R103", "R.LOCATION": "ตึกอํานวยการ ชั้น 3", "R.FL": "3", RNAME: "ศูนย์ควบคุมกล้องวงจรปิด", Location: "R103", Product: "Cisco", Model: "Catalyst 9300L", Hostname: "CSW-ADMIN-3F", "Serial No.": "FOC2510K23D", "Mac Address": "00a1.b2c3.d4e5", "IP Address": "10.140.10.2", Username: "ciscoadmin", Password: "securePass!", Note: "ไฟเบอร์ลิงก์หลักไปยัง Core Switch", NetworkPio: "CSW", Asset_ID: "", Pic: "", Note8: "" }
-            ],
-            assets: [
-                { AssetID: "UD-COMP-0129", Serial: "APC-SRT10K-9982", Asset_Type_Name: "ระบบสํารองไฟฟ้า", Asset_Item_Name: "UPS APC 10000VA Smart-UPS RT", อายุ: "4 ปี", GPS: "IDC1-ROW1" },
-                { AssetID: "UD-COMP-0544", Serial: "DK-PREC-44221", Asset_Type_Name: "เครื่องปรับอากาศ", Asset_Item_Name: "Precision Air Daikin AP-45", อายุ: "2 ปี", GPS: "IDC1-WALL1" },
-                { AssetID: "UD-NET-0144", Serial: "AT-X530L-981", Asset_Type_Name: "สวิตช์เครือข่าย", Asset_Item_Name: "Allied Telesis AT-x530L-28GTX Stackable", อายุ: "1 ปี", GPS: "IDC1-RACK03" },
-                { AssetID: "UD-COMP-2022", Serial: "HP-PRO-889912", Asset_Type_Name: "เครื่องคอมพิวเตอร์", Asset_Item_Name: "HP ProDesk 600 G6 Core i5", อายุ: "3 ปี", GPS: "OFFICE-DESK2" }
-            ]
-        };
-
-        // ==========================================
-        // APPLICATION STATE
-        // ==========================================
-        let currentUser = null;
+        // ตัวแปรเก็บ State การทำงาน
         let localRooms = [];
-        let localSupport = [];
-        let localNetwork = [];
         let currentRoomId = null;
         let html5QrcodeScanner = null;
-        let qrScannerTargetType = null; // 'support' or 'network'
+        let qrScannerTargetType = null; 
+
+        // ============================================================================
+        // 📌 ระบบจัดการสถานะเข้าสู่ระบบ (Authentication) - บูรณาการจาก auth-check.js
+        // ============================================================================
+        (function() {
+            try {
+                const userData = localStorage.getItem('currentUser');
+                if (!userData) {
+                    window.user = null;
+                    return;
+                }
+                const user = JSON.parse(userData);
+                if (!user || !user.UserPN) {
+                    localStorage.removeItem('currentUser');
+                    window.user = null;
+                    return;
+                }
+                window.user = user;
+            } catch (err) {
+                console.error("Auth-Check Error: ", err);
+                localStorage.removeItem('currentUser');
+                window.user = null;
+            }
+        })();
+
+        function getCurrentUser() {
+            return window.user || null;
+        }
+
+        function hasRole(role) {
+            if (!window.user) return false;
+            return String(window.user.UserTypeID).toUpperCase() === String(role).toUpperCase();
+        }
+
+        function getDisplayName() {
+            if (!window.user) return "ผู้ใช้งานทั่วไป";
+            return (window.user.UserName || "") + " " + (window.user.UserSname || "");
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            sessionStorage.clear();
+            window.user = null;
+            Swal.fire({
+                icon: 'info',
+                title: 'ออกจากระบบสำเร็จ',
+                timer: 1500,
+                showConfirmButton: false
+            }).then(() => {
+                location.reload();
+            });
+        }
 
         // ==========================================
         // APP INITIALIZATION
         // ==========================================
         window.onload = function() {
             checkConnectivity();
-            loadInitialData();
+            
+            // เช็คการจำลองหรือเข้าระบบจริง
+            if (window.user) {
+                doLoginSuccess(window.user);
+            } else {
+                document.getElementById('loginView').classList.remove('hidden');
+                document.getElementById('mainAppView').classList.add('hidden');
+            }
         };
+
+        function showLoader() {
+            document.getElementById('globalLoader').classList.remove('hidden');
+            document.getElementById('globalLoader').classList.add('flex');
+        }
+
+        function hideLoader() {
+            document.getElementById('globalLoader').classList.add('hidden');
+            document.getElementById('globalLoader').classList.remove('flex');
+        }
 
         function checkConnectivity() {
             const badge = document.getElementById('connectionBadge');
@@ -599,53 +698,16 @@
             } else {
                 badge.classList.remove('hidden');
                 badge.className = "hidden md:flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-200 border border-amber-400/30";
-                badge.innerHTML = `<span class="h-2 w-2 rounded-full bg-amber-400"></span><span>Simulation Mode (Offline)</span>`;
+                badge.innerHTML = `<span class="h-2 w-2 rounded-full bg-amber-400"></span><span>Server Offline</span>`;
             }
-        }
-
-        function loadInitialData() {
-            if (APPS_SCRIPT_URL && APPS_SCRIPT_URL.trim() !== "") {
-                callBackend("getSurveyList", {}, function(response) {
-                    if (response.status === "success" && response.data) {
-                        localRooms = response.data;
-                        updateDashboardStats();
-                        renderRoomsGrid();
-                    } else {
-                        fallbackToMockData("ไม่สามารถดึงข้อมูลสดได้ สลับเข้าโหมดจำลอง");
-                    }
-                }, function(err) {
-                    fallbackToMockData("ข้อผิดพลาดในการต่อเซิร์ฟเวอร์ สลับเข้าโหมดจำลอง");
-                });
-            } else {
-                fallbackToMockData();
-            }
-        }
-
-        function fallbackToMockData(msg) {
-            if (msg) console.warn(msg);
-            localRooms = [...MOCK_DB.rooms];
-            localSupport = [...MOCK_DB.support];
-            localNetwork = [...MOCK_DB.network];
-            
-            localRooms.forEach(room => {
-                room.surveyCount = localSupport.filter(s => s.Location === room.ROOMID).length 
-                                   + localNetwork.filter(n => n.ROOMID === room.ROOMID).length;
-            });
-            
-            updateDashboardStats();
-            renderRoomsGrid();
-        }
-
-        function updateDashboardStats() {
-            document.getElementById('stat_rooms').innerText = localRooms.length;
-            document.getElementById('stat_supports').innerText = localSupport.length || MOCK_DB.support.length;
-            document.getElementById('stat_networks').innerText = localNetwork.length || MOCK_DB.network.length;
         }
 
         // ==========================================
-        // CALL BACKEND UTILS
+        // CALL BACKEND UTILS (With UI Lock Overlay)
         // ==========================================
         function callBackend(action, params, onSuccess, onError) {
+            showLoader(); // ล็อคหน้าจอด้วย Overlay ขณะคุยกับเซิร์ฟเวอร์
+            
             const payload = { action: action, ...params };
             
             fetch(APPS_SCRIPT_URL, {
@@ -655,73 +717,70 @@
                 body: JSON.stringify(payload)
             })
             .then(res => res.json())
-            .then(data => onSuccess(data))
+            .then(data => {
+                hideLoader();
+                if (onSuccess) onSuccess(data);
+            })
             .catch(err => {
+                hideLoader();
                 if (onError) onError(err);
-                else console.error("API error:", err);
+                else {
+                    console.error("API error:", err);
+                    Swal.fire('ข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อ Server ได้', 'error');
+                }
             });
         }
 
-        // ==========================================
-        // AUTH LOGICS
-        // ==========================================
         function handleLoginSubmit(event) {
             event.preventDefault();
             const u = document.getElementById('username').value;
             const p = document.getElementById('password').value;
 
-            Swal.fire({
-                title: 'กำลังตรวจสอบสิทธิ์...',
-                allowOutsideClick: false,
-                didOpen: () => { Swal.showLoading(); }
+            callBackend("login", { username: u, password: p }, function(res) {
+                if (res.status === "success" && res.data) {
+                    localStorage.setItem('currentUser', JSON.stringify(res.data));
+                    window.user = res.data;
+                    doLoginSuccess(res.data);
+                } else {
+                    Swal.fire('เกิดข้อผิดพลาด', res.message || 'รหัสผ่านไม่ถูกต้อง', 'error');
+                }
             });
-
-            if (APPS_SCRIPT_URL && APPS_SCRIPT_URL.trim() !== "") {
-                callBackend("login", { username: u, password: p }, function(res) {
-                    Swal.close();
-                    if (res.status === "success" && res.data) {
-                        doLoginSuccess(res.data);
-                    } else {
-                        Swal.fire('เกิดข้อผิดพลาด', res.message || 'รหัสผ่านไม่ถูกต้อง', 'error');
-                    }
-                }, function(err) {
-                    Swal.close();
-                    Swal.fire('ข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ กำลังจำลองการเข้าสู่ระบบ', 'warning').then(() => {
-                        doLoginSuccess({ UserName: "เจ้าหน้าที่ทดสอบ (IT)", UserPN: u, UserTypeID: "ADMIN" });
-                    });
-                });
-            } else {
-                setTimeout(() => {
-                    Swal.close();
-                    doLoginSuccess({ UserName: "เจ้าหน้าที่จำลองระบบ", UserPN: u, UserTypeID: "ADMIN" });
-                }, 800);
-            }
         }
 
         function doLoginSuccess(userObj) {
-            currentUser = userObj;
             document.getElementById('loginView').classList.add('hidden');
             document.getElementById('mainAppView').classList.remove('hidden');
             document.getElementById('userProfile').classList.remove('hidden');
             document.getElementById('userProfile').classList.add('flex');
-            document.getElementById('userNameText').innerText = userObj.UserName;
+            document.getElementById('userNameText').innerText = getDisplayName();
             
-            Swal.fire({
-                icon: 'success',
-                title: 'เข้าสู่ระบบสำเร็จ',
-                text: 'ยินดีต้อนรับ ' + userObj.UserName,
-                timer: 1500,
-                showConfirmButton: false
+            // ดึงข้อมูลเข้าสู่ Dashboard
+            loadInitialData();
+        }
+
+        function loadInitialData() {
+            callBackend("getSurveyList", {}, function(response) {
+                if (response.status === "success" && response.data) {
+                    localRooms = response.data;
+                    updateDashboardStats();
+                    renderRoomsGrid();
+                }
             });
         }
 
-        function handleLogout() {
-            currentUser = null;
-            document.getElementById('loginView').classList.remove('hidden');
-            document.getElementById('mainAppView').classList.add('hidden');
-            document.getElementById('userProfile').classList.add('hidden');
-            document.getElementById('userProfile').classList.remove('flex');
-            Swal.fire('ออกจากระบบเรียบร้อย', '', 'info');
+        function updateDashboardStats() {
+            document.getElementById('stat_rooms').innerText = localRooms.length;
+            
+            // เรียก Dashboard Counts เพื่อสรุปจำนวนอุปกรณ์ทั้งหมด
+            callBackend("getDashboard", {}, function(res) {
+                if (res.status === "success" && res.data) {
+                    const supportsSum = Object.values(res.data.supports).reduce((a, b) => a + b, 0);
+                    const networksSum = Object.values(res.data.networks).reduce((a, b) => a + b, 0);
+                    
+                    document.getElementById('stat_supports').innerText = supportsSum;
+                    document.getElementById('stat_networks').innerText = networksSum;
+                }
+            });
         }
 
         // ==========================================
@@ -767,9 +826,6 @@
             }
         }
 
-        // ==========================================
-        // ROOM RENDERING & LOGICS
-        // ==========================================
         function renderRoomsGrid(filteredText = "") {
             const grid = document.getElementById('roomsGrid');
             grid.innerHTML = "";
@@ -796,18 +852,18 @@
             listToRender.forEach(room => {
                 const countBadge = room.surveyCount > 0 
                     ? `<span class="bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-extrabold px-3 py-1 rounded-xl"><i class="fas fa-check-circle mr-1"></i>ลงทะเบียนแล้ว (${room.surveyCount})</span>`
-                    : `<span class="bg-amber-100 text-amber-800 border border-amber-200 text-xs font-extrabold px-3 py-1 rounded-xl"><i class="fas fa-exclamation-circle mr-1"></i>ว่าง / ไม่มีอุปกรณ์</span>`;
+                    : `<span class="bg-amber-100 text-amber-800 border border-amber-200 text-xs font-extrabold px-3 py-1 rounded-xl"><i class="fas fa-exclamation-circle mr-1"></i>ยังไม่มีอุปกรณ์</span>`;
 
                 const roomImg = room.RoomImg_ID 
-                    ? `https://drive.google.com/thumbnail?id=${room.RoomImg_ID}&sz=w300` 
-                    : `https://placehold.co/300x150/fbcfe8/be185d?text=Room+ID+${room.ROOMID}`;
+                    ? `https://lh3.googleusercontent.com/d/${room.RoomImg_ID}=w300` 
+                    : `https://placehold.co/300x150/ffe4e6/9f1239?text=Room+ID+${room.ROOMID}`;
 
                 const card = document.createElement('div');
                 card.className = "bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition duration-300 cursor-pointer flex flex-col justify-between";
                 card.onclick = () => showRoomDetail(room.ROOMID);
                 card.innerHTML = `
                     <div class="relative h-32 bg-slate-100 overflow-hidden shrink-0">
-                        <img src="${roomImg}" class="w-full h-full object-cover" alt="${room.RNAME}" onerror="this.src='https://placehold.co/300x150/ffe4e6/9f1239?text=${room.ROOMID}'">
+                        <img src="${roomImg}" class="w-full h-full object-cover animate-fade-in" alt="${room.RNAME}" onerror="this.src='https://placehold.co/300x150/ffe4e6/9f1239?text=${room.ROOMID}'">
                         <div class="absolute top-3 right-3 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-xl text-xs font-black text-rose-600 shadow-sm border border-rose-100">
                             ID: ${room.ROOMID}
                         </div>
@@ -837,37 +893,13 @@
         // ==========================================
         function showRoomDetail(roomId) {
             currentRoomId = roomId;
-            const room = localRooms.find(r => r.ROOMID === roomId);
-            if (!room) return;
-
-            Swal.fire({
-                title: 'กำลังดึงข้อมูลพิกัด...',
-                allowOutsideClick: false,
-                didOpen: () => { Swal.showLoading(); }
+            callBackend("getRoomDetail", { roomId: roomId }, function(res) {
+                if (res.status === "success" && res.data) {
+                    displayRoomDetail(res.data.room, res.data.supportingComponents, res.data.networkDevices);
+                } else {
+                    Swal.fire('ข้อผิดพลาด', 'ดึงข้อมูลพิกัดห้องล้มเหลว', 'error');
+                }
             });
-
-            if (APPS_SCRIPT_URL && APPS_SCRIPT_URL.trim() !== "") {
-                callBackend("getRoomDetail", { roomId: roomId }, function(res) {
-                    Swal.close();
-                    if (res.status === "success" && res.data) {
-                        displayRoomDetail(res.data.room, res.data.supportingComponents, res.data.networkDevices);
-                    } else {
-                        Swal.fire('ข้อผิดพลาด', 'ดึงข้อมูลไม่สำเร็จ', 'error');
-                    }
-                }, function(err) {
-                    Swal.close();
-                    const supports = localSupport.filter(s => s.Location === roomId);
-                    const networks = localNetwork.filter(n => n.ROOMID === roomId);
-                    displayRoomDetail(room, supports, networks);
-                });
-            } else {
-                setTimeout(() => {
-                    Swal.close();
-                    const supports = localSupport.filter(s => s.Location === roomId);
-                    const networks = localNetwork.filter(n => n.ROOMID === roomId);
-                    displayRoomDetail(room, supports, networks);
-                }, 400);
-            }
         }
 
         function displayRoomDetail(room, supportList, networkList) {
@@ -881,8 +913,8 @@
             document.getElementById('detail_RoomGPS').innerText = room.RoomGPS || 'ไม่มีพิกัด GPS';
 
             const roomImgSrc = room.RoomImg_ID 
-                ? `https://drive.google.com/thumbnail?id=${room.RoomImg_ID}&sz=w600` 
-                : `https://placehold.co/600x400/ffe4e6/9f1239?text=${room.ROOMID}`;
+                ? `https://lh3.googleusercontent.com/d/${room.RoomImg_ID}=w600` 
+                : `https://placehold.co/600x400/ffe4e6/9f1239?text=ID+${room.ROOMID}`;
             document.getElementById('detail_RoomImg').src = roomImgSrc;
 
             document.getElementById('count_support').innerText = supportList.length;
@@ -893,9 +925,24 @@
             switchRoomTab('support');
         }
 
+        function toggleGroup(id, iconId) {
+            const content = document.getElementById(id);
+            const icon = document.getElementById(iconId);
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-up');
+            } else {
+                content.classList.add('hidden');
+                icon.classList.remove('fa-chevron-up');
+                icon.classList.add('fa-chevron-down');
+            }
+        }
+
         function renderSupportList(list) {
             const container = document.getElementById('supportDevicesList');
             container.innerHTML = "";
+            container.className = "space-y-4";
 
             if (list.length === 0) {
                 container.innerHTML = `
@@ -907,46 +954,112 @@
                 return;
             }
 
+            // 1. Group by CrutypeName or CARUTYPE
+            const grouped = {};
             list.forEach(item => {
-                const imgUrl = item.Note9 
-                    ? `https://drive.google.com/thumbnail?id=${item.Note9}&sz=w300`
-                    : `https://placehold.co/150x150/fbcfe8/be185d?text=Support+Device`;
+                let groupName = item.CrutypeName || item.CARUTYPE || 'ไม่ได้ระบุกลุ่ม';
+                if (!grouped[groupName]) grouped[groupName] = [];
+                grouped[groupName].push(item);
+            });
 
-                const card = document.createElement('div');
-                card.className = "bg-white p-5 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition duration-200 flex gap-4 items-start";
-                card.innerHTML = `
-                    <div class="w-20 h-20 bg-pink-50 rounded-2xl overflow-hidden shrink-0 border border-pink-100 relative">
-                        <img src="${imgUrl}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/150x150/fecdd3/9f1239?text=Support'">
-                    </div>
-                    <div class="flex-1 min-w-0 space-y-1.5">
-                        <div class="flex justify-between items-start gap-2">
-                            <div>
-                                <span class="text-[10px] bg-pink-100 text-pink-700 font-extrabold px-2.5 py-0.5 rounded-full uppercase">${item.CrutypeName || 'Support'}</span>
-                                <h4 class="font-bold text-gray-800 text-sm mt-1 truncate">${item.CaruName || 'ไม่ได้ระบุชื่ออุปกรณ์'}</h4>
+            // Config for specific Support groups
+            function getGroupInfo(name) {
+                const n = name.toUpperCase();
+                if (n.includes('CH001')) return { bg: 'bg-indigo-500', text: 'text-indigo-700', badge: 'bg-indigo-100', icon: 'fa-desktop', desc: 'ระบบควบคุมการทำงานภายในห้อง' };
+                if (n.includes('CH002')) return { bg: 'bg-yellow-500', text: 'text-yellow-700', badge: 'bg-yellow-100', icon: 'fa-bolt', desc: 'ระบบไฟฟ้าหลัก' };
+                if (n.includes('CH003')) return { bg: 'bg-gray-700', text: 'text-gray-700', badge: 'bg-gray-200', icon: 'fa-server', desc: 'ตู้จัดเก็บอุปกรณ์เครือข่าย / Rack' };
+                if (n.includes('CH004')) return { bg: 'bg-orange-500', text: 'text-orange-700', badge: 'bg-orange-100', icon: 'fa-car-battery', desc: 'เครื่องสำรองไฟ / UPS' };
+                if (n.includes('CH005')) return { bg: 'bg-cyan-500', text: 'text-cyan-700', badge: 'bg-cyan-100', icon: 'fa-snowflake', desc: 'ระบบควบคุมอุณภูมิและความชื้น' };
+                if (n.includes('CH006')) return { bg: 'bg-slate-600', text: 'text-slate-700', badge: 'bg-slate-200', icon: 'fa-building', desc: 'ตัวห้อง / ตำแหน่งที่ตั้ง / โครงสร้าง' };
+                return { bg: 'bg-pink-500', text: 'text-pink-700', badge: 'bg-pink-100', icon: 'fa-plug', desc: 'อุปกรณ์สนับสนุนอื่นๆ' };
+            }
+
+            // 2. Render Accordions
+            Object.keys(grouped).sort().forEach((gName, index) => {
+                const items = grouped[gName];
+                const info = getGroupInfo(gName);
+                const groupId = `grp-sup-${index}`;
+                const iconId = `icon-sup-${index}`;
+
+                const groupDiv = document.createElement('div');
+                groupDiv.className = "bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm";
+                
+                let html = `
+                    <button onclick="toggleGroup('${groupId}', '${iconId}')" class="w-full flex justify-between items-center bg-gray-50 hover:bg-gray-100 p-4 transition text-left focus:outline-none">
+                        <div class="flex items-center gap-3">
+                            <div class="w-11 h-11 rounded-xl ${info.bg} text-white flex items-center justify-center shadow-sm shrink-0">
+                                <i class="fas ${info.icon} text-lg"></i>
                             </div>
-                            <span class="text-xs font-extrabold ${item.STATUS === 'ใช้งาน' ? 'text-emerald-500' : 'text-amber-500'} shrink-0">${item.STATUS || 'ไม่มีสถานะ'}</span>
+                            <div>
+                                <h4 class="font-black text-gray-800 text-sm md:text-base pr-2">${gName}</h4>
+                                <p class="text-[11px] md:text-xs text-gray-500 font-medium mt-0.5">${info.desc}</p>
+                            </div>
                         </div>
-                        
-                        <div class="text-xs text-gray-500 space-y-0.5 font-medium">
-                            <p class="truncate"><span class="font-bold text-gray-600">ยี่ห้อ/รุ่น:</span> ${item.BandName || '-'} / ${item.MODEL || '-'}</p>
-                            <p class="truncate font-mono"><span class="font-bold text-gray-600 font-sans">รหัสครุภัณฑ์:</span> ${item.Asset_ID || '<span class="text-gray-400 font-sans">- ไม่มีรหัสครุภัณฑ์ -</span>'}</p>
-                            <p class="truncate"><span class="font-bold text-gray-600">ป้ายชื่อ:</span> <span class="bg-slate-50 border border-slate-100 text-[11px] font-mono font-bold text-slate-700 px-1.5 py-0.5 rounded-md">${item.Label_Name || '-'}</span></p>
+                        <div class="flex items-center gap-3 pl-2 shrink-0">
+                            <span class="bg-white border border-gray-200 text-gray-600 px-3 py-1 rounded-lg text-xs font-bold shadow-sm whitespace-nowrap">${items.length} ชิ้น</span>
+                            <i id="${iconId}" class="fas fa-chevron-up text-gray-400 w-4 text-center"></i>
                         </div>
-                        
-                        <div class="flex justify-end gap-1.5 border-t border-gray-50 pt-2.5">
-                            <button onclick='handleEditClick("support", ${JSON.stringify(item)})' class="px-3.5 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-100 text-gray-600 hover:text-gray-900 rounded-xl text-xs font-extrabold transition">
-                                <i class="fas fa-edit mr-1"></i> แก้ไขข้อมูล
-                            </button>
-                        </div>
-                    </div>
+                    </button>
+                    <div id="${groupId}" class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 border-t border-gray-100 bg-white">
                 `;
-                container.appendChild(card);
+
+                items.forEach(item => {
+                    const imgUrl = item.Note9 ? `https://lh3.googleusercontent.com/d/${item.Note9}=w300` : `https://placehold.co/150x150/f8fafc/94a3b8?text=No+Photo`;
+                    html += `
+                        <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition flex gap-3 items-start relative overflow-hidden">
+                            <div class="w-20 h-20 bg-gray-50 rounded-xl overflow-hidden shrink-0 border border-gray-100 relative">
+                                <img src="${imgUrl}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/150x150/f1f5f9/94a3b8?text=No+Photo'">
+                            </div>
+                            <div class="flex-1 min-w-0 space-y-1.5">
+                                <div class="flex justify-between items-start gap-2">
+                                    <div>
+                                        <span class="text-[10px] ${info.badge} ${info.text} font-extrabold px-2 py-0.5 rounded-md uppercase line-clamp-1">${item.CrutypeName || 'Support'}</span>
+                                        <h4 class="font-bold text-gray-800 text-sm mt-1 truncate">${item.CaruName || 'ไม่ได้ระบุชื่ออุปกรณ์'}</h4>
+                                    </div>
+                                    <span class="text-[10px] font-extrabold ${item.STATUS === 'ใช้งาน' ? 'text-emerald-500' : 'text-amber-500'} bg-gray-50 border border-gray-100 px-1.5 py-0.5 rounded shrink-0">${item.STATUS || '-'}</span>
+                                </div>
+                                
+                                <div class="text-xs text-gray-500 space-y-0.5 font-medium">
+                                    <p class="truncate"><span class="font-bold text-gray-600">ยี่ห้อ/รุ่น:</span> ${item.BandName || '-'} / ${item.MODEL || '-'}</p>
+                                    <p class="truncate font-mono"><span class="font-bold text-gray-600 font-sans">รหัส:</span> ${item.Asset_ID || '-'}</p>
+                                    <p class="truncate"><span class="font-bold text-gray-600">ป้ายชื่อ:</span> <span class="bg-slate-50 border border-slate-100 text-[10px] font-mono font-bold text-slate-700 px-1.5 py-0.5 rounded">${item.Label_Name || '-'}</span></p>
+                                </div>
+                                
+                                <div class="flex justify-end pt-1">
+                                    <button onclick='handleEditClick("support", ${JSON.stringify(item).replace(/'/g, "&apos;")})' class="px-3 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-600 hover:text-gray-900 rounded-lg text-[11px] font-extrabold transition">
+                                        <i class="fas fa-edit mr-1"></i> แก้ไข
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += `</div>`;
+                groupDiv.innerHTML = html;
+                container.appendChild(groupDiv);
             });
         }
+
+        const networkMapping = {
+            "Web Application Firewall (Project Cyber Security)": { order: 1, bg: 'bg-rose-500', text: 'text-rose-700', badge: 'bg-rose-100', icon: 'fa-shield-virus', desc: 'ระบบป้องกันเว็บแอปพลิเคชัน' },
+            "Firewall": { order: 2, bg: 'bg-red-500', text: 'text-red-700', badge: 'bg-red-100', icon: 'fa-fire-extinguisher', desc: 'ระบบป้องกันเครือข่ายหลัก' },
+            "IPS Secure Firewall 3110 (Project Cyber Security)": { order: 3, bg: 'bg-red-500', text: 'text-red-700', badge: 'bg-red-100', icon: 'fa-shield-alt', desc: 'ระบบป้องกันการบุกรุกเครือข่าย' },
+            "Firewall (Project Cyber Security)": { order: 4, bg: 'bg-red-500', text: 'text-red-700', badge: 'bg-red-100', icon: 'fa-shield-alt', desc: 'ความปลอดภัยเครือข่าย' },
+            "Wireless Controller": { order: 5, bg: 'bg-purple-500', text: 'text-purple-700', badge: 'bg-purple-100', icon: 'fa-wifi', desc: 'ควบคุมสัญญาณไร้สาย' },
+            "DST": { order: 6, bg: 'bg-blue-600', text: 'text-blue-700', badge: 'bg-blue-100', icon: 'fa-project-diagram', desc: 'Distribution Switch' },
+            "CSW": { order: 7, bg: 'bg-blue-500', text: 'text-blue-700', badge: 'bg-blue-100', icon: 'fa-network-wired', desc: 'Core / Distribution Switch' },
+            "ASW": { order: 8, bg: 'bg-cyan-500', text: 'text-cyan-700', badge: 'bg-cyan-100', icon: 'fa-sitemap', desc: 'Access Switch' },
+            "Switch Pacs": { order: 9, bg: 'bg-indigo-500', text: 'text-indigo-700', badge: 'bg-indigo-100', icon: 'fa-hdd', desc: 'สวิตช์ระบบภาพทางการแพทย์' },
+            "ASW-CCTV": { order: 10, bg: 'bg-amber-500', text: 'text-amber-700', badge: 'bg-amber-100', icon: 'fa-video', desc: 'Access Switch วงจรปิด' },
+            "SW-CCTV": { order: 11, bg: 'bg-amber-500', text: 'text-amber-700', badge: 'bg-amber-100', icon: 'fa-video', desc: 'Switch วงจรปิด' },
+            "DEFAULT": { order: 99, bg: 'bg-slate-500', text: 'text-slate-700', badge: 'bg-slate-100', icon: 'fa-server', desc: 'อุปกรณ์เครือข่ายอื่นๆ' }
+        };
 
         function renderNetworkList(list) {
             const container = document.getElementById('networkDevicesList');
             container.innerHTML = "";
+            container.className = "space-y-4";
 
             if (list.length === 0) {
                 container.innerHTML = `
@@ -958,46 +1071,213 @@
                 return;
             }
 
+            // 1. Group by NetworkPio
+            const grouped = {};
             list.forEach(item => {
-                const imgUrl = item.Note8 
-                    ? `https://drive.google.com/thumbnail?id=${item.Note8}&sz=w300`
-                    : `https://placehold.co/150x150/dbeafe/1e40af?text=Network+Device`;
+                let pio = item.NetworkPio || 'ไม่ได้ระบุกลุ่ม';
+                if (!grouped[pio]) grouped[pio] = [];
+                grouped[pio].push(item);
+            });
 
-                const card = document.createElement('div');
-                card.className = "bg-white p-5 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition duration-200 flex gap-4 items-start";
-                card.innerHTML = `
-                    <div class="w-20 h-20 bg-blue-50 rounded-2xl overflow-hidden shrink-0 border border-blue-100 relative">
-                        <img src="${imgUrl}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/150x150/bfdbfe/1e3a8a?text=Network'">
-                    </div>
-                    <div class="flex-1 min-w-0 space-y-1.5">
-                        <div class="flex justify-between items-start gap-2">
-                            <div>
-                                <span class="text-[10px] bg-blue-100 text-blue-700 font-extrabold px-2.5 py-0.5 rounded-full uppercase">${item.NetworkPio || 'Switch'}</span>
-                                <h4 class="font-bold text-gray-800 text-sm mt-1 truncate">${item.Hostname || 'ไม่ได้ระบุ Hostname'}</h4>
+            // 2. Sort keys by predefined priority order
+            const sortedKeys = Object.keys(grouped).sort((a, b) => {
+                const orderA = networkMapping[a] ? networkMapping[a].order : networkMapping['DEFAULT'].order;
+                const orderB = networkMapping[b] ? networkMapping[b].order : networkMapping['DEFAULT'].order;
+                return orderA - orderB;
+            });
+
+            // 3. Render Accordions
+            sortedKeys.forEach((pio, index) => {
+                const items = grouped[pio];
+                const info = networkMapping[pio] || networkMapping['DEFAULT'];
+                const groupId = `grp-net-${index}`;
+                const iconId = `icon-net-${index}`;
+
+                const groupDiv = document.createElement('div');
+                groupDiv.className = "bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm";
+                
+                let html = `
+                    <button onclick="toggleGroup('${groupId}', '${iconId}')" class="w-full flex justify-between items-center bg-gray-50 hover:bg-gray-100 p-4 transition text-left focus:outline-none">
+                        <div class="flex items-center gap-3">
+                            <div class="w-11 h-11 rounded-xl ${info.bg} text-white flex items-center justify-center shadow-sm shrink-0">
+                                <i class="fas ${info.icon} text-lg"></i>
                             </div>
-                            <span class="text-xs font-mono font-bold text-blue-600 bg-blue-50 border border-blue-100/50 px-2 py-0.5 rounded-lg shrink-0">${item.NSWID || 'ไม่มี ID'}</span>
+                            <div>
+                                <h4 class="font-black text-gray-800 text-sm md:text-base pr-2">${pio}</h4>
+                                <p class="text-[11px] md:text-xs text-gray-500 font-medium mt-0.5">${info.desc}</p>
+                            </div>
                         </div>
-                        
-                        <div class="text-xs text-gray-500 space-y-0.5 font-medium">
-                            <p class="truncate font-mono"><span class="font-bold text-gray-600 font-sans">IP Address:</span> ${item["IP Address"] || '-'}</p>
-                            <p class="truncate"><span class="font-bold text-gray-600">ยี่ห้อ/รุ่น:</span> ${item.Product || '-'} ${item.Model || '-'}</p>
-                            <p class="truncate font-mono"><span class="font-bold text-gray-600 font-sans">Serial No:</span> ${item["Serial No."] || '-'}</p>
-                            <p class="truncate font-mono"><span class="font-bold text-gray-600 font-sans">รหัสครุภัณฑ์หลัก:</span> ${item.Asset_ID || '<span class="text-gray-400 font-sans">- ไม่มีรหัสครุภัณฑ์ -</span>'}</p>
+                        <div class="flex items-center gap-3 pl-2 shrink-0">
+                            <span class="bg-white border border-gray-200 text-gray-600 px-3 py-1 rounded-lg text-xs font-bold shadow-sm whitespace-nowrap">${items.length} ชิ้น</span>
+                            <i id="${iconId}" class="fas fa-chevron-up text-gray-400 w-4 text-center"></i>
                         </div>
-                        
-                        <div class="flex justify-end gap-1.5 border-t border-gray-50 pt-2.5">
-                            <button onclick='handleEditClick("network", ${JSON.stringify(item)})' class="px-3.5 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-100 text-gray-600 hover:text-gray-900 rounded-xl text-xs font-extrabold transition">
-                                <i class="fas fa-edit mr-1"></i> แก้ไขข้อมูล
-                            </button>
-                        </div>
-                    </div>
+                    </button>
+                    <div id="${groupId}" class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 border-t border-gray-100 bg-white">
                 `;
-                container.appendChild(card);
+
+                items.forEach(item => {
+                    const imgUrl = item.Note8 ? `https://lh3.googleusercontent.com/d/${item.Note8}=w300` : `https://placehold.co/150x150/f8fafc/cbd5e1?text=No+Photo`;
+                    html += `
+                        <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition flex gap-3 items-start relative">
+                            <div class="w-20 h-20 bg-gray-50 rounded-xl overflow-hidden shrink-0 border border-gray-100 relative">
+                                <img src="${imgUrl}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/150x150/f8fafc/cbd5e1?text=No+Photo'">
+                            </div>
+                            <div class="flex-1 min-w-0 space-y-1.5">
+                                <div class="flex justify-between items-start gap-2">
+                                    <div>
+                                        <span class="text-[10px] ${info.badge} ${info.text} font-extrabold px-2 py-0.5 rounded-md uppercase line-clamp-1">${item.NetworkPio || 'Switch'}</span>
+                                        <h4 class="font-bold text-gray-800 text-sm mt-1 truncate">${item.Hostname || 'ไม่ได้ระบุ Hostname'}</h4>
+                                    </div>
+                                    <span class="text-[10px] font-mono font-bold ${info.text} bg-gray-50 border border-gray-100 px-1.5 py-0.5 rounded shrink-0">${item.NSWID || 'ไม่มี ID'}</span>
+                                </div>
+                                
+                                <div class="text-xs text-gray-500 space-y-0.5 font-medium">
+                                    <p class="truncate font-mono"><span class="font-bold text-gray-600 font-sans">IP Address:</span> ${item["IP Address"] || '-'}</p>
+                                    <p class="truncate"><span class="font-bold text-gray-600">ยี่ห้อ/รุ่น:</span> ${item.Product || '-'} ${item.Model || '-'}</p>
+                                    <p class="truncate font-mono"><span class="font-bold text-gray-600 font-sans">Serial No:</span> ${item["Serial No."] || '-'}</p>
+                                </div>
+                                
+                                <div class="flex justify-end pt-1">
+                                    <button onclick='handleEditClick("network", ${JSON.stringify(item).replace(/'/g, "&apos;")})' class="px-3 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-600 hover:text-gray-900 rounded-lg text-[11px] font-extrabold transition">
+                                        <i class="fas fa-edit mr-1"></i> แก้ไข
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += `</div>`;
+                groupDiv.innerHTML = html;
+                container.appendChild(groupDiv);
             });
         }
 
         // ==========================================
-        // DYNAMIC EDIT MODAL BUILDER (SAFE AND SECURE - NO INNERHTML LEAKS)
+        // AUTOCOMPLETE SEARCH IN MODAL
+        // ==========================================
+        function handleModalSearchTyping(query, type) {
+            const dropdown = document.getElementById('modalSearchDropdown_' + type);
+            const resultsDiv = document.getElementById('modalSearchResults_' + type);
+            
+            if (!query || query.trim().length < 2) {
+                dropdown.classList.add('hidden');
+                return;
+            }
+
+            dropdown.classList.remove('hidden');
+            // แสดง Overlay ค้นหาภายใน Dropdown ทันทีเมื่อพิมพ์ข้อมูล
+            resultsDiv.innerHTML = `
+                <div class="p-4 text-center flex flex-col items-center justify-center gap-2">
+                    <svg class="animate-spin h-5 w-5 text-rose-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span class="text-xs font-bold text-slate-400">กำลังสืบค้นฐานข้อมูลครุภัณฑ์...</span>
+                </div>
+            `;
+
+            // ดึงผลลัพธ์ผ่าน Endpoint ค้นหาจริงของ Code.gs
+            callBackend("search", { query: query }, function(res) {
+                if (res.status === "success" && res.data) {
+                    displayModalSearchResults(res.data, type);
+                } else {
+                    resultsDiv.innerHTML = `<div class="p-3 text-xs text-center text-red-500">ไม่พบข้อมูลหรือเกิดข้อผิดพลาด</div>`;
+                }
+            }, function() {
+                resultsDiv.innerHTML = `<div class="p-3 text-xs text-center text-red-500">ไม่สามารถเชื่อมต่อ Server ได้</div>`;
+            });
+        }
+
+        function displayModalSearchResults(records, type) {
+            const dropdown = document.getElementById('modalSearchDropdown_' + type);
+            const resultsDiv = document.getElementById('modalSearchResults_' + type);
+            resultsDiv.innerHTML = "";
+
+            if (!records || records.length === 0) {
+                resultsDiv.innerHTML = `
+                    <div class="p-4 text-center text-slate-400 text-xs">
+                        <i class="fas fa-search block text-lg text-slate-300 mb-1"></i>
+                        ไม่พบคิวรีในสารบบครุภัณฑ์หลัก
+                    </div>
+                `;
+                return;
+            }
+
+            records.forEach(rec => {
+                const opt = document.createElement('div');
+                opt.className = "p-3 hover:bg-pink-50 cursor-pointer transition flex flex-col gap-1 border-b border-gray-100 last:border-b-0";
+                
+                // แก้ไขการ Mapping คีย์ที่ถูกตาม Code.gs คือ AssetID
+                const assetID = rec.AssetID || rec.Asset_ID || "ไม่มีรหัส";
+                const caruName = rec.CaruName || "ไม่ระบุชื่อครุภัณฑ์";
+                const typeName = rec.CrutypeName || "ครุภัณฑ์หลัก";
+
+                opt.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm font-black text-pink-600 font-mono tracking-tight">${assetID}</span>
+                        <span class="text-[10px] bg-slate-100 px-2 py-0.5 rounded font-extrabold text-slate-500">${typeName}</span>
+                    </div>
+                    <div class="text-xs text-slate-500 font-medium truncate">${caruName}</div>
+                `;
+                
+                opt.onclick = () => {
+                    selectAssetResult(rec, type);
+                };
+                resultsDiv.appendChild(opt);
+            });
+        }
+
+        function selectAssetResult(record, type) {
+            // จับคู่ฟิลด์ให้ถูกต้องทั้ง AssetID และ Asset_ID
+            const mappedAssetID = record.AssetID || record.Asset_ID || "";
+            document.getElementById('input_Asset_ID_' + type).value = mappedAssetID;
+            
+            if (type === 'support') {
+                document.getElementById('input_CaruName').value = record.CaruName || "";
+                if (record.rawData) {
+                    const data = record.rawData;
+                    if (document.getElementById('input_CrutypeName')) {
+                        document.getElementById('input_CrutypeName').value = data.Asset_Type_Group || record.CrutypeName || "";
+                    }
+                    if (document.getElementById('input_MODEL')) {
+                        document.getElementById('input_MODEL').value = data["Asset_Name & Detail"] || "";
+                    }
+                    if (document.getElementById('input_Age_support')) {
+                        const parsedAge = String(data["อายุ"] || "").replace(/[^0-9]/g, '');
+                        document.getElementById('input_Age_support').value = parsedAge || "";
+                    }
+                }
+                updateSupportLabelName();
+            } else if (type === 'network') {
+                if (record.rawData) {
+                    const data = record.rawData;
+                    if (document.getElementById('input_Product')) {
+                        document.getElementById('input_Product').value = data.Asset_Type_Group || "";
+                    }
+                    if (document.getElementById('input_Model')) {
+                        document.getElementById('input_Model').value = data["Asset_Name & Detail"] || "";
+                    }
+                    if (document.getElementById('input_Serial')) {
+                        document.getElementById('input_Serial').value = data.Serial || "";
+                    }
+                }
+            }
+
+            document.getElementById('modalSearchDropdown_' + type).classList.add('hidden');
+            
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: 'เชื่อมข้อมูลครุภัณฑ์เรียบร้อย',
+                showConfirmButton: false,
+                timer: 2000
+            });
+        }
+
+        // ==========================================
+        // DYNAMIC EDIT MODAL BUILDER
         // ==========================================
         function openEditModal(type, mode, data = null) {
             const modal = document.getElementById('editModal');
@@ -1011,7 +1291,7 @@
             const suffixText = type === 'support' ? ' (Supporting Component)' : ' (Network Device)';
             title.innerText = modeText + suffixText;
 
-            // Reset forms
+            // Reset Forms
             document.getElementById('editForm').reset();
             document.getElementById('modalSearchDropdown_support').classList.add('hidden');
             document.getElementById('modalSearchDropdown_network').classList.add('hidden');
@@ -1029,9 +1309,8 @@
                     document.getElementById('input_BandName').value = data.BandName || '';
                     document.getElementById('input_MODEL').value = data.MODEL || '';
                     document.getElementById('input_Age_support').value = data.Age || '';
-                    document.getElementById('input_Note9').value = data.Note9 || '';
+                    document.getElementById('input_Note9').value = data.Note9 || data.PIC || '';
                     
-                    // Decode Label_Name prefix & suffix mapping
                     const labelVal = data.Label_Name || '';
                     const caruName = data.CaruName || '';
                     const prefix = caruName + '-';
@@ -1044,6 +1323,7 @@
                     document.getElementById('form_NOID').value = '';
                 }
                 updateSupportLabelName();
+                updateImagePreview('support');
             } else {
                 document.getElementById('supportFormFields').classList.add('hidden');
                 document.getElementById('networkFormFields').classList.remove('hidden');
@@ -1060,13 +1340,14 @@
                     document.getElementById('input_Serial').value = data["Serial No."] || '';
                     document.getElementById('input_MacAddress').value = data["Mac Address"] || '';
                     document.getElementById('input_StackNo').value = data["Stack No."] || '';
-                    document.getElementById('input_Note8').value = data.Note8 || '';
+                    document.getElementById('input_Note8').value = data.Note8 || data.PIC || '';
                     document.getElementById('input_Username').value = data.Username || '';
                     document.getElementById('input_Password').value = data.Password || '';
                     document.getElementById('input_Note').value = data.Note || '';
                 } else {
                     document.getElementById('form_NSWNO').value = '';
                 }
+                updateImagePreview('network');
             }
 
             modal.classList.remove('hidden');
@@ -1089,8 +1370,6 @@
             const suffixEl = document.getElementById('input_Label_Suffix');
             const hiddenLabelEl = document.getElementById('input_Label_Name');
 
-            if (!prefixEl || !caruNameEl) return;
-
             const name = caruNameEl.value.trim() || "ชื่อครุภัณฑ์";
             const prefix = name + '-';
             const suffix = suffixEl.value.trim();
@@ -1100,120 +1379,125 @@
         }
 
         // ==========================================
-        // DYNAMIC ASSET SEARCH TYPING LOGICS
+        // IMAGE PREVIEW & CLEAR LOGICS (ADD/DELETE IMAGE)
         // ==========================================
-        function handleModalSearchTyping(query, type) {
-            const dropdown = document.getElementById('modalSearchDropdown_' + type);
-            const resultsDiv = document.getElementById('modalSearchResults_' + type);
+        function updateImagePreview(type) {
+            const inputId = type === 'support' ? 'input_Note9' : 'input_Note8';
+            const imgId = type === 'support' ? 'preview_img_support' : 'preview_img_network';
+            const placeholderId = type === 'support' ? 'preview_placeholder_support' : 'preview_placeholder_network';
             
-            if (!query || query.trim().length < 2) {
-                dropdown.classList.add('hidden');
-                return;
-            }
+            const fileId = document.getElementById(inputId).value.trim();
+            const imgEl = document.getElementById(imgId);
+            const placeholderEl = document.getElementById(placeholderId);
 
-            if (APPS_SCRIPT_URL && APPS_SCRIPT_URL.trim() !== "") {
-                callBackend("search", { query: query }, function(res) {
-                    if (res.status === "success" && res.data) {
-                        displayModalSearchResults(res.data, type);
-                    }
-                });
+            if (fileId && fileId.length > 10) {
+                imgEl.src = `https://lh3.googleusercontent.com/d/${fileId}=w300`;
+                imgEl.classList.remove('hidden');
+                placeholderEl.classList.add('hidden');
             } else {
-                // Simulator lookup from mock database
-                const q = query.toLowerCase();
-                const matched = MOCK_DB.assets.filter(asset => {
-                    return String(asset.Asset_ID).toLowerCase().includes(q) || 
-                           String(asset.Serial).toLowerCase().includes(q);
-                });
-                
-                const mappedResults = matched.map(m => ({
-                    Asset_ID: m.Asset_ID,
-                    CaruName: m.Asset_Item_Name,
-                    CrutypeName: m.Asset_Type_Name,
-                    rawData: {
-                        Asset_Type_Group: m.Asset_Type_Name,
-                        "Asset_Name & Detail": m.Asset_Item_Name,
-                        "อายุ": m.อายุ,
-                        "Model": m.Asset_Item_Name,
-                        "Product": m.Asset_Type_Name,
-                        "Serial": m.Serial
-                    }
-                }));
-                displayModalSearchResults(mappedResults, type);
+                imgEl.src = "";
+                imgEl.classList.add('hidden');
+                placeholderEl.classList.remove('hidden');
             }
         }
 
-        function displayModalSearchResults(records, type) {
-            const dropdown = document.getElementById('modalSearchDropdown_' + type);
-            const resultsDiv = document.getElementById('modalSearchResults_' + type);
-            
-            resultsDiv.innerHTML = "";
-
-            if (!records || records.length === 0) {
-                dropdown.classList.add('hidden');
-                return;
-            }
-
-            dropdown.classList.remove('hidden');
-
-            records.forEach(rec => {
-                const opt = document.createElement('div');
-                opt.className = "p-3 hover:bg-pink-50 cursor-pointer transition flex flex-col gap-1.5";
-                
-                // Asset_ID is rendered much larger and bolder to prevent mistakes
-                opt.innerHTML = `
-                    <div class="flex justify-between items-center">
-                        <span class="text-base font-black text-pink-600 font-mono tracking-tight">${rec.Asset_ID}</span>
-                        <span class="text-[10px] bg-slate-100 px-2 py-0.5 rounded-md font-bold text-slate-500">${rec.CrutypeName || 'ครุภัณฑ์หลัก'}</span>
-                    </div>
-                    <div class="text-xs text-gray-500 font-medium truncate">${rec.CaruName || 'ไม่ได้ระบุคำอธิบาย'}</div>
-                `;
-                
-                opt.onclick = () => {
-                    selectAssetResult(rec, type);
-                };
-                resultsDiv.appendChild(opt);
-            });
-        }
-
-        function selectAssetResult(record, type) {
-            document.getElementById('input_Asset_ID_' + type).value = record.Asser_ID;
-            
-            if (type === 'support') {
-                document.getElementById('input_CaruName').value = record.CaruName || "";
-                if (record.rawData) {
-                    const data = record.rawData;
-                    if (document.getElementById('input_CrutypeName')) document.getElementById('input_CrutypeName').value = data.Asset_Type_Group || "";
-                    if (document.getElementById('input_BandName')) document.getElementById('input_BandName').value = data.Product || "";
-                    if (document.getElementById('input_MODEL')) document.getElementById('input_MODEL').value = data.Model || "";
-                    if (document.getElementById('input_Age_support')) {
-                        const parsedAge = String(data["อายุ"] || "").replace(/[^0-9]/g, '');
-                        document.getElementById('input_Age_support').value = parsedAge;
-                    }
-                }
-                updateSupportLabelName();
-            } else if (type === 'network') {
-                if (record.rawData) {
-                    const data = record.rawData;
-                    if (document.getElementById('input_Product')) document.getElementById('input_Product').value = data.Product || "";
-                    if (document.getElementById('input_Model')) document.getElementById('input_Model').value = data.Model || "";
-                    if (document.getElementById('input_Serial')) document.getElementById('input_Serial').value = data.Serial || "";
-                }
-            }
-
-            document.getElementById('modalSearchDropdown_' + type).classList.add('hidden');
-            
+        function clearImage(type) {
+            const inputId = type === 'support' ? 'input_Note9' : 'input_Note8';
+            document.getElementById(inputId).value = '';
+            updateImagePreview(type);
             Swal.fire({
                 toast: true,
                 position: 'top-end',
-                icon: 'success',
-                title: 'เชื่อมรหัสครุภัณฑ์หลักสำเร็จ',
+                icon: 'info',
+                title: 'ลบรูปภาพในฟอร์มแล้ว (กดบันทึกข้อมูลเพื่อลบออกจากฐานข้อมูล)',
                 showConfirmButton: false,
-                timer: 1500
+                timer: 2500
             });
         }
 
         // ==========================================
-        // BARCODE / QR SCANNING CORE
+        // 📍 LOCATION / ROOM IMAGE EDIT SYSTEM (ROOMID, RoomImg_ID)
+        // ==========================================
+        function openLocationEditModal() {
+            const room = localRooms.find(r => r.ROOMID === currentRoomId);
+            if (!room) return;
+
+            document.getElementById('loc_ROOMID').value = room.ROOMID;
+            document.getElementById('loc_RNAME').value = room.RNAME || "";
+            document.getElementById('loc_ROOMTYP').value = room.ROOMTYP || "";
+            document.getElementById('loc_RLOF').value = room["R.LOF"] || "";
+            document.getElementById('loc_RLOCAT').value = room["R.LOCAT"] || "";
+            document.getElementById('loc_RoomGPS').value = room.RoomGPS || "";
+            document.getElementById('loc_RoomImg_ID').value = room.RoomImg_ID || room.RoomImp || "";
+
+            updateRoomImagePreview();
+
+            const modal = document.getElementById('locationModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeLocationModal() {
+            const modal = document.getElementById('locationModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function updateRoomImagePreview() {
+            const fileId = document.getElementById('loc_RoomImg_ID').value.trim();
+            const imgEl = document.getElementById('preview_loc_img');
+            const placeholderEl = document.getElementById('preview_loc_placeholder');
+
+            if (fileId && fileId.length > 10) {
+                imgEl.src = `https://lh3.googleusercontent.com/d/${fileId}=w300`;
+                imgEl.classList.remove('hidden');
+                placeholderEl.classList.add('hidden');
+            } else {
+                imgEl.src = "";
+                imgEl.classList.add('hidden');
+                placeholderEl.classList.remove('hidden');
+            }
+        }
+
+        function clearRoomImage() {
+            document.getElementById('loc_RoomImg_ID').value = "";
+            updateRoomImagePreview();
+        }
+
+        function submitLocationForm() {
+            document.getElementById('locationForm').dispatchEvent(new Event('submit', { cancelable: true }));
+        }
+
+        function handleLocationFormSubmit(event) {
+            event.preventDefault();
+
+            const payload = {
+                type: 'location',
+                mode: 'edit',
+                ROOMID: document.getElementById('loc_ROOMID').value,
+                RNAME: document.getElementById('loc_RNAME').value,
+                ROOMTYP: document.getElementById('loc_ROOMTYP').value,
+                "R.LOF": document.getElementById('loc_RLOF').value,
+                "R.LOCAT": document.getElementById('loc_RLOCAT').value,
+                RoomGPS: document.getElementById('loc_RoomGPS').value,
+                RoomImg_ID: document.getElementById('loc_RoomImg_ID').value
+            };
+
+            callBackend("saveDevice", payload, function(res) {
+                if (res.status === "success") {
+                    Swal.fire('จัดเก็บสำเร็จ', 'ปรับปรุงข้อมูลพิกัดห้องและรูปถ่ายเรียบร้อย', 'success').then(() => {
+                        closeLocationModal();
+                        showRoomDetail(payload.ROOMID);
+                        loadInitialData(); // โหลดใหม่เพื่อให้หน้าแรกดึงอัปเดต
+                    });
+                } else {
+                    Swal.fire('ล้มเหลว', res.message || 'บันทึกไม่สำเร็จ', 'error');
+                }
+            });
+        }
+
+        // ==========================================
+        // BARCODE / QR SCANNING
         // ==========================================
         function openQRScannerForModal(type) {
             qrScannerTargetType = type;
@@ -1230,13 +1514,13 @@
                 onQrCodeSuccess,
                 onQrCodeError
             ).catch(err => {
-                console.error("Camera permissions denied:", err);
-                Swal.fire('กล้องขัดข้อง', 'โปรดอนุญาตสิทธิ์เข้าถึงกล้องบนอุปกรณ์ของท่าน', 'error');
+                console.error("Camera access error:", err);
+                Swal.fire('กล้องขัดข้อง', 'โปรดอนุญาตสิทธิ์การเข้าถึงกล้องถ่ายภาพ', 'error');
                 closeQRScanner();
             });
         }
 
-        function onQrCodeSuccess(decodedText, decodedResult) {
+        function onQrCodeSuccess(decodedText) {
             let result = String(decodedText).trim();
             
             if (result.includes("IcmAssetDetail/") || result.startsWith("http")) {
@@ -1256,20 +1540,9 @@
             }
 
             closeQRScanner();
-            
-            Swal.fire({
-                toast: true,
-                position: 'top-end',
-                icon: 'success',
-                title: 'สแกน QR / Barcode สำเร็จ',
-                showConfirmButton: false,
-                timer: 2000
-            });
         }
 
-        function onQrCodeError(errorMessage) {
-            // Keep logs quiet during fast real-time scanning frames
-        }
+        function onQrCodeError() {}
 
         function closeQRScanner() {
             const modal = document.getElementById('qrScannerModal');
@@ -1281,7 +1554,7 @@
                     html5QrcodeScanner.clear();
                     html5QrcodeScanner = null;
                 }).catch(err => {
-                    console.error("Failed to stop scanner smoothly:", err);
+                    console.error("Failed to stop scanner:", err);
                 });
             }
         }
@@ -1317,6 +1590,8 @@
                 payload.MODEL = document.getElementById('input_MODEL').value;
                 payload.Age = document.getElementById('input_Age_support').value;
                 payload.Note9 = document.getElementById('input_Note9').value;
+                // ส่งพ่วงไปแมปปิ้งคีย์ PIC ให้เข้ากับ Code.gs
+                payload.PIC = payload.Note9; 
             } else {
                 payload.NSWNO = document.getElementById('form_NSWNO').value;
                 payload.Asset_ID = document.getElementById('input_Asset_ID_network').value;
@@ -1330,84 +1605,22 @@
                 payload["Mac Address"] = document.getElementById('input_MacAddress').value;
                 payload["Stack No."] = document.getElementById('input_StackNo').value;
                 payload.Note8 = document.getElementById('input_Note8').value;
+                payload.PIC = payload.Note8;
                 payload.Username = document.getElementById('input_Username').value;
                 payload.Password = document.getElementById('input_Password').value;
                 payload.Note = document.getElementById('input_Note').value;
             }
 
-            Swal.fire({
-                title: 'กำลังจัดเก็บพิกัดชีต...',
-                allowOutsideClick: false,
-                didOpen: () => { Swal.showLoading(); }
-            });
-
-            if (APPS_SCRIPT_URL && APPS_SCRIPT_URL.trim() !== "") {
-                callBackend("saveDevice", payload, function(res) {
-                    Swal.close();
-                    if (res.status === "success") {
-                        Swal.fire('จัดเก็บสำเร็จ', 'อัปเดตฐานข้อมูลเรียบร้อยแล้ว', 'success').then(() => {
-                            closeEditModal();
-                            showRoomDetail(roomId);
-                            loadInitialData(); // Sync room counts
-                        });
-                    } else {
-                        Swal.fire('ล้มเหลว', res.message || 'บันทึกข้อมูลไม่สำเร็จ', 'error');
-                    }
-                }, function(err) {
-                    Swal.close();
-                    simulateLocalSave(payload);
-                });
-            } else {
-                setTimeout(() => {
-                    Swal.close();
-                    simulateLocalSave(payload);
-                }, 600);
-            }
-        }
-
-        function simulateLocalSave(payload) {
-            if (payload.type === 'support') {
-                if (payload.mode === 'edit') {
-                    const idx = localSupport.findIndex(s => String(s.NOID) === String(payload.NOID));
-                    if (idx !== -1) {
-                        localSupport[idx] = { ...localSupport[idx], ...payload };
-                    }
+            callBackend("saveDevice", payload, function(res) {
+                if (res.status === "success") {
+                    Swal.fire('จัดเก็บข้อมูลสำเร็จ', 'อัปเดตลงตารางชีทหลักเรียบร้อย', 'success').then(() => {
+                        closeEditModal();
+                        showRoomDetail(roomId);
+                        loadInitialData(); // รีเฟรชแดชบอร์ด
+                    });
                 } else {
-                    payload.NOID = localSupport.length + 1;
-                    payload.Location = payload.roomId;
-                    localSupport.push(payload);
+                    Swal.fire('ล้มเหลว', res.message || 'บันทึกข้อมูลไม่สำเร็จ', 'error');
                 }
-            } else if (payload.type === 'network') {
-                if (payload.mode === 'edit') {
-                    const idx = localNetwork.findIndex(n => String(n.NSWNO) === String(payload.NSWNO));
-                    if (idx !== -1) {
-                        localNetwork[idx] = { ...localNetwork[idx], ...payload, "IP Address": payload["IP Address"], "Serial No.": payload["Serial No."], "Mac Address": payload["Mac Address"] };
-                    }
-                } else {
-                    payload.NSWNO = localNetwork.length + 1;
-                    payload.ROOMID = payload.roomId;
-                    payload["IP Address"] = payload["IP Address"];
-                    payload["Serial No."] = payload["Serial No."];
-                    payload["Mac Address"] = payload["Mac Address"];
-                    localNetwork.push(payload);
-                }
-            }
-
-            localRooms.forEach(room => {
-                room.surveyCount = localSupport.filter(s => s.Location === room.ROOMID).length 
-                                   + localNetwork.filter(n => n.ROOMID === room.ROOMID).length;
-            });
-
-            updateDashboardStats();
-
-            Swal.fire({
-                icon: 'success',
-                title: 'บันทึกข้อมูลจำลองสำเร็จ',
-                text: 'อัปเดตข้อมูลพิกัดภายใน Sandbox สำเร็จแล้ว!',
-                timer: 1500
-            }).then(() => {
-                closeEditModal();
-                showRoomDetail(currentRoomId);
             });
         }
     </script>
