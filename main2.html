@@ -537,7 +537,7 @@
 
     <!-- Footer of page -->
     <footer class="bg-slate-900 text-slate-400 py-4 text-center text-xs mt-auto shrink-0 border-t border-slate-800">
-        <p>© 2026 UDON THANI HOSPITAL · ศูนย์เทคโนโลยีสารสนเทศและการสื่อสาร</p>
+        <p>© 2026 UDON THANI HOSPITAL · กลุ่มงาน:เทคโนโลยีสารสนเทศทางการแพทย์</p>
     </footer>
 
     <script>
@@ -1121,12 +1121,12 @@
                 // Simulator lookup from mock database
                 const q = query.toLowerCase();
                 const matched = MOCK_DB.assets.filter(asset => {
-                    return String(asset.AssetID).toLowerCase().includes(q) || 
+                    return String(asset.Asset_ID).toLowerCase().includes(q) || 
                            String(asset.Serial).toLowerCase().includes(q);
                 });
                 
                 const mappedResults = matched.map(m => ({
-                    CaruID: m.AssetID,
+                    Asset_ID: m.Asset_ID,
                     CaruName: m.Asset_Item_Name,
                     CrutypeName: m.Asset_Type_Name,
                     rawData: {
@@ -1162,7 +1162,7 @@
                 // Asset_ID is rendered much larger and bolder to prevent mistakes
                 opt.innerHTML = `
                     <div class="flex justify-between items-center">
-                        <span class="text-base font-black text-pink-600 font-mono tracking-tight">${rec.CaruID}</span>
+                        <span class="text-base font-black text-pink-600 font-mono tracking-tight">${rec.Asset_ID}</span>
                         <span class="text-[10px] bg-slate-100 px-2 py-0.5 rounded-md font-bold text-slate-500">${rec.CrutypeName || 'ครุภัณฑ์หลัก'}</span>
                     </div>
                     <div class="text-xs text-gray-500 font-medium truncate">${rec.CaruName || 'ไม่ได้ระบุคำอธิบาย'}</div>
@@ -1176,7 +1176,7 @@
         }
 
         function selectAssetResult(record, type) {
-            document.getElementById('input_Asset_ID_' + type).value = record.CaruID;
+            document.getElementById('input_Asset_ID_' + type).value = record.Asser_ID;
             
             if (type === 'support') {
                 document.getElementById('input_CaruName').value = record.CaruName || "";
