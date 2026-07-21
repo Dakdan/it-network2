@@ -65,38 +65,27 @@
         }
          /* ลายน้ำแบบนูน (Embossed Watermark) - แสดงหลายบรรทัดเต็มหน้าจอ */
         body::before {
-            /* ใช้ทริคสร้างข้อความยาว ๆ ซ้ำกันยาว ๆ หรือใช้ช่องว่างช่วย */
             content: "UDH-IT TECHNICIAN MAINTERNACE & SUPPORT ";
-            
             position: fixed;
-            top: -50%;  /* ขยายขอบเขตให้เกินหน้าจอเผื่อตอนหมุน */
+            top: -50%;  
             left: -50%;
             width: 200vw;
             height: 200vh;
-            
-            /* หมุนเอียงลายน้ำ */
             transform: rotate(-30deg);
-            
-            /* สั่งให้จัดตัวอักษรขึ้นบรรทัดใหม่ซ้ำ ๆ และกระจายตัว */
             display: flex;
             flex-wrap: wrap;
             align-content: space-around;
             justify-content: space-around;
             word-break: break-all;
-            
-            font-size: 5vw; /* ปรับขนาดเล็กลงเพื่อให้เรียงกันสวยงามเต็มหน้า */
+            font-size: 5vw; 
             font-weight: 900;
-            line-height: 2.5; /* ระยะห่างระหว่างบรรทัด */
+            line-height: 2.5; 
             z-index: -1;
             pointer-events: none;
-            
-            /* สีกึ่งโปร่งใสที่ค่อนข้างกลืนกับพื้นหลังขาว/เทาอ่อน */
             color: rgba(240, 240, 240, 0.4); 
-            
-            /* เทคนิคสร้างมิตินูนต่ำ (Emboss) ด้วย Shadow สองฝั่ง (แสงและเงา) */
             text-shadow: 
-                -1px -1px 1px rgba(255, 255, 255, 0.9), /* ขอบแสงสีขาว (ด้านบนซ้าย) */
-                 1px  1px 1px rgba(0, 0, 0, 0.15);      /* ขอบเงาสีเข้ม (ด้านล่างขวา) */
+                -1px -1px 1px rgba(255, 255, 255, 0.9), 
+                 1px  1px 1px rgba(0, 0, 0, 0.15);      
         }
     </style>
 </head>
@@ -119,8 +108,7 @@
         <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center border border-pink-200 overflow-hidden shadow-inner p-1">
-                    <!-- แสดงรูปโลโก้ logo003v1.png พร้อมระบบ Fallback ป้องกันรูปภาพโหลดไม่ขึ้น -->
-                    <img src="logo005v1.png" class="w-full h-full object-contain" onerror="this.style.display='none'; document.getElementById('fallbackLogoIcon').classList.remove('hidden');" alt="IT UDON HOSP Logo">
+                    <img src="logo003v1.png" class="w-full h-full object-contain" onerror="this.style.display='none'; document.getElementById('fallbackLogoIcon').classList.remove('hidden');" alt="IT UDON HOSP Logo">
                     <i id="fallbackLogoIcon" class="fas fa-network-wired text-xl text-pink-500 hidden"></i>
                 </div>
                 <div>
@@ -130,9 +118,9 @@
             </div>
             
             <div class="flex items-center gap-4">
-                <div id="connectionBadge" class="hidden md:flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                    <span class="h-2 w-2 rounded-full bg-emerald-500 animate-ping"></span>
-                    <span>เชื่อมต่อ Server สำเร็จ</span>
+                <div id="connectionBadge" class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold bg-white/90 border border-emerald-200 shadow-sm text-emerald-700">
+                    <span class="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+                    <span>Live Database API</span>
                 </div>
                 
                 <div id="userProfile" class="hidden items-center gap-3 bg-white/85 px-3 py-1.5 rounded-xl border border-pink-200 text-slate-700 shadow-sm">
@@ -151,13 +139,11 @@
         <!-- VIEW: Login Screen -->
         <section id="loginView" class="flex-1 flex items-center justify-center py-10">
             <div class="bg-gradient-to-br from-pink-200 via-pink-50/50 to-white p-8 rounded-3xl shadow-2xl max-w-md w-full border border-pink-200/50 relative overflow-hidden">
-                <!-- Glowing pink corner for login card -->
                 <div class="absolute top-0 right-0 w-24 h-24 bg-pink-400/30 rounded-full blur-2xl pointer-events-none -mr-6 -mt-6"></div>
                 
                 <div class="text-center mb-8">
-                    <!-- กล่องแสดงโลโก้หลักของระบบโรงพยาบาลอุดรธานี -->
                     <div class="w-20 h-20 bg-white rounded-2xl flex items-center justify-center border border-pink-200 overflow-hidden shadow-md p-2 mx-auto mb-4">
-                        <img src="logo003v1.png" class="w-full h-full object-contain" onerror="this.style.display='none'; document.getElementById('fallbackLoginLogoIcon').classList.remove('hidden');" alt="IT UDON HOSP Logo">
+                        <img src="logo005v1.png" class="w-full h-full object-contain" onerror="this.style.display='none'; document.getElementById('fallbackLoginLogoIcon').classList.remove('hidden');" alt="IT UDON HOSP Logo">
                         <i id="fallbackLoginLogoIcon" class="fas fa-shield-alt text-3xl text-pink-500 hidden"></i>
                     </div>
                     <h2 class="text-2xl font-black text-pink-700">ลงชื่อเข้าใช้งาน</h2>
@@ -210,9 +196,7 @@
                 <!-- Status widgets with soft pink glowing corners -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex items-center justify-between relative overflow-hidden">
-                        <!-- Glowing pink corner -->
                         <div class="absolute top-0 right-0 w-16 h-16 bg-pink-400/20 rounded-full blur-xl pointer-events-none -mr-4 -mt-4"></div>
-                        
                         <div class="relative z-10">
                             <span class="text-sm font-bold text-gray-400 block mb-0.5">จุดติดตั้งสำรวจทั้งหมด</span>
                             <span id="stat_rooms" class="text-3xl font-black text-rose-500">กำลังโหลด...</span>
@@ -222,9 +206,7 @@
                         </div>
                     </div>
                     <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex items-center justify-between relative overflow-hidden">
-                        <!-- Glowing pink corner -->
                         <div class="absolute top-0 right-0 w-16 h-16 bg-pink-400/20 rounded-full blur-xl pointer-events-none -mr-4 -mt-4"></div>
-                        
                         <div class="relative z-10">
                             <span class="text-sm font-bold text-gray-400 block mb-0.5">Supporting Components</span>
                             <span id="stat_supports" class="text-3xl font-black text-pink-500 font-mono">กำลังโหลด...</span>
@@ -234,9 +216,7 @@
                         </div>
                     </div>
                     <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex items-center justify-between relative overflow-hidden">
-                        <!-- Glowing pink corner -->
                         <div class="absolute top-0 right-0 w-16 h-16 bg-pink-400/20 rounded-full blur-xl pointer-events-none -mr-4 -mt-4"></div>
-                        
                         <div class="relative z-10">
                             <span class="text-sm font-bold text-gray-400 block mb-0.5">Network Devices</span>
                             <span id="stat_networks" class="text-3xl font-black text-blue-500 font-mono">กำลังโหลด...</span>
@@ -247,24 +227,82 @@
                     </div>
                 </div>
 
-                <!-- Main welcome card with glow styling -->
-                <div class="bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-3xl p-6 md:p-8 shadow-xl flex flex-col md:flex-row gap-6 items-center relative overflow-hidden">
-                    <!-- Soft white/pink flare inside welcome banner -->
-                    <div class="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-3xl pointer-events-none -mr-12 -mt-12"></div>
+
+                <!-- SYSTEMIC RISK MAPPING MODEL DASHBOARD CONTAINER -->
+                <div class="bg-white rounded-3xl border border-slate-200 shadow-md p-6 space-y-6 relative overflow-hidden border-t-4 border-t-pink-500">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-pink-100/30 rounded-full blur-3xl pointer-events-none -mr-8 -mt-8"></div>
                     
-                    <div class="text-center md:text-left flex-1 space-y-2 relative z-10">
-                        <h3 class="text-xl md:text-2xl font-black">ยินดีต้อนรับสู่ระบบสำรวจเครือข่ายโรงพยาบาลอุดรธานี</h3>
-                        <p class="text-rose-100 text-sm max-w-2xl leading-relaxed">
-                            เครื่องมือบูรณาการข้อมูลอุปกรณ์เครือข่าย และสนับสนุน (Supporting Components) สำหรับดูแล ตรวจเช็ค และซ่อมบำรุงเชิงรุกในทุกจุดบริการและห้องศูนย์ข้อมูลสารสนเทศได้อย่างแม่นยำ
-                        </p>
-                        <div class="pt-2">
-                            <button onclick="switchTab('surveyList')" class="bg-white text-rose-600 hover:bg-rose-50 font-extrabold px-6 py-2.5 rounded-xl text-sm transition shadow-md">
-                                <i class="fas fa-search mr-2"></i> เริ่มค้นหาจุดสำรวจ
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative z-10">
+                        <div>
+                            <span class="text-xs text-pink-600 font-extrabold uppercase tracking-widest bg-pink-50 px-3 py-1 rounded-full border border-pink-100">System Mapping Model</span>
+                            <h3 class="text-xl font-black text-slate-800 mt-2 flex items-center gap-2">
+                                <i class="fas fa-shield-virus text-pink-500"></i>
+                                <span>แผนภูมิการจัดระดับความเสี่ยงของอุปกรณ์เชิงระบบ (Location × Function)</span>
+                            </h3>
+                            <p class="text-slate-400 text-xs font-bold mt-1">วิเคราะห์ประเมินสภาพแวดล้อมห้องติดตั้ง (Physical Location) และความสำคัญของ Switch เครือข่ายจริง</p>
+                        </div>
+                        
+                        <!-- Filter Controls for Risk Matrix -->
+                        <div class="flex flex-wrap gap-1.5 bg-slate-50 border border-slate-200 p-1 rounded-2xl shadow-inner w-full md:w-auto">
+                            <button onclick="filterRiskModel('ALL')" id="btn_risk_ALL" class="px-3.5 py-2 rounded-xl text-xs font-black transition bg-pink-500 text-white shadow-sm">
+                                ทั้งหมด
+                            </button>
+                            <button onclick="filterRiskModel('CRITICAL')" id="btn_risk_CRITICAL" class="px-3.5 py-2 rounded-xl text-xs font-black transition text-slate-600 hover:bg-white flex items-center gap-1">
+                                <span class="h-2 w-2 rounded-full bg-red-500"></span> Critical & Violation
+                            </button>
+                            <button onclick="filterRiskModel('HIGH')" id="btn_risk_HIGH" class="px-3.5 py-2 rounded-xl text-xs font-black transition text-slate-600 hover:bg-white flex items-center gap-1">
+                                <span class="h-2 w-2 rounded-full bg-orange-500"></span> High
+                            </button>
+                            <button onclick="filterRiskModel('MEDIUM')" id="btn_risk_MEDIUM" class="px-3.5 py-2 rounded-xl text-xs font-black transition text-slate-600 hover:bg-white flex items-center gap-1">
+                                <span class="h-2 w-2 rounded-full bg-yellow-500"></span> Medium
                             </button>
                         </div>
                     </div>
-                    <div class="hidden md:flex w-32 h-32 shrink-0 bg-white/10 rounded-2xl border border-white/20 items-center justify-center text-6xl relative z-10">
-                        <i class="fas fa-network-wired text-rose-100"></i>
+
+                    <!-- Visual Cheat Sheet matrix -->
+                    <div class="bg-gradient-to-br from-slate-50 to-white border border-slate-100 rounded-2xl p-4 grid grid-cols-1 md:grid-cols-3 gap-4 relative">
+                        <div class="text-xs leading-relaxed space-y-1.5 border-r border-slate-100 pr-2">
+                            <h4 class="font-extrabold text-slate-700 flex items-center gap-1">
+                                <i class="fas fa-map-marker-alt text-rose-500"></i>
+                                <span>1. จุดที่ติดตั้ง (Location Layer)</span>
+                            </h4>
+                            <ul class="space-y-1 text-slate-500 list-inside list-disc">
+                                <li><strong>L1 Server Room:</strong> แหล่งศูนย์กลาง (เสถียรภาพสูงสุด)</li>
+                                <li><strong>L2 Room SW:</strong> ห้องระบบย่อยประจำตึก</li>
+                                <li><strong>L3 Rack SW:</strong> ตู้แขวนตามฝาผนัง/ทางเดิน</li>
+                            </ul>
+                        </div>
+                        <div class="text-xs leading-relaxed space-y-1.5 border-r border-slate-100 pr-2">
+                            <h4 class="font-extrabold text-slate-700 flex items-center gap-1">
+                                <i class="fas fa-server text-blue-500"></i>
+                                <span>2. ประเภท Switch (Function Layer)</span>
+                            </h4>
+                            <ul class="space-y-1 text-slate-500 list-inside list-disc">
+                                <li><strong>F1 CSW (Core):</strong> หน้าที่ระบบกลาง (สูงสุด)</li>
+                                <li><strong>F2 DST (Distribution):</strong> แยกสัญญาณกระจายอาคาร</li>
+                                <li><strong>F3 ASW (Access):</strong> ลิงค์ผู้ใช้งานระดับผู้ปฏิบัติงาน</li>
+                            </ul>
+                        </div>
+                        <div class="text-xs leading-relaxed space-y-1.5">
+                            <h4 class="font-extrabold text-slate-700 flex items-center gap-1">
+                                <i class="fas fa-exclamation-triangle text-pink-500"></i>
+                                <span>3. ระดับวิกฤต Matrix Mapping</span>
+                            </h4>
+                            <div class="grid grid-cols-2 gap-1 text-[10px] text-slate-500">
+                                <span class="bg-red-50 border border-red-200 text-red-700 px-1.5 py-0.5 rounded font-bold">🔴 CSW @ L1 = Critical</span>
+                                <span class="bg-orange-50 border border-orange-200 text-orange-700 px-1.5 py-0.5 rounded font-bold">🟠 CSW @ L2 = High</span>
+                                <span class="bg-rose-50 border border-rose-300 text-rose-700 px-1.5 py-0.5 rounded font-bold">❌ CSW @ L3 = Violation!</span>
+                                <span class="bg-yellow-50 border border-yellow-200 text-yellow-700 px-1.5 py-0.5 rounded font-bold">🟡 ASW @ L1 = Medium</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Risk Evaluation Table Output -->
+                    <div id="riskMappingInventory" class="space-y-6">
+                        <div class="text-center py-6 text-slate-400 text-xs">
+                            <i class="fas fa-spinner animate-spin text-xl text-pink-500 mb-2"></i>
+                            <p>กำลังรวบรวมและวิเคราะห์ข้อมูลความเสี่ยงเชิงระบบ...</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -272,7 +310,6 @@
             <!-- SUBVIEW: Survey List -->
             <div id="subview_surveyList" class="space-y-6 hidden">
                 <div class="bg-white p-4 rounded-3xl border border-gray-100 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between relative overflow-hidden">
-                    <!-- Glowing pink corner inside filtering box -->
                     <div class="absolute top-0 right-0 w-16 h-16 bg-pink-400/20 rounded-full blur-xl pointer-events-none -mr-4 -mt-4"></div>
                     
                     <div class="relative w-full md:max-w-md z-10">
@@ -303,7 +340,6 @@
 
                 <!-- Room info header card with map area -->
                 <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden grid grid-cols-1 md:grid-cols-3 relative">
-                    <!-- Glowing pink corner -->
                     <div class="absolute top-0 right-0 w-24 h-24 bg-pink-400/25 rounded-full blur-2xl pointer-events-none -mr-6 -mt-6 z-10"></div>
                     
                     <div class="p-6 md:col-span-2 flex flex-col justify-between gap-4 relative z-10">
@@ -344,7 +380,6 @@
                     
                     <div class="relative bg-rose-50 border-t md:border-t-0 md:border-l border-gray-100 flex items-center justify-center overflow-hidden aspect-video md:aspect-auto min-h-[220px]">
                         <img id="detail_RoomImg" src="" class="w-full h-full object-cover" alt="พิกัดห้อง" onerror="this.src='https://placehold.co/400x300/fbcfe8/be185d?text=No+Photo'">
-                        <!-- EDIT ROOM IMAGE / INFO TRIGGER -->
                         <button onclick="openLocationEditModal()" class="absolute bottom-3 right-3 bg-slate-900/75 hover:bg-slate-950 text-white font-bold text-xs px-3 py-1.5 rounded-xl border border-white/20 transition flex items-center gap-1.5 shadow backdrop-blur-sm z-20">
                             <i class="fas fa-camera"></i> แก้ไขพิกัด/รูปห้อง
                         </button>
@@ -390,7 +425,6 @@
     <!-- MODAL: EDIT LOCATION / ROOM DETAIL -->
     <div id="locationModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[80] hidden items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-lg w-full overflow-hidden flex flex-col shadow-2xl relative border border-gray-100 animate-in fade-in zoom-in-95 duration-200">
-            <!-- Glowing pink corner in modal -->
             <div class="absolute top-0 right-0 w-24 h-24 bg-pink-400/25 rounded-full blur-2xl pointer-events-none -mr-6 -mt-6"></div>
             
             <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-gradient-to-r from-pink-500 to-rose-500 text-white relative z-10">
@@ -460,7 +494,6 @@
     <!-- MODAL: ADD / EDIT DEVICE (Supporting & Network) -->
     <div id="editModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[80] hidden items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl relative border border-gray-100 animate-in fade-in zoom-in-95 duration-200">
-            <!-- Glowing pink corner inside modal -->
             <div class="absolute top-0 right-0 w-24 h-24 bg-pink-400/25 rounded-full blur-2xl pointer-events-none -mr-6 -mt-6"></div>
             
             <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-gradient-to-r from-pink-500 to-rose-500 text-white relative z-10">
@@ -659,7 +692,6 @@
             </div>
 
             <div class="p-5 bg-gray-50 border-t border-gray-100 flex justify-between items-center rounded-b-3xl relative z-10">
-                <!-- Delete Button (Visible in Edit mode only) -->
                 <div>
                     <button type="button" id="btn_delete_device" onclick="handleDeleteDeviceClick()" class="hidden px-4 py-2.5 bg-rose-100 text-rose-700 hover:bg-rose-200 rounded-xl text-sm font-extrabold transition">
                         <i class="fas fa-trash-alt mr-1"></i> ลบอุปกรณ์
@@ -681,7 +713,6 @@
     <!-- MODAL: DEVICE SPEC DETAIL VIEW & PRINT QR -->
     <div id="deviceDetailModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[80] hidden items-center justify-center p-4 animate-in fade-in duration-150">
         <div class="bg-white rounded-3xl max-w-lg w-full overflow-hidden flex flex-col shadow-2xl relative border border-gray-100 animate-in zoom-in-95 duration-150 max-h-[85vh]">
-            <!-- Glowing pink corner inside modal -->
             <div class="absolute top-0 right-0 w-24 h-24 bg-pink-400/25 rounded-full blur-2xl pointer-events-none -mr-6 -mt-6"></div>
             
             <div id="detail_modal_header" class="p-5 border-b border-gray-100 flex justify-between items-center text-white relative z-10">
@@ -713,7 +744,6 @@
                         <span class="text-xs text-slate-400 font-bold">รุ่น / Model</span>
                         <span id="detail_modal_model" class="text-xs font-bold text-slate-800">-</span>
                     </div>
-                    <!-- Extra spec configurations dynamically injected here -->
                     <div id="detail_modal_specs" class="space-y-3"></div>
                 </div>
             </div>
@@ -771,6 +801,40 @@
         </div>
     </div>
 
+    <!-- MODAL: WELCOME & AUDIT POPUP -->
+    <div id="welcomeModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] hidden items-center justify-center p-4">
+        <div class="bg-gradient-to-br from-pink-500 to-rose-600 text-white rounded-3xl max-w-lg w-full p-6 md:p-8 shadow-2xl relative overflow-hidden border border-pink-400/30 animate-in fade-in zoom-in-95 duration-200">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl pointer-events-none -mr-8 -mt-8"></div>
+            
+            <div class="flex flex-col items-center text-center gap-5 relative z-10">
+                <div class="w-20 h-20 bg-white rounded-2xl flex items-center justify-center border border-pink-200 overflow-hidden shadow-md p-2">
+                    <img src="logo003v1.png" class="w-full h-full object-contain" onerror="this.style.display='none'; document.getElementById('fallbackWelcomeLogoIcon').classList.remove('hidden');" alt="IT UDON HOSP Logo">
+                    <i id="fallbackWelcomeLogoIcon" class="fas fa-network-wired text-3xl text-pink-500 hidden"></i>
+                </div>
+                
+                <h3 class="text-xl md:text-2xl font-black leading-snug">ยินดีต้อนรับสู่ระบบสำรวจเครือข่าย<br>โรงพยาบาลอุดรธานี</h3>
+                
+                <p class="text-rose-100 text-xs md:text-sm leading-relaxed max-w-md">
+                    เครื่องมือบูรณาการข้อมูลอุปกรณ์เครือข่าย และสนับสนุน (Supporting Components) สำหรับดูแล ตรวจเช็ค และซ่อมบำรุงเชิงรุกในทุกจุดบริการและห้องศูนย์ข้อมูลสารสนเทศได้อย่างแม่นยำ
+                </p>
+                
+                <div class="w-full bg-white/10 rounded-2xl p-4 border border-white/10 text-left space-y-2 mt-2">
+                    <h4 class="text-[11px] font-black uppercase tracking-wider text-rose-200 flex items-center gap-1.5">
+                        <i class="fas fa-shield-virus"></i>
+                        <span>สถานะระบบและงานบำรุงรักษา (System Audit Checked)</span>
+                    </h4>
+                    <p class="text-[11px] text-white/90 leading-relaxed">
+                        ระบบทำการเชื่อมต่อฐานข้อมูล Google Sheets และติดตั้ง System Mapping Model ตรวจประเมินสภาพแวดล้อมห้องติดตั้ง (Location) และความสำคัญอุปกรณ์เครือข่ายเรียบร้อยพร้อมใช้งาน
+                    </p>
+                </div>
+                
+                <button onclick="closeWelcomeModal()" class="w-full py-3 bg-white text-rose-600 hover:bg-rose-50 font-black rounded-xl text-sm transition shadow-lg shadow-pink-900/20">
+                    ปิดหน้านี้ & เริ่มใช้งานระบบ <i class="fas fa-arrow-right ml-1"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer of page -->
     <footer class="bg-slate-900 text-slate-400 py-4 text-center text-xs mt-auto shrink-0 border-t border-slate-800">
         <p>© 2026 UDON THANI HOSPITAL · กลุ่มงาน:เทคโนโลยีสารสนเทศทางการแพทย์ (By IT Technical Team)</p>
@@ -782,9 +846,11 @@
 
         // ตัวแปรเก็บ State การทำงาน
         let localRooms = [];
+        let localNetworks = []; // ข้อมูลสวิตช์ดิบทั้งหมดเพื่อนำมาสร้างแผนภูมิวิเคราะห์ความเสี่ยงเชิงระบบ
         let currentRoomId = null;
         let html5QrcodeScanner = null;
         let qrScannerTargetType = null; 
+        let currentRiskFilter = 'ALL'; // ฟิลเตอร์ระบายความเสี่ยง (ALL, CRITICAL, HIGH, MEDIUM)
 
         // 🌟 ประกาศตัวแปร networkMapping ใน Global Scope ให้เรียกใช้ได้ตลอดเวลา
         const networkMapping = {
@@ -799,6 +865,7 @@
             "Switch Pacs": { order: 9, bg: 'bg-gradient-to-r from-indigo-500 to-purple-600', border: 'border-t-4 border-t-indigo-500', text: 'text-indigo-700', badge: 'bg-indigo-100', icon: 'fa-hdd', desc: 'สวิตช์ระบบภาพทางการแพทย์' },
             "ASW-CCTV": { order: 10, bg: 'bg-gradient-to-r from-amber-500 to-yellow-600', border: 'border-t-4 border-t-amber-500', text: 'text-amber-700', badge: 'bg-amber-100', icon: 'fa-video', desc: 'Access Switch วงจรปิด' },
             "SW-CCTV": { order: 11, bg: 'bg-gradient-to-r from-amber-500 to-yellow-600', border: 'border-t-4 border-t-amber-500', text: 'text-amber-700', badge: 'bg-amber-100', icon: 'fa-video', desc: 'Switch วงจรปิด' },
+            "Switch Robot Drug": { order: 12, bg: 'bg-gradient-to-r from-emerald-500 to-teal-600', border: 'border-t-4 border-t-emerald-500', text: 'text-emerald-700', badge: 'bg-emerald-100', icon: 'fa-robot', desc: 'สวิตช์ห้องจ่ายยาอัตโนมัติ' },
             "DEFAULT": { order: 99, bg: 'bg-gradient-to-r from-slate-500 to-gray-600', border: 'border-t-4 border-t-slate-500', text: 'text-slate-700', badge: 'bg-slate-100', icon: 'fa-server', desc: 'อุปกรณ์เครือข่ายอื่นๆ' }
         };
 
@@ -880,12 +947,12 @@
             const badge = document.getElementById('connectionBadge');
             if (APPS_SCRIPT_URL && APPS_SCRIPT_URL.trim() !== "") {
                 badge.classList.remove('hidden');
-                badge.className = "hidden md:flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-sm";
-                badge.innerHTML = `<span class="h-2 w-2 rounded-full bg-emerald-500 animate-ping"></span><span>Live Database API</span>`;
+                badge.className = "hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold bg-white/90 border border-emerald-200 shadow-sm text-emerald-700";
+                badge.innerHTML = `<span class="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-ping"></span><span>Live Database API</span>`;
             } else {
                 badge.classList.remove('hidden');
-                badge.className = "hidden md:flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 shadow-sm";
-                badge.innerHTML = `<span class="h-2 w-2 rounded-full bg-amber-500"></span><span>Server Offline</span>`;
+                badge.className = "hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold bg-white/90 border border-amber-200 shadow-sm text-amber-700";
+                badge.innerHTML = `<span class="h-2.5 w-2.5 rounded-full bg-amber-500"></span><span>Server Offline</span>`;
             }
         }
 
@@ -942,6 +1009,26 @@
             document.getElementById('userNameText').innerText = getDisplayName();
             
             loadInitialData();
+
+            // แสดงหน้าจอ Modal ยินดีต้อนรับหลังจากการเข้าสู่ระบบสำเร็จหรือเช็ค Audit เรียบร้อย
+            if (!sessionStorage.getItem('welcomeShown')) {
+                setTimeout(() => {
+                    const welcomeModal = document.getElementById('welcomeModal');
+                    if (welcomeModal) {
+                        welcomeModal.classList.remove('hidden');
+                        welcomeModal.classList.add('flex');
+                        sessionStorage.setItem('welcomeShown', 'true');
+                    }
+                }, 800);
+            }
+        }
+
+        function closeWelcomeModal() {
+            const welcomeModal = document.getElementById('welcomeModal');
+            if (welcomeModal) {
+                welcomeModal.classList.add('hidden');
+                welcomeModal.classList.remove('flex');
+            }
         }
 
         function loadInitialData() {
@@ -964,8 +1051,380 @@
                     
                     document.getElementById('stat_supports').innerText = supportsSum;
                     document.getElementById('stat_networks').innerText = networksSum;
+
+                    localNetworks = res.data.rawNetworks || [];
+                    renderRiskMappingDashboard(); // รันวิเคราะห์ Location × Function Matrix ทันที
                 }
             });
+        }
+
+        // ==========================================
+        // SYSTEMIC RISK MAPPING LOGIC & RENDERERS
+        // ==========================================
+        function getRoomLayer(room) {
+            const type = String(room.ROOMTYP || "").toUpperCase().trim();
+            if (type.includes("SERVER") || type.includes("DATA CENTER") || type.includes("DC")) {
+                return { code: "L1", name: "Room Server (L1)", desc: "ห้องศูนย์กลาง (ความปลอดภัยสูง)", icon: "fa-server", colorClass: "text-emerald-700 bg-emerald-50 border-emerald-200" };
+            } else if (type.includes("ROOM SW") || type.includes("SWITCH ROOM") || type.includes("ห้อง SW") || type.includes("ROOMSW")) {
+                return { code: "L2", name: "Room SW (L2)", desc: "ห้องสวิตช์ประจำอาคาร/ชั้น", icon: "fa-door-open", colorClass: "text-indigo-700 bg-indigo-50 border-indigo-200" };
+            } else {
+                return { code: "L3", name: "Rack SW (L3)", desc: "ตู้แขวนตามจุดย่อยต่างๆ", icon: "fa-hdd", colorClass: "text-amber-700 bg-amber-50 border-amber-200" };
+            }
+        }
+
+        function getDeviceFunction(device) {
+            const pio = String(device.NetworkPio || "").toUpperCase().trim();
+            if (pio.includes("CSW") || pio.includes("CORE")) {
+                return { code: "F1", name: "CSW (Core Switch)", icon: "fa-shield-virus" };
+            } else if (pio.includes("DST")) {
+                return { code: "F2", name: "DST (Distribution Switch)", icon: "fa-project-diagram" };
+            } else {
+                return { code: "F3", name: "ASW (Access Switch)", icon: "fa-sitemap" };
+            }
+        }
+
+        function calculateRisk(locationCode, functionCode) {
+            // L1 (Room Server)
+            if (locationCode === "L1") {
+                if (functionCode === "F1") return { key: "CRITICAL", text: "🔴 Critical สูงสุด", label: "วิกฤตสูงสุด", textClass: "text-red-700 bg-red-50 border-red-200" };
+                if (functionCode === "F2") return { key: "HIGH", text: "🟠 High (สูง)", label: "สูง", textClass: "text-orange-700 bg-orange-50 border-orange-200" };
+                return { key: "MEDIUM", text: "🟡 Medium (กลาง)", label: "กลาง", textClass: "text-yellow-700 bg-yellow-50 border-yellow-200" };
+            }
+            // L2 (Room SW)
+            if (locationCode === "L2") {
+                if (functionCode === "F1") return { key: "HIGH", text: "🟠 High (สูง)", label: "สูง", textClass: "text-orange-700 bg-orange-50 border-orange-200" };
+                if (functionCode === "F2") return { key: "HIGH", text: "🟠 High (สูง)", label: "สูง", textClass: "text-orange-700 bg-orange-50 border-orange-200" };
+                return { key: "MEDIUM", text: "🟡 Medium (กลาง)", label: "กลาง", textClass: "text-yellow-700 bg-yellow-50 border-yellow-200" };
+            }
+            // L3 (Rack SW)
+            if (locationCode === "L3") {
+                if (functionCode === "F1") return { key: "CRITICAL", text: "❌ Violation (ไม่ควรมี)", label: "ไม่ควรจัดตั้ง CSW ในตู้แขวน!", textClass: "text-rose-800 bg-rose-100 border-rose-300 animate-pulse font-black" };
+                if (functionCode === "F2") return { key: "MEDIUM", text: "🟡 Medium (กลาง)", label: "กลาง", textClass: "text-yellow-700 bg-yellow-50 border-yellow-200" };
+                return { key: "HIGH", text: "🟠 High (สูง)", label: "สูง", textClass: "text-orange-700 bg-orange-50 border-orange-200" };
+            }
+            return { key: "MEDIUM", text: "🟡 Medium (กลาง)", label: "กลาง", textClass: "text-yellow-700 bg-yellow-50 border-yellow-200" };
+        }
+
+        function filterRiskModel(level) {
+            currentRiskFilter = level;
+            // ปรับแต่งคลาสปุ่มฟิลเตอร์
+            const levels = ['ALL', 'CRITICAL', 'HIGH', 'MEDIUM'];
+            levels.forEach(lvl => {
+                const btn = document.getElementById('btn_risk_' + lvl);
+                if (lvl === level) {
+                    btn.className = "px-3.5 py-2 rounded-xl text-xs font-black transition bg-pink-500 text-white shadow-sm";
+                } else {
+                    btn.className = "px-3.5 py-2 rounded-xl text-xs font-black transition text-slate-600 hover:bg-white flex items-center gap-1";
+                }
+            });
+            renderRiskMappingDashboard();
+        }
+
+        function renderRiskMappingDashboard() {
+            const container = document.getElementById('riskMappingInventory');
+            if (!container) return;
+
+            if (localRooms.length === 0 || localNetworks.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-6 text-slate-400 text-xs">
+                        <i class="fas fa-exclamation-triangle text-amber-500 text-lg mb-1 block"></i>
+                        ไม่มีข้อมูลดิบสวิตช์เครือข่ายสำหรับประเมิน Mapping เชิงระบบ
+                    </div>
+                `;
+                return;
+            }
+
+            // ประกาศตัวแปรเก็บสถิติรวมสำหรับตารางวิเคราะห์
+            let statTotalL1 = 0, statTotalL2 = 0, statTotalL3 = 0;
+            let statTotalCSW = 0, statTotalDST = 0, statTotalASW = 0;
+            let statCritical = 0, statHigh = 0, statMedium = 0;
+
+            // ค้นหาวิเคราะห์เก็บสถิติความเสี่ยงรวมทั้งหมด ก่อนคัดกรองฟิลเตอร์
+            localRooms.forEach(room => {
+                const locLayer = getRoomLayer(room);
+                const roomSwitches = localNetworks.filter(n => String(n.ROOMID).trim() === String(room.ROOMID).trim());
+                if (roomSwitches.length === 0) return;
+
+                if (locLayer.code === "L1") statTotalL1++;
+                else if (locLayer.code === "L2") statTotalL2++;
+                else if (locLayer.code === "L3") statTotalL3++;
+
+                roomSwitches.forEach(sw => {
+                    const funcLayer = getDeviceFunction(sw);
+                    const riskEval = calculateRisk(locLayer.code, funcLayer.code);
+
+                    if (funcLayer.code === "F1") statTotalCSW++;
+                    else if (funcLayer.code === "F2") statTotalDST++;
+                    else if (funcLayer.code === "F3") statTotalASW++;
+
+                    if (riskEval.key === "CRITICAL") statCritical++;
+                    else if (riskEval.key === "HIGH") statHigh++;
+                    else if (riskEval.key === "MEDIUM") statMedium++;
+                });
+            });
+
+            // จัดกลุ่มความเสี่ยงจริงของห้องแต่ละจุดที่มีอุปกรณ์เชื่อมโยง
+            const buildingGroups = {};
+
+            localRooms.forEach(room => {
+                const roomImg = room.RoomImg_ID ? `https://lh3.googleusercontent.com/d/${room.RoomImg_ID}=w200` : "";
+                const locLayer = getRoomLayer(room);
+                
+                // ค้นหา Switch ทั้งหมดในห้องนี้
+                const roomSwitches = localNetworks.filter(n => String(n.ROOMID).trim() === String(room.ROOMID).trim());
+                
+                if (roomSwitches.length === 0) return; // แสดงเฉพาะห้องที่มีสวิตช์ติดตั้งจริง
+
+                const mappedDevices = roomSwitches.map(sw => {
+                    const funcLayer = getDeviceFunction(sw);
+                    const riskEval = calculateRisk(locLayer.code, funcLayer.code);
+                    return {
+                        device: sw,
+                        func: funcLayer,
+                        risk: riskEval
+                    };
+                });
+
+                // ตรวจหาความเสี่ยงสูงสุดในห้องนี้เพื่อใช้คัดกรอง (Filter)
+                let highestRisk = 'MEDIUM';
+                if (mappedDevices.some(d => d.risk.key === 'CRITICAL')) highestRisk = 'CRITICAL';
+                else if (mappedDevices.some(d => d.risk.key === 'HIGH')) highestRisk = 'HIGH';
+
+                // คัดกรองตาม Filter ปัจจุบัน
+                if (currentRiskFilter !== 'ALL') {
+                    if (currentRiskFilter === 'CRITICAL' && highestRisk !== 'CRITICAL') return;
+                    if (currentRiskFilter === 'HIGH' && highestRisk !== 'HIGH') return;
+                    if (currentRiskFilter === 'MEDIUM' && highestRisk !== 'MEDIUM') return;
+                }
+
+                const bName = room["R.LOCAT"] ? room["R.LOCAT"].trim() : "ไม่ระบุอาคารสถานที่";
+                const fName = room["R.LOF"] ? room["R.LOF"].trim() : "ไม่ระบุชั้น";
+
+                if (!buildingGroups[bName]) buildingGroups[bName] = {};
+                if (!buildingGroups[bName][fName]) buildingGroups[bName][fName] = [];
+
+                buildingGroups[bName][fName].push({
+                    room: room,
+                    img: roomImg,
+                    locLayer: locLayer,
+                    devices: mappedDevices,
+                    highestRisk: highestRisk
+                });
+            });
+
+            const sortedBuildings = Object.keys(buildingGroups).sort();
+
+            // เริ่มต้นเขียน HTML รวมถึงตารางสรุปแบบพรีเมียม (Summary Table Panel)
+            let html = `
+                <!-- 📊 ตารางแผงสรุปผลรวมด้านการประเมินความเสี่ยงและอุปกรณ์ (Summary Board) -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5 border border-pink-100 rounded-2xl p-5 bg-pink-50/25 relative overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-br from-pink-100/10 via-white/5 to-white/40 pointer-events-none"></div>
+                    
+                    <!-- ส่วนสรุปเชิงพิกัดพื้นที่ (Location Layers Checked) -->
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 relative z-10">
+                        <h4 class="text-xs font-black text-slate-800 mb-3 flex items-center gap-1.5 border-b border-pink-50 pb-2">
+                            <i class="fas fa-map-marked text-rose-500"></i>
+                            <span>สถิติตามระดับพื้นที่ติดตั้ง (Location Layers)</span>
+                        </h4>
+                        <div class="space-y-2 text-xs">
+                            <div class="flex justify-between items-center bg-emerald-50/50 p-2 rounded-lg border border-emerald-100">
+                                <span class="font-bold text-slate-600 flex items-center gap-1.5"><i class="fas fa-server text-emerald-500 text-[10px]"></i> Server Room (L1)</span>
+                                <strong class="text-sm text-emerald-700 font-mono font-black">${statTotalL1} <span class="text-[10px] text-emerald-600 font-bold">จุด</span></strong>
+                            </div>
+                            <div class="flex justify-between items-center bg-indigo-50/50 p-2 rounded-lg border border-indigo-100">
+                                <span class="font-bold text-slate-600 flex items-center gap-1.5"><i class="fas fa-door-open text-indigo-500 text-[10px]"></i> Room SW (L2)</span>
+                                <strong class="text-sm text-indigo-700 font-mono font-black">${statTotalL2} <span class="text-[10px] text-indigo-600 font-bold">จุด</span></strong>
+                            </div>
+                            <div class="flex justify-between items-center bg-amber-50/50 p-2 rounded-lg border border-amber-100">
+                                <span class="font-bold text-slate-600 flex items-center gap-1.5"><i class="fas fa-cabinet-filing text-amber-500 text-[10px]"></i> Rack SW (L3)</span>
+                                <strong class="text-sm text-amber-700 font-mono font-black">${statTotalL3} <span class="text-[10px] text-amber-600 font-bold">จุด</span></strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ส่วนสรุปเชิงประเภทอุปกรณ์สวิตช์เครือข่าย (Function Layers Checked) -->
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 relative z-10">
+                        <h4 class="text-xs font-black text-slate-800 mb-3 flex items-center gap-1.5 border-b border-pink-50 pb-2">
+                            <i class="fas fa-sitemap text-blue-500"></i>
+                            <span>สถิติตามประเภทหน้าที่ Switch (Function)</span>
+                        </h4>
+                        <div class="space-y-2 text-xs">
+                            <div class="flex justify-between items-center bg-rose-50/50 p-2 rounded-lg border border-rose-100">
+                                <span class="font-bold text-slate-600 flex items-center gap-1.5"><i class="fas fa-shield-virus text-rose-500 text-[10px]"></i> Core (CSW)</span>
+                                <strong class="text-sm text-rose-700 font-mono font-black">${statTotalCSW} <span class="text-[10px] text-rose-600 font-bold">เครื่อง</span></strong>
+                            </div>
+                            <div class="flex justify-between items-center bg-blue-50/50 p-2 rounded-lg border border-blue-100">
+                                <span class="font-bold text-slate-600 flex items-center gap-1.5"><i class="fas fa-project-diagram text-blue-500 text-[10px]"></i> Distribution (DST)</span>
+                                <strong class="text-sm text-blue-700 font-mono font-black">${statTotalDST} <span class="text-[10px] text-blue-600 font-bold">เครื่อง</span></strong>
+                            </div>
+                            <div class="flex justify-between items-center bg-cyan-50/50 p-2 rounded-lg border border-cyan-100">
+                                <span class="font-bold text-slate-600 flex items-center gap-1.5"><i class="fas fa-link text-cyan-500 text-[10px]"></i> Access (ASW)</span>
+                                <strong class="text-sm text-cyan-700 font-mono font-black">${statTotalASW} <span class="text-[10px] text-cyan-600 font-bold">เครื่อง</span></strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ส่วนสรุปผลประเมินแมทริกซ์ความเสี่ยง (Risk Matrix Results) -->
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 relative z-10">
+                        <h4 class="text-xs font-black text-slate-800 mb-3 flex items-center gap-1.5 border-b border-pink-50 pb-2">
+                            <i class="fas fa-shield-alt text-fuchsia-500"></i>
+                            <span>สรุปประเมินความเสี่ยงโครงสร้างพื้นฐาน</span>
+                        </h4>
+                        <div class="space-y-2 text-xs">
+                            <div class="flex justify-between items-center bg-red-100/60 p-2 rounded-lg border border-red-200">
+                                <span class="font-extrabold text-red-800 flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-red-500 animate-ping"></span>🔴 Critical & Violation</span>
+                                <strong class="text-sm text-red-700 font-mono font-black">${statCritical} <span class="text-[10px] text-red-600 font-bold">เครื่อง</span></strong>
+                            </div>
+                            <div class="flex justify-between items-center bg-orange-100/50 p-2 rounded-lg border border-orange-200">
+                                <span class="font-bold text-orange-800 flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-orange-500"></span>🟠 High (ความเสี่ยงสูง)</span>
+                                <strong class="text-sm text-orange-700 font-mono font-black">${statHigh} <span class="text-[10px] text-orange-600 font-bold">เครื่อง</span></strong>
+                            </div>
+                            <div class="flex justify-between items-center bg-yellow-100/50 p-2 rounded-lg border border-yellow-200">
+                                <span class="font-bold text-yellow-800 flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-yellow-400"></span>🟡 Medium (ปานกลาง)</span>
+                                <strong class="text-sm text-yellow-700 font-mono font-black">${statMedium} <span class="text-[10px] text-yellow-600 font-bold">เครื่อง</span></strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            if (sortedBuildings.length === 0) {
+                container.innerHTML = html + `
+                    <div class="text-center py-10 bg-slate-50 rounded-2xl text-slate-400 text-xs mt-4">
+                        <i class="fas fa-folder-open text-3xl mb-2 text-slate-300 block"></i>
+                        ไม่พบบันทึกสวิตช์เครือข่ายที่ตรงกับเกณฑ์การประเมินความเสี่ยงที่เลือก
+                    </div>
+                `;
+                return;
+            }
+
+            sortedBuildings.forEach(bName => {
+                const floors = buildingGroups[bName];
+                const sortedFloors = Object.keys(floors).sort();
+
+                html += `
+                    <div class="border border-slate-100 rounded-2xl overflow-hidden shadow-sm mt-4">
+                        <!-- Group header (Building) -->
+                        <div class="bg-gradient-to-br from-pink-200 via-pink-50/50 to-white px-5 py-3 border-b border-slate-100 flex items-center gap-2">
+                            <i class="fas fa-building text-pink-500 text-sm"></i>
+                            <span class="font-extrabold text-sm text-slate-800">${bName}</span>
+                        </div>
+                        <div class="p-4 space-y-4 bg-white">
+                `;
+
+                sortedFloors.forEach(fName => {
+                    const rooms = floors[fName];
+
+                    html += `
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-1.5 text-xs font-bold text-slate-400 border-b border-slate-50 pb-1">
+                                <i class="fas fa-layer-group text-slate-300"></i>
+                                <span>ชั้น ${fName}</span>
+                            </div>
+                            <div class="grid grid-cols-1 gap-3">
+                    `;
+
+                    rooms.forEach(item => {
+                        let highestRiskBadge = "";
+                        if (item.highestRisk === 'CRITICAL') {
+                            highestRiskBadge = `<span class="bg-red-500 text-white text-[10px] px-2.5 py-1 rounded-full font-black animate-pulse shadow-sm">CRITICAL RISK / VIOLATION</span>`;
+                        } else if (item.highestRisk === 'HIGH') {
+                            highestRiskBadge = `<span class="bg-orange-500 text-white text-[10px] px-2.5 py-1 rounded-full font-black shadow-sm">HIGH RISK</span>`;
+                        } else {
+                            highestRiskBadge = `<span class="bg-yellow-500 text-white text-[10px] px-2.5 py-1 rounded-full font-black shadow-sm">MEDIUM RISK</span>`;
+                        }
+
+                        // ทำให้ชื่อ (Location Layer) แสดงได้อย่างเด่นชัด ชัดเจนเป็นเป้าหลักใน Card ด้วยเส้นขอบหนา 2 ชั้นและไอคอนนำทาง
+                        const locationLayerBadge = `
+                            <span class="text-xs px-3 py-1.5 rounded-xl border-2 ${item.locLayer.colorClass} font-black flex items-center gap-1.5 shadow-sm transform hover:scale-[1.02] transition-all">
+                                <i class="fas ${item.locLayer.icon}"></i> ${item.locLayer.name}
+                            </span>
+                        `;
+
+                        html += `
+                            <div class="border border-slate-100 rounded-xl p-4 bg-slate-50/50 hover:bg-slate-50 transition duration-150 flex flex-col md:flex-row gap-4 items-start justify-between">
+                                <div class="space-y-3 min-w-0 flex-1">
+                                    <!-- Room Info & Location Layer Header -->
+                                    <div class="flex items-center flex-wrap gap-2">
+                                        <strong class="text-base text-slate-800">${item.room.RNAME}</strong>
+                                        <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-200 text-slate-600 font-bold">ID: ${item.room.ROOMID}</span>
+                                        
+                                        <!-- แสดงพิกัด Location Layer ชัดเจนโดดเด่นยิ่งขึ้น -->
+                                        ${locationLayerBadge}
+                                        
+                                        ${highestRiskBadge}
+                                    </div>
+                                    
+                                    <!-- Mapped Network Devices list with calculated risks -->
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
+                        `;
+
+                        item.devices.forEach(devMap => {
+                            const dev = devMap.device;
+                            const pioUpper = String(dev.NetworkPio || "").toUpperCase().trim();
+                            
+                            // แยกสีประเภท Switch (Function Layer) ให้สะดุดตาชัดเจน เพื่อการสังเกตการทำงานอย่างมีประสิทธิภาพ
+                            let switchBadgeStyle = "bg-slate-100 text-slate-700 border border-slate-200";
+                            let switchIcon = "fa-network-wired";
+                            
+                            if (pioUpper.includes("CSW") || pioUpper.includes("CORE")) {
+                                switchBadgeStyle = "bg-red-500 text-white border border-red-600 shadow-sm font-black";
+                                switchIcon = "fa-shield-virus";
+                            } else if (pioUpper.includes("DST")) {
+                                switchBadgeStyle = "bg-indigo-600 text-white border border-indigo-700 shadow-sm font-black";
+                                switchIcon = "fa-project-diagram";
+                            } else if (pioUpper.includes("ASW")) {
+                                switchBadgeStyle = "bg-emerald-100 text-emerald-800 border-2 border-emerald-300 font-extrabold";
+                                switchIcon = "fa-sitemap";
+                            } else if (pioUpper.includes("AP") || pioUpper.includes("WIRELESS")) {
+                                switchBadgeStyle = "bg-purple-100 text-purple-800 border border-purple-200 font-bold";
+                                switchIcon = "fa-wifi";
+                            }
+
+                            html += `
+                                <div class="bg-white border border-slate-100 rounded-xl p-3.5 flex items-center justify-between gap-2 shadow-sm hover:border-slate-200 transition-all duration-150">
+                                    <div class="min-w-0">
+                                        <!-- สัญลักษณ์ประเภทสวิตช์เครือข่ายจำแนกสีเฉพาะเพื่อสร้างความแตกต่าง -->
+                                        <span class="text-[9px] ${switchBadgeStyle} px-2 py-0.5 rounded-md font-sans inline-flex items-center gap-1 uppercase tracking-wider mb-1">
+                                            <i class="fas ${switchIcon} text-[8px]"></i>
+                                            <span>${dev.NetworkPio || 'SW'}</span>
+                                        </span>
+                                        <strong class="text-xs text-slate-800 block truncate font-bold mt-1">${dev.Hostname || 'No Hostname'}</strong>
+                                        <span class="text-[10px] text-slate-400 font-mono block truncate">${dev["IP Address"] || '-'}</span>
+                                    </div>
+                                    <div class="shrink-0 text-right space-y-1">
+                                        <span class="text-[10px] font-extrabold px-2 py-1 rounded-md border ${devMap.risk.textClass} block text-center whitespace-nowrap">
+                                            ${devMap.risk.text}
+                                        </span>
+                                        <span class="text-[8px] text-slate-400 block truncate max-w-[100px] font-bold text-center">${devMap.risk.label}</span>
+                                    </div>
+                                </div>
+                            `;
+                        });
+
+                        html += `
+                                    </div>
+                                </div>
+                                <button onclick="showRoomDetail('${item.room.ROOMID}')" class="px-3.5 py-2 bg-white hover:bg-pink-50 text-pink-600 border border-pink-100 text-xs font-black rounded-xl transition shadow-sm w-full md:w-auto shrink-0 flex items-center justify-center gap-1.5 self-center">
+                                    <i class="fas fa-search-plus"></i> ตรวจสอบ
+                                </button>
+                            </div>
+                        `;
+                    });
+
+                    html += `
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += `
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
         }
 
         // ==========================================
@@ -1230,6 +1689,7 @@
 
         function displayRoomDetail(room, supportList, networkList) {
             document.getElementById('subview_surveyList').classList.add('hidden');
+            document.getElementById('subview_dashboard').classList.add('hidden');
             document.getElementById('subview_roomDetail').classList.remove('hidden');
 
             document.getElementById('detail_ROOMTYP').innerText = room.ROOMTYP || 'ไม่ได้ระบุ';
@@ -1305,32 +1765,42 @@
                 return;
             }
 
+            // จัดกลุ่มอุปกรณ์ตาม CARUTYPE (เช่น CH001, CH002) เป็นหลัก
             const grouped = {};
             list.forEach(item => {
-                let groupName = item.CrutypeName || item.CARUTYPE || 'ไม่ได้ระบุกลุ่ม';
-                if (!grouped[groupName]) grouped[groupName] = [];
-                grouped[groupName].push(item);
+                let groupKey = item.CARUTYPE || item.CrutypeName || 'CH999';
+                if (!grouped[groupKey]) grouped[groupKey] = [];
+                grouped[groupKey].push(item);
             });
 
-            function getGroupInfo(name) {
-                const n = name.toUpperCase();
-                if (n.includes('CH001')) return { bg: 'bg-gradient-to-r from-indigo-500 to-blue-600', text: 'text-indigo-700', border: 'border-t-4 border-t-indigo-500', badge: 'bg-indigo-100', icon: 'fa-desktop', desc: 'ระบบควบคุมการทำงานภายในห้อง' };
-                if (n.includes('CH002')) return { bg: 'bg-gradient-to-r from-yellow-500 to-amber-600', text: 'text-yellow-700', border: 'border-t-4 border-t-yellow-500', badge: 'bg-yellow-100', icon: 'fa-bolt', desc: 'ระบบไฟฟ้าหลัก' };
-                if (n.includes('CH003')) return { bg: 'bg-gradient-to-r from-slate-600 to-slate-800', text: 'text-slate-700', border: 'border-t-4 border-t-slate-700', badge: 'bg-slate-200', icon: 'fa-server', desc: 'ตู้จัดเก็บอุปกรณ์เครือข่าย / Rack' };
-                if (n.includes('CH004')) return { bg: 'bg-gradient-to-r from-orange-500 to-amber-500', text: 'text-orange-700', border: 'border-t-4 border-t-orange-500', badge: 'bg-orange-100', icon: 'fa-car-battery', desc: 'เครื่องสำรองไฟ / UPS' };
-                if (n.includes('CH005')) return { bg: 'bg-gradient-to-r from-cyan-500 to-blue-500', text: 'text-cyan-700', border: 'border-t-4 border-t-cyan-500', badge: 'bg-cyan-100', icon: 'fa-snowflake', desc: 'ระบบควบคุมอุณภูมิและความชื้น' };
-                if (n.includes('CH006')) return { bg: 'bg-gradient-to-r from-slate-500 to-gray-600', text: 'text-slate-700', border: 'border-t-4 border-t-slate-500', badge: 'bg-slate-200', icon: 'fa-building', desc: 'ตัวห้อง / ตำแหน่งที่ตั้ง / โครงสร้าง' };
-                return { bg: 'bg-gradient-to-r from-pink-500 to-rose-500', text: 'text-pink-700', border: 'border-t-4 border-t-pink-500', badge: 'bg-pink-100', icon: 'fa-plug', desc: 'อุปกรณ์สนับสนุนอื่นๆ' };
-            }
+            // ตารางจับคู่โค้ด CARUTYPE กับหัวข้อภาษาไทยและไอคอน
+            const supportHeaderMap = {
+                "CH001": { title: "ระบบควบคุมการทำงานภายในห้อง (Monitoring & Control Environment)", icon: "fa-desktop", color: "border-t-indigo-500", bg: "bg-indigo-500" },
+                "CH002": { title: "ระบบไฟฟ้าหลัก (Main Electrical System)", icon: "fa-bolt", color: "border-t-amber-500", bg: "bg-amber-500" },
+                "CH003": { title: "ตู้จัดเก็บอุปกรณ์เครือข่าย / Rack", icon: "fa-box-open", color: "border-t-slate-700", bg: "bg-slate-700" },
+                "CH004": { title: "เครื่องสำรองไฟ / UPS", icon: "fa-car-battery", color: "border-t-orange-500", bg: "bg-orange-500" },
+                "CH005": { title: "ระบบควบคุมอุณภูมิและความชื้น / Air Conditioning", icon: "fa-snowflake", color: "border-t-cyan-500", bg: "bg-cyan-500" },
+                "CH006": { title: "ตัวห้อง / ตำแหน่งที่ตั้ง / โครงสร้าง", icon: "fa-door-open", color: "border-t-emerald-500", bg: "bg-emerald-500" },
+                "DEFAULT": { title: "อุปกรณ์สนับสนุนอื่นๆ", icon: "fa-plug", color: "border-t-pink-500", bg: "bg-pink-500" }
+            };
 
-            Object.keys(grouped).sort().forEach((gName, index) => {
-                const items = grouped[gName];
-                const info = getGroupInfo(gName);
+            // แสดงกลุ่มเรียงตามรหัส CH001 - CH006
+            const sortedGroupKeys = Object.keys(grouped).sort();
+
+            sortedGroupKeys.forEach((gKey, index) => {
+                const items = grouped[gKey];
+                const info = supportHeaderMap[gKey] || {
+                    title: items[0].CrutypeName || "อุปกรณ์สนับสนุนอื่นๆ",
+                    icon: "fa-plug",
+                    color: "border-t-pink-500",
+                    bg: "bg-pink-500"
+                };
+
                 const groupId = `grp-sup-${index}`;
                 const iconId = `icon-sup-${index}`;
 
                 const groupDiv = document.createElement('div');
-                groupDiv.className = `bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm relative ${info.border}`;
+                groupDiv.className = `bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm relative border-t-4 ${info.color}`;
                 
                 let html = `
                     <div class="absolute top-0 right-0 w-16 h-16 bg-pink-400/10 rounded-full blur-2xl pointer-events-none -mr-4 -mt-4"></div>
@@ -1341,12 +1811,12 @@
                                 <i class="fas ${info.icon} text-lg"></i>
                             </div>
                             <div>
-                                <h4 class="font-black text-gray-800 text-sm md:text-base pr-2">${gName}</h4>
-                                <p class="text-[11px] md:text-xs text-gray-500 font-medium mt-0.5">${info.desc}</p>
+                                <h4 class="font-black text-gray-800 text-sm md:text-base pr-2">${info.title}</h4>
+                                <p class="text-[11px] md:text-xs text-slate-500 font-bold mt-0.5">รหัสจัดหมวดหมู่: ${gKey}</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-3 pl-2 shrink-0">
-                            <span class="bg-white border border-gray-200 text-gray-600 px-3 py-1 rounded-lg text-xs font-bold shadow-sm whitespace-nowrap">${items.length} ชิ้น</span>
+                            <span class="bg-white border border-gray-200 text-gray-600 px-3 py-1 rounded-lg text-xs font-bold shadow-sm whitespace-nowrap">ทั้งหมด ${items.length} รายการ</span>
                             <i id="${iconId}" class="fas fa-chevron-up text-gray-400 w-4 text-center"></i>
                         </div>
                     </button>
@@ -1365,7 +1835,7 @@
                             <div class="flex-1 min-w-0 space-y-1.5 relative z-10">
                                 <div class="flex justify-between items-start gap-2">
                                     <div>
-                                        <span class="text-[10px] ${info.badge} ${info.text} font-extrabold px-2 py-0.5 rounded-md uppercase line-clamp-1">${item.CrutypeName || 'Support'}</span>
+                                        <span class="text-[10px] bg-slate-100 text-slate-700 border border-slate-200 font-extrabold px-2 py-0.5 rounded-md uppercase line-clamp-1">${item.CrutypeName || 'Support'}</span>
                                         <h4 class="font-bold text-gray-800 text-sm mt-1 truncate">${item.CaruName || 'ไม่ได้ระบุชื่ออุปกรณ์'}</h4>
                                     </div>
                                     <span class="text-[10px] font-extrabold ${item.STATUS === 'ใช้งาน' ? 'text-emerald-500' : 'text-amber-500'} bg-gray-50 border border-gray-100 px-1.5 py-0.5 rounded shrink-0">${item.STATUS || '-'}</span>
@@ -1416,7 +1886,7 @@
                 grouped[pio].push(item);
             });
 
-            // การใช้ networkMapping (ที่ประกาศไว้ด้านบนใน Global Scope แล้ว)
+            // เรียงลำดับคีย์ของกลุ่ม Network Devices ตามลำดับความสำคัญ (order) ใน networkMapping
             const sortedKeys = Object.keys(grouped).sort((a, b) => {
                 const orderA = networkMapping[a] ? networkMapping[a].order : networkMapping['DEFAULT'].order;
                 const orderB = networkMapping[b] ? networkMapping[b].order : networkMapping['DEFAULT'].order;
@@ -1446,7 +1916,7 @@
                             </div>
                         </div>
                         <div class="flex items-center gap-3 pl-2 shrink-0">
-                            <span class="bg-white border border-gray-200 text-gray-600 px-3 py-1 rounded-lg text-xs font-bold shadow-sm whitespace-nowrap">${items.length} ชิ้น</span>
+                            <span class="bg-white border border-gray-200 text-gray-600 px-3 py-1 rounded-lg text-xs font-bold shadow-sm whitespace-nowrap">ทั้งหมด ${items.length} รายการ</span>
                             <i id="${iconId}" class="fas fa-chevron-up text-gray-400 w-4 text-center"></i>
                         </div>
                     </button>
@@ -1747,7 +2217,7 @@
         }
 
         // ==========================================
-        // DEVICE SPEC DETAIL MODAL (MISSING FUNCTIONS IN PREVIOUS ITERATION FIX)
+        // DEVICE SPEC DETAIL MODAL
         // ==========================================
         function showDeviceDetail(type, item) {
             const modal = document.getElementById('deviceDetailModal');
