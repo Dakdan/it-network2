@@ -1986,7 +1986,7 @@
                 </div>
             `;
 
-            callBackend("search", { query: query }, function(res) {
+            callBackend("getAllData", { query: query }, function(res) {
                 if (res.status === "success" && res.data) {
                     displayModalSearchResults(res.data, type);
                 } else {
