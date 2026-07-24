@@ -540,17 +540,18 @@
                                 <input type="hidden" name="Label_Name" id="input_Label_Name" value="">
                             </div>
 
+                            <!-- 📍 Dropdown ใหม่ที่ใช้ข้อความสะอาดตามคำขอ -->
                             <div>
                                 <label class="block text-gray-600 font-bold mb-1 text-sm">กลุ่มประเภทอุปกรณ์</label>
-                                <select name="CrutypeName" id="input_CrutypeName" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-pink-300 font-bold">
+                                <select name="CARUTYPE" id="input_CrutypeName" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-pink-300 font-bold">
                                     <option value="" disabled selected>-- เลือกกลุ่มประเภทอุปกรณ์ --</option>
-                                    <option value="CH001">ระบบควบคุมการทำงานภายในห้อง (CH001)</option>
-                                    <option value="CH002">ระบบไฟฟ้าหลัก (CH002)</option>
-                                    <option value="CH003">ตู้จัดเก็บอุปกรณ์เครือข่าย / Rack (CH003)</option>
-                                    <option value="CH004">เครื่องสำรองไฟ / UPS (CH004)</option>
-                                    <option value="CH005">ระบบควบคุมอุณภูมิและความชื้น (CH005)</option>
-                                    <option value="CH006">ตัวห้อง / ตำแหน่งที่ตั้ง (CH006)</option>
-                                    <option value="DEFAULT">อุปกรณ์สนับสนุนอื่นๆ (DEFAULT)</option>
+                                    <option value="CH001">ระบบควบคุมการทำงานภายในห้อง (Monitoring & Control Environment)</option>
+                                    <option value="CH002">ระบบไฟฟ้าหลัก (Main Electrical System)</option>
+                                    <option value="CH003">ตู้จัดเก็บอุปกรณ์เครือข่าย / Rack</option>
+                                    <option value="CH004">เครื่องสำรองไฟ / UPS</option>
+                                    <option value="CH005">ระบบปรับอากาศ / Air Conditioning</option>
+                                    <option value="CH006">ตัวห้อง / ตำแหน่งที่ตั้ง / โครงสร้าง</option>
+                                    <option value="DEFAULT">อุปกรณ์สนับสนุนอื่นๆ</option>
                                 </select>
                             </div>
 
@@ -864,6 +865,17 @@
         let qrScannerTargetType = null; 
         let currentRiskFilter = 'ALL'; // ฟิลเตอร์ระบายความเสี่ยง (ALL, CRITICAL, HIGH, MEDIUM)
 
+        // 🌟 ประกาศตัวแปร mapping กลุ่มประเภทอุปกรณ์สนับสนุน (Support) ให้เป็น Global Scope เพื่อใช้ตอนบันทึกข้อมูล
+        const supportTypeMap = {
+            "CH001": "ระบบควบคุมการทำงานภายในห้อง (Monitoring & Control Environment)",
+            "CH002": "ระบบไฟฟ้าหลัก (Main Electrical System)",
+            "CH003": "ตู้จัดเก็บอุปกรณ์เครือข่าย / Rack",
+            "CH004": "เครื่องสำรองไฟ / UPS",
+            "CH005": "ระบบปรับอากาศ / Air Conditioning",
+            "CH006": "ตัวห้อง / ตำแหน่งที่ตั้ง / โครงสร้าง",
+            "DEFAULT": "อุปกรณ์สนับสนุนอื่นๆ"
+        };
+
         // 🌟 ประกาศตัวแปร networkMapping ใน Global Scope ให้เรียกใช้ได้ตลอดเวลา
         const networkMapping = {
             "Web Application Firewall (Project Cyber Security)": { order: 1, bg: 'bg-gradient-to-r from-rose-500 to-pink-600', border: 'border-t-4 border-t-rose-500', text: 'text-rose-700', badge: 'bg-rose-100', icon: 'fa-shield-virus', desc: 'ระบบป้องกันเว็บแอปพลิเคชัน' },
@@ -978,14 +990,21 @@
             
             fetch(APPS_SCRIPT_URL, {
                 method: "POST",
-                mode: "cors",
+                redirect: "follow", // ป้องกันปัญหา Redirect
                 headers: { "Content-Type": "text/plain;charset=utf-8" },
                 body: JSON.stringify(payload)
             })
-            .then(res => res.json())
-            .then(data => {
+            .then(res => res.text()) // รับเป็น text เพื่อจับ Error Message ได้ชัดเจน
+            .then(text => {
                 hideLoader();
-                if (onSuccess) onSuccess(data);
+                try {
+                    const data = JSON.parse(text);
+                    if (onSuccess) onSuccess(data);
+                } catch (e) {
+                    console.error("Invalid JSON response:", text);
+                    if (onError) onError(e);
+                    else Swal.fire('เชื่อมต่อล้มเหลว', 'รูปแบบข้อมูลจาก Server ไม่ถูกต้อง (อาจเกิดจากสิทธิ์การแชร์ Google Sheet)', 'error');
+                }
             })
             .catch(err => {
                 hideLoader();
@@ -1652,16 +1671,20 @@
         // ROOM DETAIL LOGICS
         // ==========================================
         function showRoomDetail(roomId) {
-            currentRoomId = roomId;
-            callBackend("getRoomDetail", { roomId: roomId }, function(res) {
-                if (res && (res.status === "success" || res.data || res.room)) {
-                    const roomData = res.data || res;
-                    const room = roomData.room || roomData.roomDetail || {};
-                    const supports = roomData.supportingComponents || roomData.supports || [];
-                    const networks = roomData.networkDevices || roomData.networks || [];
+            currentRoomId = String(roomId).trim(); // ตัดช่องว่างส่วนเกินทิ้งเสมอ
+            
+            callBackend("getRoomDetail", { roomId: currentRoomId }, function(res) {
+                if (res && res.status === "success") {
+                    const dataObj = res.data || res;
+                    const room = dataObj.room || dataObj.roomDetail || {};
+                    const supports = dataObj.supportingComponents || dataObj.supports || [];
+                    const networks = dataObj.networkDevices || dataObj.networks || [];
+                    
                     displayRoomDetail(room, supports, networks);
                 } else {
-                    Swal.fire('ข้อผิดพลาด', 'ดึงข้อมูลพิกัดห้องล้มเหลว', 'error');
+                    // 📍 ดึง Error จริงๆ จาก Backend (code.gs) มาโชว์ จะได้รู้ว่าทำไมถึงหาห้องไม่เจอ
+                    const errorMsg = (res && res.message) ? res.message : 'ดึงข้อมูลพิกัดห้องล้มเหลว';
+                    Swal.fire('พบปัญหาการดึงข้อมูล', errorMsg, 'warning');
                 }
             });
         }
@@ -1749,12 +1772,12 @@
             });
 
             const supportHeaderMap = {
-                "CH001": { title: "ระบบควบคุมการทำงานภายในห้อง", icon: "fa-desktop", color: "border-t-indigo-500", bg: "bg-indigo-500" },
-                "CH002": { title: "ระบบไฟฟ้าหลัก", icon: "fa-bolt", color: "border-t-amber-500", bg: "bg-amber-500" },
+                "CH001": { title: "ระบบควบคุมการทำงานภายในห้อง (Monitoring & Control Environment)", icon: "fa-desktop", color: "border-t-indigo-500", bg: "bg-indigo-500" },
+                "CH002": { title: "ระบบไฟฟ้าหลัก (Main Electrical System)", icon: "fa-bolt", color: "border-t-amber-500", bg: "bg-amber-500" },
                 "CH003": { title: "ตู้จัดเก็บอุปกรณ์เครือข่าย / Rack", icon: "fa-box-open", color: "border-t-slate-700", bg: "bg-slate-700" },
                 "CH004": { title: "เครื่องสำรองไฟ / UPS", icon: "fa-car-battery", color: "border-t-orange-500", bg: "bg-orange-500" },
-                "CH005": { title: "ระบบควบคุมอุณภูมิและความชื้น", icon: "fa-snowflake", color: "border-t-cyan-500", bg: "bg-cyan-500" },
-                "CH006": { title: "ตัวห้อง / ตำแหน่งที่ตั้ง", icon: "fa-door-open", color: "border-t-emerald-500", bg: "bg-emerald-500" },
+                "CH005": { title: "ระบบปรับอากาศ / Air Conditioning", icon: "fa-snowflake", color: "border-t-cyan-500", bg: "bg-cyan-500" },
+                "CH006": { title: "ตัวห้อง / ตำแหน่งที่ตั้ง / โครงสร้าง", icon: "fa-door-open", color: "border-t-emerald-500", bg: "bg-emerald-500" },
                 "DEFAULT": { title: "อุปกรณ์สนับสนุนอื่นๆ", icon: "fa-plug", color: "border-t-pink-500", bg: "bg-pink-500" }
             };
 
@@ -1927,8 +1950,9 @@
             
             document.getElementById('form_type').value = type;
             document.getElementById('form_mode').value = mode;
+            document.getElementById('form_roomId').value = currentRoomId;
 
-            // โหลดข้อมูล getAllData มาเตรียมไว้ล่วงหน้าอย่างถูกต้องแม่นยำ
+            // โหลดข้อมูล getAllData มาเตรียมไว้ล่วงหน้า
             if (!window.cachedAllAssets || window.cachedAllAssets.length === 0) {
                 callBackend("getAllData", {}, function(res) {
                     if (res && res.status === "success") {
@@ -1974,17 +1998,16 @@
                     document.getElementById('input_CaruName').value = data.CaruName || '';
                     
                     // แปลงค่าข้อความเดิมจาก Database ให้ตรงกับ Dropdown (CH001-CH006) เพื่อให้ไม่โชว์ค่าว่าง
-                    let rawType = data.CARUTYPE || data.CrutypeName || '';
-                    let matchedGroup = "";
+                    let rawType = String(data.CARUTYPE || data.CrutypeName || '').trim();
+                    let matchedGroup = "DEFAULT";
                     if (rawType.includes("CH001") || rawType.includes("ควบคุมการทำงาน")) matchedGroup = "CH001";
                     else if (rawType.includes("CH002") || rawType.includes("ไฟฟ้าหลัก")) matchedGroup = "CH002";
                     else if (rawType.includes("CH003") || rawType.toUpperCase().includes("RACK") || rawType.includes("ตู้")) matchedGroup = "CH003";
                     else if (rawType.includes("CH004") || rawType.toUpperCase().includes("UPS") || rawType.includes("สำรองไฟ")) matchedGroup = "CH004";
-                    else if (rawType.includes("CH005") || rawType.includes("อุณหภูมิ") || rawType.includes("ความชื้น") || rawType.includes("แอร์")) matchedGroup = "CH005";
-                    else if (rawType.includes("CH006") || rawType.includes("ห้อง") || rawType.includes("ตำแหน่ง")) matchedGroup = "CH006";
-                    else if (rawType) matchedGroup = "DEFAULT";
+                    else if (rawType.includes("CH005") || rawType.includes("ปรับอากาศ") || rawType.includes("แอร์") || rawType.includes("อุณหภูมิ")) matchedGroup = "CH005";
+                    else if (rawType.includes("CH006") || rawType.includes("ห้อง") || rawType.includes("ตำแหน่ง") || rawType.includes("โครงสร้าง")) matchedGroup = "CH006";
                     
-                    document.getElementById('input_CrutypeName').value = matchedGroup || '';
+                    document.getElementById('input_CrutypeName').value = matchedGroup;
                     
                     document.getElementById('input_STATUS_support').value = data.STATUS || 'ใช้งาน';
                     document.getElementById('input_BandName').value = data.BandName || '';
@@ -2427,10 +2450,25 @@
 
         function onQrScanSuccess(decodedText) {
             let cleanVal = String(decodedText).trim();
+            
+            // 1. ตัด link URL ออกให้เหลือแต่ส่วนท้าย
+            if (cleanVal.includes('http://') || cleanVal.includes('https://')) {
+                let parts = cleanVal.split(/[\/\?=\&]+/);
+                cleanVal = parts.pop(); 
+                if (!cleanVal && parts.length > 0) cleanVal = parts.pop(); // กันกรณีมี / ต่อท้ายสุด
+            }
+            
+            // 2. ใช้ Regex ดึงเฉพาะตัวเลข นำหน้า และอาจมีตัวอักษรไทย/อังกฤษต่อท้าย
+            let match = cleanVal.match(/([0-9]+[a-zA-Zก-ฮ]*)/);
+            if (match) {
+                cleanVal = match[1];
+            }
+
             const inputField = document.getElementById('input_Asset_ID_' + qrScannerTargetType);
             
             if (inputField) {
                 inputField.value = cleanVal;
+                // สั่งให้ระบบ Auto-complete ค้นหาทำงานทันทีด้วยค่าที่กรองแล้ว
                 handleModalSearchTyping(cleanVal, qrScannerTargetType);
             }
 
@@ -2439,14 +2477,14 @@
                 toast: true,
                 position: 'top-end',
                 icon: 'success',
-                title: 'สแกนรหัสเสร็จสิ้น: ' + cleanVal,
+                title: 'สแกนรหัสสำเร็จ: ' + cleanVal,
                 showConfirmButton: false,
                 timer: 2000
             });
         }
 
         function onQrScanFailure(error) {
-            // ปล่อยผ่านเป็นความถี่การจับภาพล้มเหลวปกติ
+            // ซ่อน error ธรรมดาเพื่อไม่ให้รบกวนการทำงาน
         }
 
         // ==========================================
@@ -2461,43 +2499,50 @@
 
             if (type === 'support') {
                 deviceId = document.getElementById('form_NOID').value;
-                confirmTitle = "ต้องการลบอุปกรณ์สนับสนุนชิ้นนี้ใช่หรือไม่?";
+                confirmTitle = "ต้องการนำอุปกรณ์สนับสนุนชิ้นนี้ออกจากพิกัดห้องใช่หรือไม่?";
             } else {
                 deviceId = document.getElementById('form_NSWNO').value;
-                confirmTitle = "ต้องการลบอุปกรณ์เครือข่ายสวิตช์ชิ้นนี้ใช่หรือไม่?";
+                confirmTitle = "ต้องการนำอุปกรณ์เครือข่ายสวิตช์ชิ้นนี้ออกจากพิกัดห้องใช่หรือไม่?";
             }
 
             Swal.fire({
-                title: 'ยืนยันลบข้อมูล',
+                title: 'ยืนยันนำออก',
                 text: confirmTitle,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#f43f5e',
                 cancelButtonColor: '#64748b',
-                confirmButtonText: 'ใช่, ฉันต้องการลบ!',
+                confirmButtonText: 'ใช่, นำออก!',
                 cancelButtonText: 'ยกเลิก'
             }).then((result) => {
                 if (result.isConfirmed) {
+                    // ใช้ mode: 'edit' เพื่ออัปเดตแถวเดิม แต่ปรับ Location และ ROOMID ให้เป็นค่าว่างเพื่อนำออกจากห้อง
                     const payload = {
                         type: type,
-                        mode: 'delete',
-                        roomId: roomId
+                        mode: 'edit',
+                        roomId: "",      // เคลียร์ค่าตัวแปรหลัก
+                        Location: "",    // เคลียร์พิกัด
+                        ROOMID: "",      // เคลียร์รหัสห้อง
+                        RNAME: ""        // เคลียร์ชื่อห้อง
                     };
+                    
                     if (type === 'support') {
                         payload.NOID = deviceId;
+                        payload.STATUS = "ยกเลิก/ย้าย";
                     } else {
                         payload.NSWNO = deviceId;
+                        payload.Note = "ถูกนำออกจากพิกัด";
                     }
 
                     callBackend("saveDevice", payload, function(res) {
                         if (res.status === "success") {
-                            Swal.fire('ดำเนินการลบข้อมูลสำเร็จ', 'ข้อมูลถูกตัดออกระบบฐานข้อมูลชีทแล้ว', 'success').then(() => {
+                            Swal.fire('ดำเนินการสำเร็จ', 'นำอุปกรณ์ออกจากพิกัดจุดติดตั้งเรียบร้อยแล้ว', 'success').then(() => {
                                 closeEditModal();
                                 showRoomDetail(roomId);
                                 loadInitialData();
                             });
                         } else {
-                            Swal.fire('ผิดพลาด', res.message || 'ไม่สามารถลบข้อมูลอุปกรณ์ได้', 'error');
+                            Swal.fire('ผิดพลาด', res.message || 'ไม่สามารถนำข้อมูลออกได้', 'error');
                         }
                     });
                 }
@@ -2514,11 +2559,17 @@
             const type = document.getElementById('form_type').value;
             const mode = document.getElementById('form_mode').value;
             const roomId = document.getElementById('form_roomId').value;
+            
+            // อ่านค่าชื่อห้องจากหน้า UI ปัจจุบันเพื่อบังคับบันทึกลงชีทให้สถานที่ถูกต้องเสมอ
+            const rNameText = document.getElementById('detail_RNAME').innerText || "";
 
             const payload = {
                 type: type,
                 mode: mode,
-                roomId: roomId
+                roomId: roomId,
+                Location: roomId, 
+                ROOMID: roomId,
+                RNAME: rNameText 
             };
 
             if (type === 'support') {
@@ -2526,16 +2577,23 @@
                 payload.Asset_ID = document.getElementById('input_Asset_ID_support').value;
                 payload.CaruName = document.getElementById('input_CaruName').value;
                 payload.Label_Name = document.getElementById('input_Label_Name').value;
-                payload.CrutypeName = document.getElementById('input_CrutypeName').value;
+                
+                // ควบคุมการบันทึกรหัสลง CARUTYPE และ ชื่อไทยลง CrutypeName อย่างเด็ดขาด
+                const selectedCode = document.getElementById('input_CrutypeName').value;
+                payload.CARUTYPE = selectedCode;
+                payload.CrutypeName = supportTypeMap[selectedCode] || "อุปกรณ์สนับสนุนอื่นๆ";
+                
                 payload.STATUS = document.getElementById('input_STATUS_support').value;
                 payload.BandName = document.getElementById('input_BandName').value;
                 payload.MODEL = document.getElementById('input_MODEL').value;
                 payload.Age = document.getElementById('input_Age_support').value;
                 
+                // รองรับการรับค่ารูปภาพ (Base64) หรือ FileID จาก Google Drive (Note9) ให้ไปถึง Backend เพื่อบันทึกลงชีท
                 if (selectedImageData.support) {
                     payload.imageBase64 = selectedImageData.support.base64;
                     payload.mimeType = selectedImageData.support.mimeType;
                     payload.PIC = selectedImageData.support.fileName;
+                    payload.Note9 = ""; 
                 } else {
                     const fileId = document.getElementById('input_Note9').value.trim();
                     payload.Note9 = fileId;
@@ -2557,10 +2615,12 @@
                 payload.Password = document.getElementById('input_Password').value;
                 payload.Note = document.getElementById('input_Note').value;
                 
+                // รองรับการรับค่ารูปภาพ (Base64) หรือ FileID จาก Google Drive (Note8) ให้ไปถึง Backend เพื่อบันทึกลงชีท
                 if (selectedImageData.network) {
                     payload.imageBase64 = selectedImageData.network.base64;
                     payload.mimeType = selectedImageData.network.mimeType;
                     payload.PIC = selectedImageData.network.fileName;
+                    payload.Note8 = "";
                 } else {
                     const fileId = document.getElementById('input_Note8').value.trim();
                     payload.Note8 = fileId;
