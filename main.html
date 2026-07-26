@@ -584,8 +584,8 @@
                                 <div class="flex flex-col md:flex-row gap-4 items-start">
                                     <div class="flex-1 w-full space-y-3">
                                         <input type="hidden" name="Note9" id="input_Note9">
-                                        <!-- อนุญาตให้เลือกไฟล์ภาพ หรือถ่ายรูปผ่านกล้องได้ทันที -->
-                                        <input type="file" id="file_support" accept="image/*" capture="environment" onchange="handleImageSelection(event, 'support')" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100 transition cursor-pointer">
+                                        <!-- เอา capture="environment" ออก เพื่อให้มือถือเด้งเมนูให้เลือกว่าจะถ่ายรูปใหม่ หรือเลือกจากคลังภาพ/ไฟล์ -->
+                                        <input type="file" id="file_support" accept="image/*" onchange="handleImageSelection(event, 'support')" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100 transition cursor-pointer">
                                         <button type="button" onclick="clearImage('support')" class="text-xs bg-white border border-gray-300 text-red-600 px-3 py-1.5 rounded-lg hover:bg-red-50 font-bold flex items-center transition shadow-sm">
                                             <i class="fas fa-trash-alt mr-1"></i> ลบรูปถ่ายที่เลือกไว้
                                         </button>
@@ -672,8 +672,8 @@
                                 <div class="flex flex-col md:flex-row gap-4 items-start">
                                     <div class="flex-1 w-full space-y-3">
                                         <input type="hidden" name="Note8" id="input_Note8">
-                                        <!-- อนุญาตให้เลือกไฟล์ภาพ หรือถ่ายรูปผ่านกล้องได้ทันที -->
-                                        <input type="file" id="file_network" accept="image/*" capture="environment" onchange="handleImageSelection(event, 'network')" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100 transition cursor-pointer">
+                                        <!-- เอา capture="environment" ออก เพื่อให้มือถือเด้งเมนูให้เลือกว่าจะถ่ายรูปใหม่ หรือเลือกจากคลังภาพ/ไฟล์ -->
+                                        <input type="file" id="file_network" accept="image/*" onchange="handleImageSelection(event, 'network')" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100 transition cursor-pointer">
                                         <button type="button" onclick="clearImage('network')" class="text-xs bg-white border border-gray-300 text-red-600 px-3 py-1.5 rounded-lg hover:bg-red-50 font-bold flex items-center transition shadow-sm">
                                             <i class="fas fa-trash-alt mr-1"></i> ลบรูปถ่ายที่เลือกไว้
                                         </button>
