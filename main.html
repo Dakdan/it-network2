@@ -2088,6 +2088,8 @@
             }
 
             const qStr = query.toLowerCase().trim();
+            const cleanQuery = qStr.replace(/-/g, ''); // 📍 ตัดเครื่องหมาย - ออกจากคำค้นหา เพื่อให้เทียบตัวเลขได้ยืดหยุ่นขึ้น
+            
             dropdown.classList.remove('hidden');
             dropdown.classList.add('flex');
 
@@ -2095,12 +2097,21 @@
             if (window.cachedAllAssets && Array.isArray(window.cachedAllAssets)) {
                 matches = window.cachedAllAssets.filter(item => {
                     const detail = item.Asset_Detail || item.rawData || item;
+                    
                     const assetId = String(item.Asset_ID || item.AssetID || detail.Asset_ID || detail.AssetID || "").toLowerCase();
+                    const cleanAssetId = assetId.replace(/-/g, ''); // 📍 ตัดเครื่องหมาย - ออกจากรหัสในฐานข้อมูลก่อนเทียบ
+                    
                     const serial = String(item.Serial || detail.Serial || "").toLowerCase();
+                    const cleanSerial = serial.replace(/-/g, ''); // 📍 ตัดเครื่องหมาย - ออกจาก Serial
+                    
                     const name = String(item.CaruName || detail['Asset_Name & Detail'] || "").toLowerCase();
                     const typeGroup = String(item.Asset_Type_Group || detail.Asset_Type_Group || "").toLowerCase();
                     
-                    return assetId.includes(qStr) || serial.includes(qStr) || name.includes(qStr) || typeGroup.includes(qStr);
+                    // 📍 ค้นหาโดยเทียบแบบตัดขีด (-) ออกสำหรับรหัส หรือเทียบคำค้นหาปกติสำหรับชื่อ
+                    return cleanAssetId.includes(cleanQuery) || 
+                           cleanSerial.includes(cleanQuery) || 
+                           name.includes(qStr) || 
+                           typeGroup.includes(qStr);
                 });
             }
 
